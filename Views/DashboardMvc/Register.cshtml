@@ -1,0 +1,160 @@
+﻿@model LibraryManagementSystem.Models.ViewModel.RegisterRequest
+
+@{
+    ViewBag.Title = "Register";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header text-center rounded-top-4" style="background-color:#F7D9E3;">
+                    <h4 class="mb-0" style="color:#7A4E60;">Registrasi Member</h4>
+                    <small class="text-muted">Daftar akun member perpustakaan</small>
+                </div>
+
+                <div class="card-body p-4">
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger rounded-3">
+                            @TempData["Error"]
+                        </div>
+                    }
+
+                    @using (Html.BeginForm("Register", "AuthMvc", FormMethod.Post, new { id = "registerForm" }))
+                    {
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+                        <div class="mb-3">
+                            <label class="form-label">Nama Lengkap</label>
+                            @Html.TextBoxFor(m => m.FullName, new { @class = "form-control", placeholder = "Masukkan nama lengkap" })
+                            @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "contoh: nabila_07" })
+                            @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+
+                            @Html.TextBoxFor(m => m.Email, new
+                            {
+                                @class = "form-control",
+                                id = "Email",
+                                placeholder = "contoh: monica07 lalu ketik @g"
+                            })
+
+                            @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
+
+                            <small class="text-muted">
+                                Ketik <b>@@g</b> untuk gmail, <b>@@y</b> untuk yahoo, atau <b>@@e</b> untuk email.com.
+                            </small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "6-15 karakter, huruf kecil dan angka" })
+                            @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Alamat</label>
+                            @Html.TextAreaFor(m => m.Address, new { @class = "form-control", rows = "3", placeholder = "Masukkan alamat" })
+                            @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Kelas</label>
+                            @Html.TextBoxFor(m => m.ClassName, new { @class = "form-control", placeholder = "Contoh: TI-2A" })
+                            @Html.ValidationMessageFor(m => m.ClassName, "", new { @class = "text-danger small" })
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill">
+                            Register
+                        </button>
+                    }
+
+                    <div class="text-center mt-3">
+                        <small>Sudah punya akun?</small>
+                        <a href="@Url.Action("Login", "AuthMvc")">Login di sini</a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        const emailInput = document.getElementById("Email");
+        const at = String.fromCharCode(64);
+
+        emailInput.addEventListener("input", function () {
+            let value = emailInput.value.trim().toLowerCase();
+
+            if (value.endsWith(at + "g")) {
+                emailInput.value = value.substring(0, value.length - 2) + at + "gmail.com";
+                moveCursorToEnd(emailInput);
+                return;
+            }
+
+            if (value.endsWith(at + "gm")) {
+                emailInput.value = value.substring(0, value.length - 3) + at + "gmail.com";
+                moveCursorToEnd(emailInput);
+                return;
+            }
+
+            if (value.endsWith(at + "gmail")) {
+                emailInput.value = value.substring(0, value.length - 6) + at + "gmail.com";
+                moveCursorToEnd(emailInput);
+                return;
+            }
+
+            if (value.endsWith(at + "y")) {
+                emailInput.value = value.substring(0, value.length - 2) + at + "yahoo.com";
+                moveCursorToEnd(emailInput);
+                return;
+            }
+
+            if (value.endsWith(at + "ya")) {
+                emailInput.value = value.substring(0, value.length - 3) + at + "yahoo.com";
+                moveCursorToEnd(emailInput);
+                return;
+            }
+
+            if (value.endsWith(at + "yahoo")) {
+                emailInput.value = value.substring(0, value.length - 6) + at + "yahoo.com";
+                moveCursorToEnd(emailInput);
+                return;
+            }
+
+            if (value.endsWith(at + "e")) {
+                emailInput.value = value.substring(0, value.length - 2) + at + "email.com";
+                moveCursorToEnd(emailInput);
+                return;
+            }
+
+            if (value.endsWith(at + "email")) {
+                emailInput.value = value.substring(0, value.length - 6) + at + "email.com";
+                moveCursorToEnd(emailInput);
+                return;
+            }
+        });
+
+        function moveCursorToEnd(input) {
+            setTimeout(function () {
+                input.selectionStart = input.selectionEnd = input.value.length;
+            }, 0);
+        }
+    </script>
+}

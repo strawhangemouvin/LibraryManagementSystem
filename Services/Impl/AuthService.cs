@@ -303,24 +303,41 @@ namespace LibraryManagementSystem.Services.Impl
         {
             try
             {
+                if (user == null)
+                {
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(user.Email))
+                {
+                    return;
+                }
+
                 EmailHelper.SendEmail(
                     user.Email,
-                    "Registrasi Akun Library Management System",
+                    "Registrasi Akun Moon Books",
                     $@"
-                    <h3>Registrasi Berhasil</h3>
-                    <p>Halo <b>{user.FullName}</b>,</p>
-                    <p>Akun Anda telah digunakan untuk registrasi pada <b>Library Management System</b>.</p>
-                    <p>Status akun Anda saat ini: <b>Pending</b>.</p>
-                    <p>Silakan menunggu persetujuan dari pustakawan agar akun dapat digunakan untuk login.</p>
-                    <br/>
-                    <p>Terima kasih.</p>
-                    "
+            <h3>Registrasi Berhasil</h3>
+            <p>Halo <b>{user.FullName}</b>,</p>
+
+            <p>Terima kasih telah melakukan registrasi pada <b>Moon Books</b>.</p>
+
+            <p>Status akun Anda saat ini: <b>Pending</b>.</p>
+
+            <p>
+                Silakan menunggu persetujuan dari pustakawan agar akun Anda dapat
+                digunakan untuk login dan mengajukan peminjaman buku.
+            </p>
+
+            <br/>
+            <p>Salam hangat,</p>
+            <p><b>Moon Books</b></p>
+            "
                 );
             }
             catch
             {
                 // Email gagal tidak membatalkan proses register.
-                // Register tetap berhasil, akun tetap masuk status Pending.
             }
         }
     }

@@ -332,7 +332,7 @@
     <Content Include="Views\DashboardMvc\Index.cshtml" />
     <Content Include="Views\DashboardMvc\Librarian.cshtml" />
     <Content Include="Views\DashboardMvc\Member.cshtml" />
-    <Content Include="Views\AuthMvc\Register.cshtml" />
+    <Content Include="Views\DashboardMvc\Register.cshtml" />
     <Content Include="Views\AuthMvc\Login.cshtml" />
     <Content Include="Views\MVCMembers\Pending.cshtml" />
     <Content Include="Views\MVCBorrowings\MyHistory.cshtml" />
@@ -340,8 +340,7 @@
     <Content Include="Views\MVCBorrowings\ReturnConfirm.cshtml" />
     <Content Include="Views\MVCBorrowings\PayFineConfirm.cshtml" />
     <Content Include="Views\HomeMvc\Index.cshtml" />
-    <Content Include="Views\HomeMvc\Contact.cshtml" />
-    <Content Include="Views\HomeMvc\About.cshtml" />
+    <Content Include="Views\AuthMvc\Register.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

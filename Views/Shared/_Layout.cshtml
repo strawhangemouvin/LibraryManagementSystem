@@ -2,35 +2,390 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width" />
-    <title>@ViewBag.Title - My ASP.NET Application</title>
+    <title>@ViewBag.Title - Moon Books</title>
+
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-</head>
-<body>
 
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-        <div class="container">
-            @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("API", "Index", "Help", new { area = "" }, new { @class = "nav-link" })</li>
-                </ul>
-            </div>
+    <style>
+        html {
+            min-height: 100%;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #FFF8EC, #F6E7CF, #EBD6B8);
+            color: #4A3526;
+        }
+
+        .moon-navbar {
+            background: rgba(255, 248, 236, 0.94);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(139, 98, 57, 0.18);
+            box-shadow: 0 6px 20px rgba(103, 70, 38, 0.10);
+            padding: 14px 38px;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
+        .moon-brand {
+            font-size: 24px;
+            font-weight: 800;
+            color: #7B4F2C !important;
+            text-decoration: none;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
+
+            .moon-brand:hover {
+                color: #5F3A1E !important;
+            }
+
+        .moon-nav-link {
+            color: #7B4F2C !important;
+            font-weight: 500;
+            margin-left: 8px;
+            border-radius: 24px;
+            padding: 8px 16px !important;
+            transition: 0.2s;
+        }
+
+            .moon-nav-link:hover {
+                background-color: #EFE0C7;
+                color: #5F3A1E !important;
+            }
+
+        .moon-container {
+            padding: 34px 42px 10px 42px;
+            min-height: calc(100vh - 170px);
+        }
+
+        .moon-page-shell {
+            background: rgba(255, 252, 245, 0.72);
+            border-radius: 28px;
+            padding: 22px;
+            box-shadow: 0 14px 36px rgba(103, 70, 38, 0.10);
+            border: 1px solid rgba(255, 255, 255, 0.70);
+        }
+
+        .card {
+            border: none !important;
+            border-radius: 24px !important;
+            box-shadow: 0 12px 28px rgba(103, 70, 38, 0.12) !important;
+            overflow: hidden;
+            background-color: #FFFCF5 !important;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #F8E9D0, #EFE0C7) !important;
+            border-bottom: none !important;
+            color: #7B4F2C !important;
+        }
+
+            .card-header h4,
+            .card-header h5 {
+                color: #7B4F2C !important;
+                font-weight: 800;
+            }
+
+        .btn-primary,
+        .btn-main {
+            background-color: #7B4F2C !important;
+            border-color: #7B4F2C !important;
+            color: white !important;
+            border-radius: 24px !important;
+            padding-left: 18px;
+            padding-right: 18px;
+        }
+
+            .btn-primary:hover,
+            .btn-main:hover {
+                background-color: #5F3A1E !important;
+                border-color: #5F3A1E !important;
+            }
+
+        .btn-outline-secondary,
+        .btn-outline-primary {
+            border-color: #7B4F2C !important;
+            color: #7B4F2C !important;
+            border-radius: 24px !important;
+        }
+
+            .btn-outline-secondary:hover,
+            .btn-outline-primary:hover {
+                background-color: #7B4F2C !important;
+                color: white !important;
+            }
+
+        .btn-danger,
+        .btn-success,
+        .btn-warning {
+            border-radius: 24px !important;
+        }
+
+        .table {
+            background-color: #FFFCF5;
+            border-radius: 18px;
+            overflow: hidden;
+        }
+
+            .table thead {
+                background: #F8E9D0 !important;
+                color: #7B4F2C;
+            }
+
+            .table th {
+                font-weight: 700;
+                white-space: nowrap;
+            }
+
+            .table td {
+                vertical-align: middle !important;
+            }
+
+        .form-control,
+        .form-select {
+            border-radius: 16px !important;
+            border: 1px solid #D8BA91 !important;
+            padding: 11px 14px;
+            background-color: #FFFCF5 !important;
+            color: #4A3526 !important;
+        }
+
+            .form-control:focus,
+            .form-select:focus {
+                border-color: #7B4F2C !important;
+                box-shadow: 0 0 0 0.2rem rgba(123, 79, 44, 0.15) !important;
+            }
+
+        .badge {
+            border-radius: 18px;
+            padding: 7px 11px;
+        }
+
+        .alert {
+            border-radius: 18px !important;
+        }
+
+        .moon-footer {
+            margin-top: 30px;
+            padding: 34px 40px 20px 40px;
+            background: rgba(255, 248, 236, 0.90);
+            border-top: 1px solid rgba(139, 98, 57, 0.15);
+            color: #7B4F2C;
+            box-shadow: 0 -6px 18px rgba(103, 70, 38, 0.07);
+        }
+
+        .moon-footer-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .moon-footer-link {
+            display: block;
+            text-decoration: none;
+            color: #7B4F2C;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+            .moon-footer-link:hover {
+                color: #5F3A1E;
+                text-decoration: underline;
+            }
+
+        .moon-footer-badge {
+            display: inline-block;
+            background: #EFE0C7;
+            color: #7B4F2C;
+            padding: 7px 12px;
+            border-radius: 18px;
+            margin: 4px 4px 4px 0;
+            font-size: 13px;
+        }
+
+        .moon-footer-bottom {
+            border-top: 1px solid rgba(139, 98, 57, 0.18);
+            margin-top: 22px;
+            padding-top: 14px;
+            text-align: center;
+            font-size: 14px;
+            color: #7B4F2C;
+        }
+
+        .moon-decoration {
+            position: fixed;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255, 248, 236, 0.55);
+            box-shadow: 0 0 90px rgba(255, 248, 236, 0.90);
+            right: -55px;
+            top: 130px;
+            z-index: -1;
+        }
+
+        .moon-decoration-small {
+            position: fixed;
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            background: rgba(123, 79, 44, 0.08);
+            left: 35px;
+            bottom: 80px;
+            z-index: -1;
+        }
+
+        @@media (max-width: 768px) {
+            .moon-navbar {
+                padding: 14px 18px;
+            }
+
+            .moon-container {
+                padding: 22px 16px 8px 16px;
+            }
+
+            .moon-page-shell {
+                padding: 14px;
+            }
+
+            .moon-footer {
+                padding: 30px 22px 18px 22px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="moon-decoration"></div>
+    <div class="moon-decoration-small"></div>
+
+    <nav class="navbar navbar-expand-lg moon-navbar">
+        <a class="navbar-brand moon-brand" href="@Url.Action("Index", "HomeMvc")">
+            🌙📚 Moon Books
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#moonNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-end" id="moonNavbar">
+            <ul class="navbar-nav align-items-lg-center">
+                @if (Session["Role"] != null && Session["Role"].ToString() == "Librarian")
+                {
+                    <li class="nav-item">
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Librarian", "DashboardMvc")">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCBooks")">Buku</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCMembers")">Member</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCBorrowings")">Peminjaman</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "ReportsMvc")">Laporan</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Logout", "AuthMvc")">Logout</a>
+                    </li>
+                }
+                else if (Session["Role"] != null && Session["Role"].ToString() == "Member")
+                {
+                    <li class="nav-item">
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Member", "DashboardMvc")">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCBooks")">Daftar Buku</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link moon-nav-link" href="@Url.Action("MyHistory", "MVCBorrowings")">Riwayat</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Logout", "AuthMvc")">Logout</a>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "HomeMvc")">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Login", "AuthMvc")">Sign In</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-primary ms-lg-2" href="@Url.Action("Register", "AuthMvc")">Sign Up</a>
+                    </li>
+                }
+            </ul>
         </div>
     </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    </div>
+
+    <main class="moon-container">
+        <div class="moon-page-shell">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="moon-footer">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="moon-footer-title">🌙📚 Moon Books</div>
+                <p class="mb-0">
+                    Sistem manajemen perpustakaan digital dengan nuansa hangat, rapi, dan mudah digunakan.
+                </p>
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <h6>Quick Links</h6>
+                <a href="@Url.Action("Index", "HomeMvc")" class="moon-footer-link">Home</a>
+
+                @if (Session["Role"] != null && Session["Role"].ToString() == "Librarian")
+                {
+                    <a href="@Url.Action("Librarian", "DashboardMvc")" class="moon-footer-link">Dashboard Pustakawan</a>
+                    <a href="@Url.Action("Index", "MVCBorrowings")" class="moon-footer-link">Data Peminjaman</a>
+                    <a href="@Url.Action("Index", "ReportsMvc")" class="moon-footer-link">Laporan</a>
+                }
+                else if (Session["Role"] != null && Session["Role"].ToString() == "Member")
+                {
+                    <a href="@Url.Action("Member", "DashboardMvc")" class="moon-footer-link">Dashboard Member</a>
+                    <a href="@Url.Action("Index", "MVCBooks")" class="moon-footer-link">Daftar Buku</a>
+                    <a href="@Url.Action("MyHistory", "MVCBorrowings")" class="moon-footer-link">Riwayat Peminjaman</a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Login", "AuthMvc")" class="moon-footer-link">Sign In</a>
+                    <a href="@Url.Action("Register", "AuthMvc")" class="moon-footer-link">Sign Up</a>
+                }
+            </div>
+
+            <div class="col-md-3 mb-3">
+                <h6>Fitur</h6>
+                <span class="moon-footer-badge">Buku</span>
+                <span class="moon-footer-badge">Member</span>
+                <span class="moon-footer-badge">Peminjaman</span>
+                <span class="moon-footer-badge">Pengembalian</span>
+                <span class="moon-footer-badge">Reminder</span>
+                <span class="moon-footer-badge">Denda</span>
+            </div>
+
+            <div class="col-md-2 mb-3">
+                <h6>Kontak</h6>
+                <p class="mb-1">✉️ moonbooks@email.com</p>
+                <p class="mb-1">⏰ 08.00 - 16.00</p>
+            </div>
+        </div>
+
+        <div class="moon-footer-bottom">
+            © @DateTime.Now.Year Moon Books — A Warm Digital Library Space
+        </div>
+    </footer>
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")

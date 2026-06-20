@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Models.Entity;
+﻿using LibraryManagementSystem.Helpers;
+using LibraryManagementSystem.Models.Entity;
 using LibraryManagementSystem.Models.ViewModel;
 using LibraryManagementSystem.Services.Context;
 using LibraryManagementSystem.Services.Interface;
@@ -208,6 +209,8 @@ namespace LibraryManagementSystem.Services.Impl
             db.Borrowings.Add(newBorrowing);
             db.SaveChanges();
 
+            SendBorrowingRequestEmail(newBorrowing.Id);
+
             return new
             {
                 message = "Pengajuan peminjaman berhasil dibuat",
@@ -279,6 +282,8 @@ namespace LibraryManagementSystem.Services.Impl
             db.ActivityLogs.Add(log);
             db.SaveChanges();
 
+            SendBorrowingApprovedEmail(borrowing.Id);
+
             return new
             {
                 message = "Peminjaman berhasil disetujui",
@@ -335,6 +340,8 @@ namespace LibraryManagementSystem.Services.Impl
 
             db.ActivityLogs.Add(log);
             db.SaveChanges();
+
+            SendBorrowingRejectedEmail(borrowing.Id);
 
             return new
             {
@@ -440,6 +447,185 @@ namespace LibraryManagementSystem.Services.Impl
                 fineStatus = borrowing.FineStatus,
                 availableStock = book.AvailableStock
             };
+        }
+
+        private void SendBorrowingRequestEmail(int borrowingId)
+        {
+            try
+            {
+                var data = db.Borrowings
+                    .Join(db.Books,
+                        borrowing => borrowing.BookId,
+                        book => book.Id,
+                        (borrowing, book) => new { borrowing, book })
+                    .Join(db.Members,
+                        x => x.borrowing.MemberId,
+                        member => member.Id,
+                        (x, member) => new { x.borrowing, x.book, member })
+                    .Join(db.Users,
+                        x => x.member.UserId,
+                        user => user.Id,
+                        (x, user) => new
+                        {
+                            BorrowingId = x.borrowing.Id,
+                            BookTitle = x.book.Title,
+                            RequestDate = x.borrowing.RequestDate,
+                            FullName = user.FullName,
+                            Email = user.Email
+                        })
+                    .FirstOrDefault(x => x.BorrowingId == borrowingId);
+
+                if (data == null)
+                {
+                    return;
+                }
+
+                EmailHelper.SendEmail(
+                    data.Email,
+                    "Pengajuan Peminjaman Buku - Moon Books",
+                    $@"
+                    <h3>Pengajuan Peminjaman Berhasil</h3>
+                    <p>Halo <b>{data.FullName}</b>,</p>
+
+                    <p>Pengajuan peminjaman buku Anda telah berhasil dikirim.</p>
+
+                    <p>
+                        <b>Judul Buku:</b> {data.BookTitle}<br/>
+                        <b>Tanggal Pengajuan:</b> {data.RequestDate.ToString("dd-MM-yyyy HH:mm")}<br/>
+                        <b>Status:</b> Menunggu persetujuan pustakawan
+                    </p>
+
+                    <p>Silakan menunggu konfirmasi dari pustakawan Moon Books.</p>
+
+                    <br/>
+                    <p>Salam hangat,</p>
+                    <p><b>Moon Books</b></p>
+                    "
+                );
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Email pengajuan peminjaman gagal dikirim: " + ex.Message);
+            }
+        }
+
+        private void SendBorrowingApprovedEmail(int borrowingId)
+        {
+            try
+            {
+                var data = db.Borrowings
+                    .Join(db.Books,
+                        borrowing => borrowing.BookId,
+                        book => book.Id,
+                        (borrowing, book) => new { borrowing, book })
+                    .Join(db.Members,
+                        x => x.borrowing.MemberId,
+                        member => member.Id,
+                        (x, member) => new { x.borrowing, x.book, member })
+                    .Join(db.Users,
+                        x => x.member.UserId,
+                        user => user.Id,
+                        (x, user) => new
+                        {
+                            BorrowingId = x.borrowing.Id,
+                            BookTitle = x.book.Title,
+                            BorrowDate = x.borrowing.BorrowDate,
+                            DueDate = x.borrowing.DueDate,
+                            FullName = user.FullName,
+                            Email = user.Email
+                        })
+                    .FirstOrDefault(x => x.BorrowingId == borrowingId);
+
+                if (data == null)
+                {
+                    return;
+                }
+
+                EmailHelper.SendEmail(
+                    data.Email,
+                    "Peminjaman Buku Disetujui - Moon Books",
+                    $@"
+                    <h3>Peminjaman Buku Disetujui</h3>
+                    <p>Halo <b>{data.FullName}</b>,</p>
+
+                    <p>Pengajuan peminjaman buku Anda telah disetujui oleh pustakawan.</p>
+
+                    <p>
+                        <b>Judul Buku:</b> {data.BookTitle}<br/>
+                        <b>Tanggal Pinjam:</b> {(data.BorrowDate == null ? "-" : data.BorrowDate.Value.ToString("dd-MM-yyyy"))}<br/>
+                        <b>Jatuh Tempo:</b> {(data.DueDate == null ? "-" : data.DueDate.Value.ToString("dd-MM-yyyy"))}
+                    </p>
+
+                    <p>Harap mengembalikan buku sebelum tanggal jatuh tempo agar tidak terkena denda keterlambatan.</p>
+
+                    <br/>
+                    <p>Salam hangat,</p>
+                    <p><b>Moon Books</b></p>
+                    "
+                );
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Email persetujuan peminjaman gagal dikirim: " + ex.Message);
+            }
+        }
+
+        private void SendBorrowingRejectedEmail(int borrowingId)
+        {
+            try
+            {
+                var data = db.Borrowings
+                    .Join(db.Books,
+                        borrowing => borrowing.BookId,
+                        book => book.Id,
+                        (borrowing, book) => new { borrowing, book })
+                    .Join(db.Members,
+                        x => x.borrowing.MemberId,
+                        member => member.Id,
+                        (x, member) => new { x.borrowing, x.book, member })
+                    .Join(db.Users,
+                        x => x.member.UserId,
+                        user => user.Id,
+                        (x, user) => new
+                        {
+                            BorrowingId = x.borrowing.Id,
+                            BookTitle = x.book.Title,
+                            FullName = user.FullName,
+                            Email = user.Email
+                        })
+                    .FirstOrDefault(x => x.BorrowingId == borrowingId);
+
+                if (data == null)
+                {
+                    return;
+                }
+
+                EmailHelper.SendEmail(
+                    data.Email,
+                    "Pengajuan Peminjaman Ditolak - Moon Books",
+                    $@"
+                    <h3>Pengajuan Peminjaman Ditolak</h3>
+                    <p>Halo <b>{data.FullName}</b>,</p>
+
+                    <p>Mohon maaf, pengajuan peminjaman buku Anda belum dapat disetujui.</p>
+
+                    <p>
+                        <b>Judul Buku:</b> {data.BookTitle}<br/>
+                        <b>Status:</b> Ditolak
+                    </p>
+
+                    <p>Silakan hubungi pustakawan untuk informasi lebih lanjut.</p>
+
+                    <br/>
+                    <p>Salam hangat,</p>
+                    <p><b>Moon Books</b></p>
+                    "
+                );
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Email penolakan peminjaman gagal dikirim: " + ex.Message);
+            }
         }
     }
 }
