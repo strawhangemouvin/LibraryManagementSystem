@@ -1,0 +1,74 @@
+﻿@{
+    ViewBag.Title = "Dashboard Member";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var reminders = ViewBag.Reminders as List<LibraryManagementSystem.Models.ViewModel.BorrowingReminderViewModel>;
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header rounded-top-4" style="background-color:#F7D9E3;">
+            <h4 class="mb-0" style="color:#7A4E60;">Dashboard Member</h4>
+            <small class="text-muted">Halaman utama member.</small>
+        </div>
+
+        <div class="card-body">
+            <h5>Selamat datang, @Session["FullName"]</h5>
+            <p class="text-muted">Silakan lihat buku atau riwayat peminjaman.</p>
+
+            @if (reminders != null && reminders.Any())
+            {
+                <div class="alert alert-warning rounded-4 mt-3">
+                    <h6 class="mb-2">
+                        Pengingat Pengembalian Buku
+                    </h6>
+
+                    @foreach (var item in reminders)
+                    {
+                        <div class="mb-2">
+                            <strong>@item.BookTitle</strong><br />
+
+                            @if (item.DaysRemaining < 0)
+                            {
+                                <span class="text-danger">
+                                    Buku ini sudah terlambat @Math.Abs(item.DaysRemaining) hari.
+                                </span>
+                            }
+                            else if (item.DaysRemaining == 0)
+                            {
+                                <span class="text-danger">
+                                    Buku ini harus dikembalikan hari ini.
+                                </span>
+                            }
+                            else
+                            {
+                                <span>
+                                    Buku ini harus dikembalikan dalam @item.DaysRemaining hari lagi.
+                                </span>
+                            }
+
+                            <br />
+                            <small class="text-muted">
+                                Jatuh tempo: @(item.DueDate == null ? "-" : item.DueDate.Value.ToString("dd-MM-yyyy"))
+                            </small>
+                        </div>
+                    }
+                </div>
+            }
+
+            <hr />
+
+            <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-primary rounded-pill">
+                Daftar Buku
+            </a>
+
+            <a href="@Url.Action("MyHistory", "MVCBorrowings")" class="btn btn-outline-secondary rounded-pill">
+                Riwayat Peminjaman
+            </a>
+
+            <a href="@Url.Action("Logout", "AuthMvc")" class="btn btn-danger rounded-pill">
+                Logout
+            </a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,219 @@
+﻿@model IEnumerable<LibraryManagementSystem.Models.Entity.Book>
+
+@{
+    ViewBag.Title = "Daftar Buku";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var role = Session["Role"] != null ? Session["Role"].ToString() : "";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    @if (role == "Librarian")
+                    {
+                        <h4 class="mb-0" style="color:#7A4E60;">Kelola Buku</h4>
+                        <small class="text-muted">Halaman pustakawan untuk menambah, mengubah, dan menghapus data buku.</small>
+                    }
+                    else
+                    {
+                        <h4 class="mb-0" style="color:#7A4E60;">Daftar Buku</h4>
+                        <small class="text-muted">Pilih buku yang tersedia untuk diajukan peminjaman.</small>
+                    }
+                </div>
+
+                @if (role == "Librarian")
+                {
+                    <a href="@Url.Action("Create", "MVCBooks")" class="btn btn-sm btn-light rounded-pill">
+                        Tambah Buku
+                    </a>
+                }
+            </div>
+        </div>
+
+        <div class="card-body">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success rounded-3">
+                    @TempData["Success"]
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger rounded-3">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead style="background-color:#FDF6F0;">
+                        <tr>
+                            <th>No</th>
+                            <th>Kategori</th>
+                            <th>Judul</th>
+                            <th>Penulis</th>
+                            <th>Penerbit</th>
+                            <th>Tahun</th>
+                            <th>ISBN</th>
+                            <th>Stok</th>
+                            <th>Tersedia</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            var no = 1;
+                        }
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@no</td>
+
+                                <td>
+                                    @if (item.Category != null)
+                                    {
+                                        <span class="badge rounded-pill" style="background-color:#F7D9E3; color:#7A4E60;">
+                                            @item.Category.CategoryName
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <strong>@item.Title</strong>
+                                    @if (!string.IsNullOrWhiteSpace(item.Description))
+                                    {
+                                        <br />
+                                        <small class="text-muted">@item.Description</small>
+                                    }
+                                </td>
+
+                                <td>@item.Author</td>
+
+                                <td>
+                                    @if (string.IsNullOrWhiteSpace(item.Publisher))
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                    else
+                                    {
+                                        @item.Publisher
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (item.PublishYear == null)
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                    else
+                                    {
+                                        @item.PublishYear
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (string.IsNullOrWhiteSpace(item.ISBN))
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                    else
+                                    {
+                                        @item.ISBN
+                                    }
+                                </td>
+
+                                <td>@item.Stock</td>
+                                <td>@item.AvailableStock</td>
+
+                                <td>
+                                    @if (item.AvailableStock > 0)
+                                    {
+                                        <span class="badge bg-success">Tersedia</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Habis</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    <a href="@Url.Action("Details", "MVCBooks", new { id = item.Id })"
+                                       class="btn btn-sm btn-outline-secondary rounded-pill">
+                                        Detail
+                                    </a>
+
+                                    @if (role == "Librarian")
+                                    {
+                                        <a href="@Url.Action("Edit", "MVCBooks", new { id = item.Id })"
+                                           class="btn btn-sm btn-outline-primary rounded-pill">
+                                            Edit
+                                        </a>
+
+                                        <a href="@Url.Action("Delete", "MVCBooks", new { id = item.Id })"
+                                           class="btn btn-sm btn-outline-danger rounded-pill">
+                                            Delete
+                                        </a>
+                                    }
+
+                                    @if (role == "Member")
+                                    {
+                                        if (item.AvailableStock > 0)
+                                        {
+                                            <a href="@Url.Action("RequestConfirm", "MVCBorrowings", new { bookId = item.Id })"
+                                               class="btn btn-sm btn-primary rounded-pill">
+                                                Pinjam
+                                            </a>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-secondary rounded-pill" disabled>
+                                                Tidak Tersedia
+                                            </button>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+
+                            no++;
+                        }
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="11" class="text-center text-muted">
+                                    Data buku belum tersedia.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="mt-3">
+                @if (role == "Librarian")
+                {
+                    <a href="@Url.Action("Librarian", "DashboardMvc")" class="btn btn-outline-secondary rounded-pill">
+                        Kembali ke Dashboard
+                    </a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Member", "DashboardMvc")" class="btn btn-outline-secondary rounded-pill">
+                        Kembali ke Dashboard
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

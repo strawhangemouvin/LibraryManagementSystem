@@ -1,0 +1,82 @@
+﻿@model IEnumerable<LibraryManagementSystem.Models.ViewModel.BookReportViewModel>
+
+@{
+    ViewBag.Title = "Laporan Buku";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0" style="color:#7A4E60;">Laporan Buku</h4>
+                    <small class="text-muted">Data buku beserta kategori, stok, dan ketersediaannya.</small>
+                </div>
+
+                <a href="@Url.Action("Index", "ReportsMvc")" class="btn btn-sm btn-light rounded-pill">
+                    Kembali ke Laporan
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead style="background-color:#FDF6F0;">
+                        <tr>
+                            <th>No</th>
+                            <th>Judul</th>
+                            <th>Penulis</th>
+                            <th>Kategori</th>
+                            <th>Penerbit</th>
+                            <th>Tahun</th>
+                            <th>Stok</th>
+                            <th>Tersedia</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            var no = 1;
+                        }
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@no</td>
+                                <td>@item.Title</td>
+                                <td>@item.Author</td>
+                                <td>@item.CategoryName</td>
+                                <td>@item.Publisher</td>
+                                <td>@item.PublishYear</td>
+                                <td>@item.Stock</td>
+                                <td>
+                                    @if (item.AvailableStock > 0)
+                                    {
+                                        <span class="badge bg-success">@item.AvailableStock tersedia</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger">Habis</span>
+                                    }
+                                </td>
+                            </tr>
+
+                            no++;
+                        }
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">
+                                    Data buku belum tersedia.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

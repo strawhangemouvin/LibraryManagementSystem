@@ -1,0 +1,115 @@
+﻿```cshtml
+@model LibraryManagementSystem.Models.Entity.Borrowing
+
+@{
+    ViewBag.Title = "Pembayaran Denda";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0" style="color:#7A4E60;">Pembayaran Denda</h4>
+                    <small class="text-muted">QRIS simulasi untuk pembayaran denda keterlambatan.</small>
+                </div>
+
+                <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-sm btn-light rounded-pill">
+                    Kembali ke Data Peminjaman
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 style="color:#7A4E60;">Detail Denda</h5>
+
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width:180px;">Judul Buku</th>
+                            <td>@(Model.Book == null ? "-" : Model.Book.Title)</td>
+                        </tr>
+
+                        <tr>
+                            <th>Kode Member</th>
+                            <td>@(Model.Member == null ? "-" : Model.Member.MemberCode)</td>
+                        </tr>
+
+                        <tr>
+                            <th>Jatuh Tempo</th>
+                            <td>@(Model.DueDate == null ? "-" : Model.DueDate.Value.ToString("dd-MM-yyyy"))</td>
+                        </tr>
+
+                        <tr>
+                            <th>Tanggal Kembali</th>
+                            <td>@(Model.ReturnDate == null ? "-" : Model.ReturnDate.Value.ToString("dd-MM-yyyy"))</td>
+                        </tr>
+
+                        <tr>
+                            <th>Terlambat</th>
+                            <td>
+                                <span class="badge bg-danger">
+                                    @(Model.LateDays ?? 0) hari
+                                </span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Total Denda</th>
+                            <td>
+                                <span class="badge bg-danger">
+                                    Rp @((Model.FineAmount ?? 0).ToString("N0"))
+                                </span>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Status Denda</th>
+                            <td>
+                                <span class="badge bg-warning text-dark">
+                                    @(string.IsNullOrWhiteSpace(Model.FineStatus) ? "Unpaid" : Model.FineStatus)
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="col-md-6 text-center">
+                    <h5 style="color:#7A4E60;">QRIS Simulasi</h5>
+
+                    <div class="border rounded-4 p-4 bg-light">
+                        <div style="font-size:80px;">▦</div>
+                        <h5 class="mt-2">QRIS SIMULASI</h5>
+                        <p class="text-muted mb-1">Scan untuk pembayaran denda</p>
+                        <h4>Rp @((Model.FineAmount ?? 0).ToString("N0"))</h4>
+                    </div>
+
+                    <small class="text-muted d-block mt-2">
+                        Ini QRIS simulasi untuk kebutuhan demo aplikasi.
+                    </small>
+                </div>
+            </div>
+
+            <hr />
+
+            @using (Html.BeginForm("PayFineConfirmed", "MVCBorrowings", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("id", Model.Id)
+
+                <button type="submit"
+                        class="btn btn-success rounded-pill"
+                        onclick="return confirm('Tandai denda ini sudah dibayar?');">
+                    Tandai Sudah Dibayar
+                </button>
+
+                <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-outline-secondary rounded-pill">
+                    Batal
+                </a>
+            }
+        </div>
+    </div>
+</div>
+```

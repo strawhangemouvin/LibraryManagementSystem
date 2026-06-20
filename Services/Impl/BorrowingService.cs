@@ -57,7 +57,10 @@ namespace LibraryManagementSystem.Services.Impl
                         ApprovedBy = data.borrowing.ApprovedBy,
                         ApprovedAt = data.borrowing.ApprovedAt,
                         ReturnedBy = data.borrowing.ReturnedBy,
-                        ReturnedAt = data.borrowing.ReturnedAt
+                        ReturnedAt = data.borrowing.ReturnedAt,
+                        LateDays = data.borrowing.LateDays,
+                        FineAmount = data.borrowing.FineAmount,
+                        FineStatus = data.borrowing.FineStatus
                     }
                 )
                 .OrderByDescending(x => x.RequestDate)
@@ -91,7 +94,10 @@ namespace LibraryManagementSystem.Services.Impl
                         ApprovedBy = borrowing.ApprovedBy,
                         ApprovedAt = borrowing.ApprovedAt,
                         ReturnedBy = borrowing.ReturnedBy,
-                        ReturnedAt = borrowing.ReturnedAt
+                        ReturnedAt = borrowing.ReturnedAt,
+                        LateDays = borrowing.LateDays,
+                        FineAmount = borrowing.FineAmount,
+                        FineStatus = borrowing.FineStatus
                     }
                 )
                 .OrderByDescending(x => x.RequestDate)
@@ -193,7 +199,10 @@ namespace LibraryManagementSystem.Services.Impl
                 ApprovedBy = null,
                 ApprovedAt = null,
                 ReturnedBy = null,
-                ReturnedAt = null
+                ReturnedAt = null,
+                LateDays = null,
+                FineAmount = null,
+                FineStatus = null
             };
 
             db.Borrowings.Add(newBorrowing);
@@ -373,10 +382,32 @@ namespace LibraryManagementSystem.Services.Impl
                 throw new Exception("Buku tidak ditemukan");
             }
 
+            DateTime returnDate = DateTime.Now;
+
+            int lateDays = 0;
+            decimal fineAmount = 0;
+
+            if (borrowing.DueDate != null && returnDate.Date > borrowing.DueDate.Value.Date)
+            {
+                lateDays = (returnDate.Date - borrowing.DueDate.Value.Date).Days;
+                fineAmount = lateDays * 2000;
+            }
+
+            borrowing.ReturnDate = returnDate;
             borrowing.Status = "Returned";
-            borrowing.ReturnDate = DateTime.Now.Date;
             borrowing.ReturnedBy = returnedBy;
             borrowing.ReturnedAt = DateTime.Now;
+            borrowing.LateDays = lateDays;
+            borrowing.FineAmount = fineAmount;
+
+            if (fineAmount > 0)
+            {
+                borrowing.FineStatus = "Unpaid";
+            }
+            else
+            {
+                borrowing.FineStatus = "None";
+            }
 
             book.AvailableStock = book.AvailableStock + 1;
 
@@ -404,6 +435,9 @@ namespace LibraryManagementSystem.Services.Impl
                 borrowingId = borrowing.Id,
                 status = borrowing.Status,
                 returnDate = borrowing.ReturnDate,
+                lateDays = borrowing.LateDays,
+                fineAmount = borrowing.FineAmount,
+                fineStatus = borrowing.FineStatus,
                 availableStock = book.AvailableStock
             };
         }

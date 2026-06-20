@@ -1,0 +1,102 @@
+﻿@model LibraryManagementSystem.Models.Entity.Book
+
+@{
+    ViewBag.Title = "Detail Buku";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var role = Session["Role"] != null ? Session["Role"].ToString() : "";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+            <h4 class="mb-0" style="color:#7A4E60;">Detail Buku</h4>
+            <small class="text-muted">Informasi lengkap data buku.</small>
+        </div>
+
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Kategori</dt>
+                <dd class="col-sm-9">
+                    @(Model.Category == null ? "-" : Model.Category.CategoryName)
+                </dd>
+
+                <dt class="col-sm-3">Judul</dt>
+                <dd class="col-sm-9">@Model.Title</dd>
+
+                <dt class="col-sm-3">Penulis</dt>
+                <dd class="col-sm-9">@Model.Author</dd>
+
+                <dt class="col-sm-3">Penerbit</dt>
+                <dd class="col-sm-9">
+                    @(string.IsNullOrWhiteSpace(Model.Publisher) ? "-" : Model.Publisher)
+                </dd>
+
+                <dt class="col-sm-3">Tahun Terbit</dt>
+                <dd class="col-sm-9">
+                    @(Model.PublishYear == null ? "-" : Model.PublishYear.ToString())
+                </dd>
+
+                <dt class="col-sm-3">ISBN</dt>
+                <dd class="col-sm-9">
+                    @(string.IsNullOrWhiteSpace(Model.ISBN) ? "-" : Model.ISBN)
+                </dd>
+
+                <dt class="col-sm-3">Stock</dt>
+                <dd class="col-sm-9">@Model.Stock</dd>
+
+                <dt class="col-sm-3">Stock Tersedia</dt>
+                <dd class="col-sm-9">@Model.AvailableStock</dd>
+
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">
+                    @if (Model.AvailableStock > 0)
+                    {
+                        <span class="badge bg-success">Tersedia</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Habis</span>
+                    }
+                </dd>
+
+                <dt class="col-sm-3">Deskripsi</dt>
+                <dd class="col-sm-9">
+                    @(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)
+                </dd>
+            </dl>
+
+            <hr />
+
+            @if (role == "Librarian")
+            {
+                <a href="@Url.Action("Edit", "MVCBooks", new { id = Model.Id })" class="btn btn-primary rounded-pill">
+                    Edit
+                </a>
+
+                <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-outline-secondary rounded-pill">
+                    Kembali
+                </a>
+            }
+            else if (role == "Member")
+            {
+                if (Model.AvailableStock > 0)
+                {
+                    <a href="@Url.Action("RequestConfirm", "MVCBorrowings", new { bookId = Model.Id })" class="btn btn-primary rounded-pill">
+                        Pinjam Buku
+                    </a>
+                }
+
+                <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-outline-secondary rounded-pill">
+                    Kembali ke Daftar Buku
+                </a>
+            }
+            else
+            {
+                <a href="@Url.Action("Login", "AuthMvc")" class="btn btn-outline-secondary rounded-pill">
+                    Login
+                </a>
+            }
+        </div>
+    </div>
+</div>

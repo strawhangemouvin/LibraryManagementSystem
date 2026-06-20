@@ -1,0 +1,157 @@
+﻿@model LibraryManagementSystem.Models.Entity.Borrowing
+
+@{
+    ViewBag.Title = "Konfirmasi Pengembalian";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var lateDays = ViewBag.LateDays == null ? 0 : Convert.ToInt32(ViewBag.LateDays);
+    var fineAmount = lateDays * 2000;
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0" style="color:#7A4E60;">Konfirmasi Pengembalian</h4>
+                    <small class="text-muted">Periksa detail peminjaman sebelum memproses pengembalian buku.</small>
+                </div>
+
+                <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-sm btn-light rounded-pill">
+                    Kembali ke Data Peminjaman
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger rounded-3">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 style="color:#7A4E60;">Detail Buku</h5>
+
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width:180px;">Judul Buku</th>
+                            <td>
+                                @(Model.Book == null ? "-" : Model.Book.Title)
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Penulis</th>
+                            <td>
+                                @(Model.Book == null ? "-" : Model.Book.Author)
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Kode Member</th>
+                            <td>
+                                @(Model.Member == null ? "-" : Model.Member.MemberCode)
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                <span class="badge bg-primary">@Model.Status</span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="col-md-6">
+                    <h5 style="color:#7A4E60;">Detail Tanggal</h5>
+
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width:180px;">Tanggal Pengajuan</th>
+                            <td>@Model.RequestDate.ToString("dd-MM-yyyy")</td>
+                        </tr>
+
+                        <tr>
+                            <th>Tanggal Pinjam</th>
+                            <td>
+                                @(Model.BorrowDate == null ? "-" : Model.BorrowDate.Value.ToString("dd-MM-yyyy"))
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Jatuh Tempo</th>
+                            <td>
+                                @(Model.DueDate == null ? "-" : Model.DueDate.Value.ToString("dd-MM-yyyy"))
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Tanggal Kembali</th>
+                            <td>@DateTime.Now.ToString("dd-MM-yyyy")</td>
+                        </tr>
+
+                        <tr>
+                            <th>Keterlambatan</th>
+                        <tr>
+                            <th>Total Denda</th>
+                            <td>
+                                @if (fineAmount > 0)
+                                {
+                                    <span class="badge bg-danger">
+                                        Rp @fineAmount.ToString("N0")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">
+                                        Tidak ada denda
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                        </tr>
+                        <td>
+                            @if (lateDays > 0)
+                            {
+                                <span class="badge bg-danger">Terlambat @lateDays hari</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-success">Tidak terlambat</span>
+                            }
+                        </td>
+                        </tr>
+                    </table>
+
+                    <div class="alert alert-info rounded-3">
+                        Setelah diproses, status peminjaman akan berubah menjadi <b>Returned</b> dan stok buku akan bertambah kembali.
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            @using (Html.BeginForm("ReturnConfirmed", "MVCBorrowings", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("id", Model.Id)
+
+                <button type="submit"
+                        class="btn btn-primary rounded-pill"
+                        onclick="return confirm('Proses pengembalian buku ini?');">
+                    Proses Pengembalian
+                </button>
+
+                <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-outline-secondary rounded-pill">
+                    Batal
+                </a>
+            }
+
+        </div>
+    </div>
+</div>

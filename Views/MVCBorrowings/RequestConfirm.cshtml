@@ -1,0 +1,158 @@
+﻿```cshtml
+@model LibraryManagementSystem.Models.Entity.Book
+
+@{
+    ViewBag.Title = "Konfirmasi Peminjaman";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var member = ViewBag.Member as LibraryManagementSystem.Models.Entity.Member;
+    var fullName = ViewBag.UserFullName;
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0" style="color:#7A4E60;">Konfirmasi Peminjaman</h4>
+                    <small class="text-muted">Periksa kembali detail buku sebelum mengajukan peminjaman.</small>
+                </div>
+
+                <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-sm btn-light rounded-pill">
+                    Kembali ke Daftar Buku
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger rounded-3">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-md-7">
+                    <h5 style="color:#7A4E60;">Detail Buku</h5>
+
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width:180px;">Judul Buku</th>
+                            <td>@Model.Title</td>
+                        </tr>
+
+                        <tr>
+                            <th>Penulis</th>
+                            <td>@Model.Author</td>
+                        </tr>
+
+                        <tr>
+                            <th>Kategori</th>
+                            <td>
+                                @(Model.Category == null ? "-" : Model.Category.CategoryName)
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Penerbit</th>
+                            <td>
+                                @(string.IsNullOrWhiteSpace(Model.Publisher) ? "-" : Model.Publisher)
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Tahun Terbit</th>
+                            <td>
+                                @(Model.PublishYear == null ? "-" : Model.PublishYear.ToString())
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>ISBN</th>
+                            <td>
+                                @(string.IsNullOrWhiteSpace(Model.ISBN) ? "-" : Model.ISBN)
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Stok Tersedia</th>
+                            <td>
+                                @if (Model.AvailableStock > 0)
+                                {
+                                    <span class="badge bg-success">@Model.AvailableStock tersedia</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger">Habis</span>
+                                }
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Deskripsi</th>
+                            <td>
+                                @(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="col-md-5">
+                    <h5 style="color:#7A4E60;">Detail Pengajuan</h5>
+
+                    <table class="table table-borderless">
+                        <tr>
+                            <th style="width:180px;">Nama Member</th>
+                            <td>@fullName</td>
+                        </tr>
+
+                        <tr>
+                            <th>Kode Member</th>
+                            <td>
+                                @(member == null ? "-" : member.MemberCode)
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th>Tanggal Pengajuan</th>
+                            <td>@DateTime.Now.ToString("dd-MM-yyyy HH:mm")</td>
+                        </tr>
+
+                        <tr>
+                            <th>Status Awal</th>
+                            <td>
+                                <span class="badge bg-warning text-dark">Requested</span>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <div class="alert alert-info rounded-3">
+                        Setelah diajukan, peminjaman akan menunggu persetujuan pustakawan.
+                    </div>
+                </div>
+            </div>
+
+            <hr />
+
+            @using (Html.BeginForm("RequestConfirmed", "MVCBorrowings", FormMethod.Post))
+            {
+                @Html.AntiForgeryToken()
+                @Html.Hidden("bookId", Model.Id)
+
+                <button type="submit"
+                        class="btn btn-primary rounded-pill"
+                        onclick="return confirm('Ajukan peminjaman buku ini?');">
+                    Ajukan Peminjaman
+                </button>
+
+                <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-outline-secondary rounded-pill">
+                    Batal
+                </a>
+            }
+
+        </div>
+    </div>
+</div>
+```

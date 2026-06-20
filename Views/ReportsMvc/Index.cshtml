@@ -1,0 +1,148 @@
+﻿@model LibraryManagementSystem.Models.ViewModel.SummaryReportViewModel
+
+@{
+    ViewBag.Title = "Laporan";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0" style="color:#7A4E60;">Laporan Perpustakaan</h4>
+                    <small class="text-muted">Ringkasan data sistem perpustakaan.</small>
+                </div>
+
+                <a href="@Url.Action("Librarian", "DashboardMvc")" class="btn btn-sm btn-light rounded-pill">
+                    Kembali ke Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            <div class="mb-4">
+                <a href="@Url.Action("Books", "ReportsMvc")" class="btn btn-primary rounded-pill">
+                    Laporan Buku
+                </a>
+
+                <a href="@Url.Action("Borrowings", "ReportsMvc")" class="btn btn-outline-secondary rounded-pill">
+                    Laporan Peminjaman
+                </a>
+            </div>
+
+            <h5 class="mb-3" style="color:#7A4E60;">Ringkasan Sistem</h5>
+
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body text-center">
+                            <small class="text-muted">Total Buku</small>
+                            <h3>@Model.TotalBooks</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body text-center">
+                            <small class="text-muted">Total Kategori</small>
+                            <h3>@Model.TotalCategories</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body text-center">
+                            <small class="text-muted">Total Member</small>
+                            <h3>@Model.TotalMembers</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body text-center">
+                            <small class="text-muted">Total Peminjaman</small>
+                            <h3>@Model.TotalBorrowings</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="mb-3" style="color:#7A4E60;">Status Member</h5>
+
+            <div class="row mb-4">
+                <div class="col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body text-center">
+                            <small class="text-muted">Active</small>
+                            <h3 class="text-success">@Model.ActiveMembers</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body text-center">
+                            <small class="text-muted">Pending</small>
+                            <h3 class="text-warning">@Model.PendingMembers</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4 mb-3">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body text-center">
+                            <small class="text-muted">Rejected</small>
+                            <h3 class="text-danger">@Model.RejectedMembers</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h5 class="mb-3" style="color:#7A4E60;">Status Peminjaman</h5>
+
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body text-center">
+                            <small class="text-muted">Requested</small>
+                            <h3>@Model.RequestedBorrowings</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body text-center">
+                            <small class="text-muted">Borrowed</small>
+                            <h3>@Model.BorrowedBooks</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body text-center">
+                            <small class="text-muted">Returned</small>
+                            <h3>@Model.ReturnedBooks</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-3">
+                    <div class="card border-0 shadow-sm rounded-4">
+                        <div class="card-body text-center">
+                            <small class="text-muted">Rejected</small>
+                            <h3>@Model.RejectedBorrowings</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

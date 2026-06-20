@@ -22,6 +22,10 @@ namespace LibraryManagementSystem.Models.Entity
 
         public DateTime? ReturnDate { get; set; }
 
+        public int? LateDays { get; set; }
+        public decimal? FineAmount { get; set; }
+        public string FineStatus { get; set; }
+
         [Required]
         [StringLength(50)]
         public string Status { get; set; }

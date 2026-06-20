@@ -21,6 +21,9 @@ namespace LibraryManagementSystem.Models.ViewModel
         public DateTime? DueDate { get; set; }
         public DateTime? ReturnDate { get; set; }
 
+        public int? LateDays { get; set; }
+        public decimal? FineAmount { get; set; }
+        public string FineStatus { get; set; }
         public string Status { get; set; }
         public string Notes { get; set; }
 

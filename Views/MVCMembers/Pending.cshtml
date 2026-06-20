@@ -1,0 +1,121 @@
+﻿@model IEnumerable<LibraryManagementSystem.Models.ViewModel.MemberViewModel>
+
+@{
+    ViewBag.Title = "Pending Member";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0" style="color:#7A4E60;">Pending Member</h4>
+                    <small class="text-muted">Daftar member yang menunggu persetujuan pustakawan.</small>
+                </div>
+
+                <a href="@Url.Action("Index", "MVCMembers")" class="btn btn-sm btn-light rounded-pill">
+                    Kembali ke Data Member
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success rounded-3">
+                    @TempData["Success"]
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger rounded-3">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead style="background-color:#FDF6F0;">
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Lengkap</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Kode Member</th>
+                            <th>Alamat</th>
+                            <th>Kelas</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            var no = 1;
+                        }
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@no</td>
+                                <td>@item.FullName</td>
+                                <td>@item.Username</td>
+                                <td>@item.Email</td>
+                                <td>@item.MemberCode</td>
+                                <td>
+                                    @if (string.IsNullOrWhiteSpace(item.Address))
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                    else
+                                    {
+                                        @item.Address
+                                    }
+                                </td>
+                                <td>
+                                    @if (string.IsNullOrWhiteSpace(item.ClassName))
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                    else
+                                    {
+                                        @item.ClassName
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("Approve", "MVCMembers", new { id = item.Id })"
+                                       class="btn btn-sm btn-success rounded-pill"
+                                       onclick="return confirm('Setujui member ini?');">
+                                        Approve
+                                    </a>
+
+                                    <a href="@Url.Action("Reject", "MVCMembers", new { id = item.Id })"
+                                       class="btn btn-sm btn-danger rounded-pill"
+                                       onclick="return confirm('Tolak member ini?');">
+                                        Reject
+                                    </a>
+                                </td>
+                            </tr>
+
+                            no++;
+                        }
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="9" class="text-center text-muted">
+                                    Tidak ada member pending.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

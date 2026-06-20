@@ -1,0 +1,124 @@
+﻿@model IEnumerable<LibraryManagementSystem.Models.ViewModel.BorrowingViewModel>
+
+@{
+    ViewBag.Title = "Riwayat Peminjaman Saya";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0" style="color:#7A4E60;">Riwayat Peminjaman Saya</h4>
+                    <small class="text-muted">Daftar pengajuan, peminjaman, dan pengembalian buku Anda.</small>
+                </div>
+
+                <a href="@Url.Action("Member", "DashboardMvc")" class="btn btn-sm btn-light rounded-pill">
+                    Kembali ke Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success rounded-3">
+                    @TempData["Success"]
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger rounded-3">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead style="background-color:#FDF6F0;">
+                        <tr>
+                            <th>No</th>
+                            <th>Judul Buku</th>
+                            <th>Tanggal Pengajuan</th>
+                            <th>Tanggal Pinjam</th>
+                            <th>Jatuh Tempo</th>
+                            <th>Tanggal Kembali</th>
+                            <th>Status</th>
+                            <th>Catatan</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            var no = 1;
+                        }
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@no</td>
+                                <td>@item.BookTitle</td>
+                                <td>@item.RequestDate.ToString("dd-MM-yyyy")</td>
+                                <td>
+                                    @(item.BorrowDate == null ? "-" : item.BorrowDate.Value.ToString("dd-MM-yyyy"))
+                                </td>
+                                <td>
+                                    @(item.DueDate == null ? "-" : item.DueDate.Value.ToString("dd-MM-yyyy"))
+                                </td>
+                                <td>
+                                    @(item.ReturnDate == null ? "-" : item.ReturnDate.Value.ToString("dd-MM-yyyy"))
+                                </td>
+                                <td>
+                                    @if (item.Status == "Requested")
+                                    {
+                                        <span class="badge bg-warning text-dark">Requested</span>
+                                    }
+                                    else if (item.Status == "Borrowed")
+                                    {
+                                        <span class="badge bg-primary">Borrowed</span>
+                                    }
+                                    else if (item.Status == "Returned")
+                                    {
+                                        <span class="badge bg-success">Returned</span>
+                                    }
+                                    else if (item.Status == "Rejected")
+                                    {
+                                        <span class="badge bg-danger">Rejected</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@item.Status</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (string.IsNullOrWhiteSpace(item.Notes))
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                    else
+                                    {
+                                        @item.Notes
+                                    }
+                                </td>
+                            </tr>
+
+                            no++;
+                        }
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center text-muted">
+                                    Belum ada riwayat peminjaman.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+

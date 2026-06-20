@@ -1,0 +1,61 @@
+﻿@model LibraryManagementSystem.Models.ViewModel.LoginRequest
+
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-header text-center rounded-top-4" style="background-color:#F7D9E3;">
+                    <h4 class="mb-0" style="color:#7A4E60;">Login Perpustakaan</h4>
+                    <small class="text-muted">Masuk ke sistem perpustakaan</small>
+                </div>
+
+                <div class="card-body p-4">
+
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success">
+                            @TempData["Success"]
+                        </div>
+                    }
+
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">
+                            @TempData["Error"]
+                        </div>
+                    }
+
+                    @using (Html.BeginForm("Login", "AuthMvc", FormMethod.Post))
+                    {
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "Masukkan username" })
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Masukkan password" })
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            Login
+                        </button>
+                    }
+
+                    <div class="text-center mt-3">
+                        <small>Belum punya akun?</small>
+                        <a href="@Url.Action("Register", "AuthMvc")">Daftar di sini</a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

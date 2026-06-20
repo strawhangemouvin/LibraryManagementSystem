@@ -1,0 +1,63 @@
+﻿@model IEnumerable<object>
+
+@{
+    ViewBag.Title = "Activity Log";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+            <h4 class="mb-0" style="color:#7A4E60;">Activity Log</h4>
+            <small class="text-muted">Catatan aktivitas yang dilakukan di sistem.</small>
+        </div>
+
+        <div class="card-body">
+            <p class="text-muted">
+                Halaman ini digunakan pustakawan untuk melihat aktivitas seperti approve member, reject member, approve peminjaman, dan pengembalian buku.
+            </p>
+
+            <a href="@Url.Action("Librarian", "DashboardMvc")" class="btn btn-outline-secondary rounded-pill mb-3">
+                Kembali ke Dashboard
+            </a>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead style="background-color:#FDF6F0;">
+                        <tr>
+                            <th>No</th>
+                            <th>Data Log</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            var no = 1;
+                        }
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@no</td>
+                                <td>
+                                    <pre class="mb-0">@item</pre>
+                                </td>
+                            </tr>
+
+                            no++;
+                        }
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="2" class="text-center text-muted">
+                                    Belum ada activity log.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

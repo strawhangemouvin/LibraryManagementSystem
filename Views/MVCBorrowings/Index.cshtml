@@ -1,0 +1,216 @@
+﻿@model IEnumerable<LibraryManagementSystem.Models.ViewModel.BorrowingViewModel>
+
+@{
+    ViewBag.Title = "Data Peminjaman";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0" style="color:#7A4E60;">Data Peminjaman</h4>
+                    <small class="text-muted">Halaman pustakawan untuk menyetujui, menolak, memproses pengembalian, dan pembayaran denda.</small>
+                </div>
+
+                <a href="@Url.Action("Librarian", "DashboardMvc")" class="btn btn-sm btn-light rounded-pill">
+                    Kembali ke Dashboard
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success rounded-3">
+                    @TempData["Success"]
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger rounded-3">
+                    @TempData["Error"]
+                </div>
+            }
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead style="background-color:#FDF6F0;">
+                        <tr>
+                            <th>No</th>
+                            <th>Member</th>
+                            <th>Username</th>
+                            <th>Buku</th>
+                            <th>Tgl Pengajuan</th>
+                            <th>Tgl Pinjam</th>
+                            <th>Jatuh Tempo</th>
+                            <th>Tgl Kembali</th>
+                            <th>Status</th>
+                            <th>Catatan</th>
+                            <th>Denda</th>
+                            <th>Status Denda</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            var no = 1;
+                        }
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@no</td>
+                                <td>@item.MemberName</td>
+                                <td>@item.Username</td>
+                                <td>@item.BookTitle</td>
+                                <td>@item.RequestDate.ToString("dd-MM-yyyy")</td>
+
+                                <td>
+                                    @(item.BorrowDate == null ? "-" : item.BorrowDate.Value.ToString("dd-MM-yyyy"))
+                                </td>
+
+                                <td>
+                                    @(item.DueDate == null ? "-" : item.DueDate.Value.ToString("dd-MM-yyyy"))
+                                </td>
+
+                                <td>
+                                    @(item.ReturnDate == null ? "-" : item.ReturnDate.Value.ToString("dd-MM-yyyy"))
+                                </td>
+
+                                <td>
+                                    @if (item.Status == "Requested")
+                                    {
+                                        <span class="badge bg-warning text-dark">Requested</span>
+                                    }
+                                    else if (item.Status == "Borrowed")
+                                    {
+                                        <span class="badge bg-primary">Borrowed</span>
+                                    }
+                                    else if (item.Status == "Returned")
+                                    {
+                                        <span class="badge bg-success">Returned</span>
+                                    }
+                                    else if (item.Status == "Rejected")
+                                    {
+                                        <span class="badge bg-danger">Rejected</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@item.Status</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (string.IsNullOrWhiteSpace(item.Notes))
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                    else
+                                    {
+                                        @item.Notes
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (item.FineAmount != null && item.FineAmount > 0)
+                                    {
+                                        <span class="badge bg-danger">
+                                            Rp @item.FineAmount.Value.ToString("N0")
+                                        </span>
+
+                                        if (item.LateDays != null && item.LateDays > 0)
+                                        {
+                                            <br />
+                                            <small class="text-muted">
+                                                Telat @item.LateDays hari
+                                            </small>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (string.IsNullOrWhiteSpace(item.FineStatus))
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                    else if (item.FineStatus == "Paid")
+                                    {
+                                        <span class="badge bg-success">Paid</span>
+                                    }
+                                    else if (item.FineStatus == "Unpaid")
+                                    {
+                                        <span class="badge bg-warning text-dark">Unpaid</span>
+                                    }
+                                    else if (item.FineStatus == "None")
+                                    {
+                                        <span class="badge bg-secondary">None</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">@item.FineStatus</span>
+                                    }
+                                </td>
+
+                                <td>
+                                    @if (item.Status == "Requested")
+                                    {
+                                        <a href="@Url.Action("Approve", "MVCBorrowings", new { id = item.Id })"
+                                           class="btn btn-sm btn-success rounded-pill"
+                                           onclick="return confirm('Setujui peminjaman ini?');">
+                                            Approve
+                                        </a>
+
+                                        <a href="@Url.Action("Reject", "MVCBorrowings", new { id = item.Id })"
+                                           class="btn btn-sm btn-danger rounded-pill"
+                                           onclick="return confirm('Tolak peminjaman ini?');">
+                                            Reject
+                                        </a>
+                                    }
+                                    else if (item.Status == "Borrowed")
+                                    {
+                                        <a href="@Url.Action("ReturnConfirm", "MVCBorrowings", new { id = item.Id })"
+                                           class="btn btn-sm btn-primary rounded-pill">
+                                            Return
+                                        </a>
+                                    }
+                                    else if (item.Status == "Returned" && item.FineAmount != null && item.FineAmount > 0 && item.FineStatus == "Unpaid")
+                                    {
+                                        <a href="@Url.Action("PayFineConfirm", "MVCBorrowings", new { id = item.Id })"
+                                           class="btn btn-sm btn-success rounded-pill">
+                                            Bayar Denda
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">Tidak ada aksi</span>
+                                    }
+                                </td>
+                            </tr>
+
+                            no++;
+                        }
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="13" class="text-center text-muted">
+                                    Belum ada data peminjaman.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
