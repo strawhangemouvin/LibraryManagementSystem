@@ -1,85 +1,166 @@
-﻿@{
-    ViewBag.Title = "Dashboard Pustakawan";
+@{
+    ViewBag.Title = "Librarian Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Query stats dynamically in the view
+    var db = new LibraryManagementSystem.Services.Context.LibraryDbContext();
+    var totalBooks = db.Books.Sum(b => (int?)b.Stock) ?? 0;
+    var totalMembers = db.Members.Count(m => m.User.Status == "Active");
+    var pendingMembers = db.Members.Count(m => m.User.Status == "Pending");
+    var activeLoans = db.Borrowings.Count(b => b.Status == "Borrowed");
 }
 
-<div class="container mt-4">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header rounded-top-4" style="background-color:#F7D9E3;">
-            <h4 class="mb-0" style="color:#7A4E60;">Dashboard Pustakawan</h4>
-            <small class="text-muted">Halaman utama pustakawan untuk mengelola sistem perpustakaan.</small>
+<div class="container-fluid">
+    <!-- Welcome Header Banner -->
+    <div class="card border-0 rounded-4 mb-4" style="background: linear-gradient(135deg, #4A2E35 0%, #301A1E 100%); color: white; box-shadow: 0 10px 30px rgba(74, 46, 53, 0.15);">
+        <div class="card-body p-4 p-md-5 d-flex align-items-center justify-content-between">
+            <div>
+                <span class="badge rounded-pill mb-2 px-3 py-1" style="background: rgba(201, 122, 126, 0.2); border: 1px solid rgba(255,255,255,0.15); color: #FFF0F2; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">System Panel</span>
+                <h2 style="font-family: 'Playfair Display', serif; font-weight: 800; font-size: 32px;">Welcome back, @Session["FullName"]!</h2>
+                <p class="mb-0 opacity-75 mt-1" style="max-width: 600px; font-size: 14px;">Here is a quick overview of today's library statistics. Use the sidebar to navigate or perform quick actions below.</p>
+            </div>
+            <div class="d-none d-lg-block text-end">
+                <i class="bi bi-moon-stars-fill" style="font-size: 72px; color: rgba(255,255,255,0.15); line-height: 1;"></i>
+            </div>
         </div>
+    </div>
 
-        <div class="card-body">
-            <h5>Selamat datang, @Session["FullName"]</h5>
-            <p class="text-muted">
-                Dari halaman ini pustakawan dapat menyetujui member, mengelola buku, kategori, peminjaman, laporan, dan activity log.
-            </p>
-
-            <hr />
-
-            <div class="row">
-                <div class="col-md-3 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <h6>Data Member</h6>
-                            <a href="@Url.Action("Index", "MVCMembers")" class="btn btn-sm btn-primary rounded-pill mt-2">
-                                Buka
-                            </a>
-                        </div>
+    <!-- Live Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 rounded-4 shadow-sm h-100" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.35);">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-4" style="background: rgba(201, 122, 126, 0.15); color: var(--primary-rose);">
+                        <i class="bi bi-book-half fs-3" style="line-height: 1;"></i>
                     </div>
-                </div>
-
-                <div class="col-md-3 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <h6>Pending Member</h6>
-                            <a href="@Url.Action("Pending", "MVCMembers")" class="btn btn-sm btn-warning rounded-pill mt-2">
-                                Approve
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-3 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <h6>Kelola Buku</h6>
-                            <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-sm btn-outline-secondary rounded-pill mt-2">
-                                Buka
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-3 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <h6>Kelola Kategori</h6>
-                            <a href="@Url.Action("Index", "MVCCategories")" class="btn btn-sm btn-outline-secondary rounded-pill mt-2">
-                                Buka
-                            </a>
-                        </div>
+                    <div>
+                        <small class="text-muted d-block" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">Total Books</small>
+                        <h3 class="mb-0" style="font-weight: 800; color: #4A2E35;">@totalBooks</h3>
                     </div>
                 </div>
             </div>
+        </div>
 
-            <div class="mt-3">
-                <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-outline-secondary rounded-pill">
-                    Data Peminjaman
-                </a>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 rounded-4 shadow-sm h-100" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.35);">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-4" style="background: rgba(201, 122, 126, 0.15); color: #E5989B;">
+                        <i class="bi bi-people-fill fs-3" style="line-height: 1;"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">Active Members</small>
+                        <h3 class="mb-0" style="font-weight: 800; color: #4A2E35;">@totalMembers</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <a href="@Url.Action("Index", "ReportsMVC")" class="btn btn-outline-secondary rounded-pill">
-                    Laporan
-                </a>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 rounded-4 shadow-sm h-100" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.35);">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-4" style="background: rgba(230, 197, 135, 0.15); color: #C49E56;">
+                        <i class="bi bi-person-fill-check fs-3" style="line-height: 1;"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">Pending Approval</small>
+                        <h3 class="mb-0" style="font-weight: 800; color: #4A2E35;">@pendingMembers</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <a href="@Url.Action("Index", "ActivityLogsMVC")" class="btn btn-outline-secondary rounded-pill">
-                    Activity Log
-                </a>
+        <div class="col-md-3 col-sm-6">
+            <div class="card border-0 rounded-4 shadow-sm h-100" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.35);">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-4" style="background: rgba(40, 167, 69, 0.1); color: #28a745;">
+                        <i class="bi bi-journal-check fs-3" style="line-height: 1;"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block" style="font-size: 12px; font-weight: 600; text-transform: uppercase;">Active Borrowings</small>
+                        <h3 class="mb-0" style="font-weight: 800; color: #4A2E35;">@activeLoans</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                <a href="@Url.Action("Logout", "AuthMvc")" class="btn btn-danger rounded-pill">
-                    Logout
-                </a>
+    <!-- Quick Action Center -->
+    <h5 style="font-family: 'Playfair Display', serif; font-weight: 800; color: #4A2E35; margin-bottom: 20px; font-size: 20px;">Quick Action Hub</h5>
+    
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 rounded-4 shadow-sm h-100 text-center p-3" style="background: white; border: 1px solid rgba(0,0,0,0.04);">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="success-icon-container" style="background: rgba(201, 122, 126, 0.1); color: var(--primary-rose); width: 50px; height: 50px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 15px;">
+                            <i class="bi bi-person-badge-fill"></i>
+                        </div>
+                        <h6 style="font-weight: 700; color: #4A2E35;">Manage Registration</h6>
+                        <p class="text-muted mb-0" style="font-size: 12px;">Approve or reject new member registration requests.</p>
+                    </div>
+                    <div class="mt-3">
+                        <a href="@Url.Action("Pending", "MVCMembers")" class="btn btn-sm btn-main rounded-pill px-4 py-2 w-100">
+                            Approve List (@pendingMembers)
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 rounded-4 shadow-sm h-100 text-center p-3" style="background: white; border: 1px solid rgba(0,0,0,0.04);">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="success-icon-container" style="background: rgba(40, 167, 69, 0.1); color: #28a745; width: 50px; height: 50px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 15px;">
+                            <i class="bi bi-arrow-left-right"></i>
+                        </div>
+                        <h6 style="font-weight: 700; color: #4A2E35;">Borrow &amp; Return</h6>
+                        <p class="text-muted mb-0" style="font-size: 12px;">Verify borrowing requests and complete book return records.</p>
+                    </div>
+                    <div class="mt-3">
+                        <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-sm btn-outline-secondary rounded-pill px-4 py-2 w-100">
+                            Open Panel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 rounded-4 shadow-sm h-100 text-center p-3" style="background: white; border: 1px solid rgba(0,0,0,0.04);">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="success-icon-container" style="background: rgba(230, 197, 135, 0.15); color: #C49E56; width: 50px; height: 50px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 15px;">
+                            <i class="bi bi-bar-chart-fill"></i>
+                        </div>
+                        <h6 style="font-weight: 700; color: #4A2E35;">Library Reports</h6>
+                        <p class="text-muted mb-0" style="font-size: 12px;">Review summaries, download catalogs, and view charts.</p>
+                    </div>
+                    <div class="mt-3">
+                        <a href="@Url.Action("Index", "ReportsMvc")" class="btn btn-sm btn-outline-secondary rounded-pill px-4 py-2 w-100">
+                            Open Reports
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card border-0 rounded-4 shadow-sm h-100 text-center p-3" style="background: white; border: 1px solid rgba(0,0,0,0.04);">
+                <div class="card-body d-flex flex-column justify-content-between">
+                    <div>
+                        <div class="success-icon-container" style="background: rgba(0, 123, 255, 0.1); color: #007bff; width: 50px; height: 50px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 15px;">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <h6 style="font-weight: 700; color: #4A2E35;">Audit Logs</h6>
+                        <p class="text-muted mb-0" style="font-size: 12px;">Track all system actions, transactions, and approvals.</p>
+                    </div>
+                    <div class="mt-3">
+                        <a href="@Url.Action("Index", "ActivityLogsMvc")" class="btn btn-sm btn-outline-secondary rounded-pill px-4 py-2 w-100">
+                            Open Logs
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

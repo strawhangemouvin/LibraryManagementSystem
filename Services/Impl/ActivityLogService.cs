@@ -1,4 +1,5 @@
-﻿using LibraryManagementSystem.Services.Context;
+using LibraryManagementSystem.Models.ViewModel;
+using LibraryManagementSystem.Services.Context;
 using LibraryManagementSystem.Services.Interface;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,45 +10,45 @@ namespace LibraryManagementSystem.Services.Impl
     {
         private LibraryDbContext db = new LibraryDbContext();
 
-        public List<object> GetAllLogs()
+        public List<ActivityLogViewModel> GetAllLogs()
         {
             var logs = db.ActivityLogs
                 .OrderByDescending(x => x.CreatedAt)
-                .Select(x => new
+                .Select(x => new ActivityLogViewModel
                 {
-                    x.Id,
-                    x.UserId,
+                    Id = x.Id,
+                    UserId = x.UserId,
                     UserName = db.Users
                         .Where(u => u.Id == x.UserId)
                         .Select(u => u.FullName)
                         .FirstOrDefault(),
-                    x.Action,
-                    x.Description,
-                    x.CreatedAt
+                    Action = x.Action,
+                    Description = x.Description,
+                    CreatedAt = x.CreatedAt
                 })
-                .ToList<object>();
+                .ToList();
 
             return logs;
         }
 
-        public List<object> GetLogsByUser(int userId)
+        public List<ActivityLogViewModel> GetLogsByUser(int userId)
         {
             var logs = db.ActivityLogs
                 .Where(x => x.UserId == userId)
                 .OrderByDescending(x => x.CreatedAt)
-                .Select(x => new
+                .Select(x => new ActivityLogViewModel
                 {
-                    x.Id,
-                    x.UserId,
+                    Id = x.Id,
+                    UserId = x.UserId,
                     UserName = db.Users
                         .Where(u => u.Id == x.UserId)
                         .Select(u => u.FullName)
                         .FirstOrDefault(),
-                    x.Action,
-                    x.Description,
-                    x.CreatedAt
+                    Action = x.Action,
+                    Description = x.Description,
+                    CreatedAt = x.CreatedAt
                 })
-                .ToList<object>();
+                .ToList();
 
             return logs;
         }

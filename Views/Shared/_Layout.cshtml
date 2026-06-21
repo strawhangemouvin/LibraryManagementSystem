@@ -470,6 +470,48 @@
             color: var(--primary-rose-hover);
             transform: translateX(-3px);
         }
+
+        /* Premium Pagination Styles */
+        .pagination-rounded .page-link {
+            border: 1px solid rgba(201, 122, 126, 0.15);
+            background: rgba(255, 255, 255, 0.6);
+            color: var(--text-dark);
+            border-radius: 50% !important;
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition-smooth);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+            backdrop-filter: blur(10px);
+        }
+
+        .pagination-rounded .page-link:hover {
+            background-color: var(--primary-rose);
+            border-color: var(--primary-rose);
+            color: white !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(201, 122, 126, 0.2);
+        }
+
+        .pagination-rounded .page-item.active .page-link {
+            background-color: var(--primary-rose) !important;
+            border-color: var(--primary-rose) !important;
+            color: white !important;
+            box-shadow: 0 8px 16px rgba(201, 122, 126, 0.25);
+        }
+
+        .pagination-rounded .page-item.disabled .page-link {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(201, 122, 126, 0.05);
+            color: var(--text-muted);
+            opacity: 0.6;
+            transform: none;
+            box-shadow: none;
+        }
     </style>
 </head>
 
@@ -603,6 +645,87 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
+    <script>
+        $(document).ready(function () {
+            $('.paginated-table').each(function () {
+                var $table = $(this);
+                var pageSize = parseInt($table.data('page-size')) || 5; // Default page size 5
+                var $tbody = $table.find('tbody');
+                var $rows = $tbody.find('tr').not('.no-pagination');
+                var totalRows = $rows.length;
+
+                if (totalRows <= pageSize) {
+                    return; // No pagination needed if rows are fewer than page size
+                }
+
+                var totalPages = Math.ceil(totalRows / pageSize);
+                
+                // Create pagination HTML container below the table
+                var $paginationContainer = $('<div class="d-flex justify-content-center mt-4"><ul class="pagination pagination-rounded gap-1"></ul></div>');
+                var $paginationUl = $paginationContainer.find('ul');
+
+                function showPage(page) {
+                    var start = (page - 1) * pageSize;
+                    var end = start + pageSize;
+
+                    $rows.hide();
+                    $rows.slice(start, end).show();
+
+                    $paginationUl.empty();
+
+                    // Prev button
+                    var $prevItem = $('<li class="page-item"><a class="page-link" href="#" aria-label="Previous"><i class="bi bi-chevron-left"></i></a></li>');
+                    if (page === 1) {
+                        $prevItem.addClass('disabled');
+                    } else {
+                        $prevItem.find('a').click(function (e) {
+                            e.preventDefault();
+                            showPage(page - 1);
+                        });
+                    }
+                    $paginationUl.append($prevItem);
+
+                    // Page buttons
+                    for (var i = 1; i <= totalPages; i++) {
+                        (function (pageNumber) {
+                            var $pageItem = $('<li class="page-item"><a class="page-link" href="#">' + pageNumber + '</a></li>');
+                            if (pageNumber === page) {
+                                $pageItem.addClass('active');
+                            }
+                            $pageItem.find('a').click(function (e) {
+                                e.preventDefault();
+                                showPage(pageNumber);
+                            });
+                            $paginationUl.append($pageItem);
+                        })(i);
+                    }
+
+                    // Next button
+                    var $nextItem = $('<li class="page-item"><a class="page-link" href="#" aria-label="Next"><i class="bi bi-chevron-right"></i></a></li>');
+                    if (page === totalPages) {
+                        $nextItem.addClass('disabled');
+                    } else {
+                        $nextItem.find('a').click(function (e) {
+                            e.preventDefault();
+                            showPage(page + 1);
+                        });
+                    }
+                    $paginationUl.append($nextItem);
+                }
+
+                // Initial show page 1
+                showPage(1);
+
+                // Append pagination container
+                var $parentResponsive = $table.closest('.table-responsive');
+                if ($parentResponsive.length) {
+                    $parentResponsive.after($paginationContainer);
+                } else {
+                    $table.after($paginationContainer);
+                }
+            });
+        });
+    </script>
     @RenderSection("scripts", required: false)
 </body>
 </html>

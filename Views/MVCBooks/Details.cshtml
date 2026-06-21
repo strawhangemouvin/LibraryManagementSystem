@@ -1,102 +1,98 @@
-﻿@model LibraryManagementSystem.Models.Entity.Book
+@model LibraryManagementSystem.Models.Entity.Book
 
 @{
-    ViewBag.Title = "Detail Buku";
+    ViewBag.Title = "Book Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     var role = Session["Role"] != null ? Session["Role"].ToString() : "";
 }
 
 <div class="container-fluid mt-4">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
-            <h4 class="mb-0" style="color:#7A4E60;">Detail Buku</h4>
-            <small class="text-muted">Informasi lengkap data buku.</small>
+    <div class="card shadow-sm border-0 rounded-4" style="background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.25);">
+        <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose); color: white; padding: 20px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700;">Book Catalog Details</h4>
+                    <p class="mb-0 opacity-75" style="font-size: 13px;">Complete catalog information, stock status, and metadata of the book.</p>
+                </div>
+                <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-sm btn-light rounded-pill px-3" style="color: var(--primary-rose); font-weight: 600;">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Catalog
+                </a>
+            </div>
         </div>
 
-        <div class="card-body">
-            <dl class="row">
-                <dt class="col-sm-3">Kategori</dt>
-                <dd class="col-sm-9">
-                    @(Model.Category == null ? "-" : Model.Category.CategoryName)
-                </dd>
-
-                <dt class="col-sm-3">Judul</dt>
-                <dd class="col-sm-9">@Model.Title</dd>
-
-                <dt class="col-sm-3">Penulis</dt>
-                <dd class="col-sm-9">@Model.Author</dd>
-
-                <dt class="col-sm-3">Penerbit</dt>
-                <dd class="col-sm-9">
-                    @(string.IsNullOrWhiteSpace(Model.Publisher) ? "-" : Model.Publisher)
-                </dd>
-
-                <dt class="col-sm-3">Tahun Terbit</dt>
-                <dd class="col-sm-9">
-                    @(Model.PublishYear == null ? "-" : Model.PublishYear.ToString())
-                </dd>
-
-                <dt class="col-sm-3">ISBN</dt>
-                <dd class="col-sm-9">
-                    @(string.IsNullOrWhiteSpace(Model.ISBN) ? "-" : Model.ISBN)
-                </dd>
-
-                <dt class="col-sm-3">Stock</dt>
-                <dd class="col-sm-9">@Model.Stock</dd>
-
-                <dt class="col-sm-3">Stock Tersedia</dt>
-                <dd class="col-sm-9">@Model.AvailableStock</dd>
-
-                <dt class="col-sm-3">Status</dt>
-                <dd class="col-sm-9">
-                    @if (Model.AvailableStock > 0)
+        <div class="card-body p-4">
+            <dl class="dl-horizontal">
+                <dt>Category</dt>
+                <dd>
+                    @if (Model.Category != null)
                     {
-                        <span class="badge bg-success">Tersedia</span>
+                        <span class="badge rounded-pill" style="background-color: rgba(201, 122, 126, 0.15); color: var(--text-dark);">
+                            @Model.Category.CategoryName
+                        </span>
                     }
                     else
                     {
-                        <span class="badge bg-danger">Habis</span>
+                        <span class="text-muted">-</span>
                     }
                 </dd>
 
-                <dt class="col-sm-3">Deskripsi</dt>
-                <dd class="col-sm-9">
-                    @(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)
+                <dt>Book Title</dt>
+                <dd><strong style="color: #4A2E35;">@Model.Title</strong></dd>
+
+                <dt>Author</dt>
+                <dd>@Model.Author</dd>
+
+                <dt>Publisher</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Publisher) ? "-" : Model.Publisher)</dd>
+
+                <dt>Publication Year</dt>
+                <dd>@(Model.PublishYear == null ? "-" : Model.PublishYear.ToString())</dd>
+
+                <dt>ISBN</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.ISBN) ? "-" : Model.ISBN)</dd>
+
+                <dt>Total Stock</dt>
+                <dd>@Model.Stock</dd>
+
+                <dt>Available Stock</dt>
+                <dd>@Model.AvailableStock</dd>
+
+                <dt>Status</dt>
+                <dd>
+                    @if (Model.AvailableStock > 0)
+                    {
+                        <span class="badge bg-success rounded-pill px-3 py-1">Available</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger rounded-pill px-3 py-1">Out of Stock</span>
+                    }
                 </dd>
+
+                <dt>Description</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)</dd>
             </dl>
 
-            <hr />
+            <hr class="my-4" style="opacity: 0.1;" />
 
-            @if (role == "Librarian")
-            {
-                <a href="@Url.Action("Edit", "MVCBooks", new { id = Model.Id })" class="btn btn-primary rounded-pill">
-                    Edit
-                </a>
-
-                <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-outline-secondary rounded-pill">
-                    Kembali
-                </a>
-            }
-            else if (role == "Member")
-            {
-                if (Model.AvailableStock > 0)
+            <div class="d-flex gap-2">
+                @if (role == "Librarian")
                 {
-                    <a href="@Url.Action("RequestConfirm", "MVCBorrowings", new { bookId = Model.Id })" class="btn btn-primary rounded-pill">
-                        Pinjam Buku
+                    <a href="@Url.Action("Edit", "MVCBooks", new { id = Model.Id })" class="btn btn-main rounded-pill px-4 py-2">
+                        <i class="bi bi-pencil-square me-1"></i> Edit Book Details
                     </a>
                 }
-
-                <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-outline-secondary rounded-pill">
-                    Kembali ke Daftar Buku
-                </a>
-            }
-            else
-            {
-                <a href="@Url.Action("Login", "AuthMvc")" class="btn btn-outline-secondary rounded-pill">
-                    Login
-                </a>
-            }
+                else if (role == "Member")
+                {
+                    if (Model.AvailableStock > 0)
+                    {
+                        <a href="@Url.Action("RequestConfirm", "MVCBorrowings", new { bookId = Model.Id })" class="btn btn-main rounded-pill px-4 py-2">
+                            <i class="bi bi-bookmark-plus-fill me-1"></i> Request to Borrow
+                        </a>
+                    }
+                }
+            </div>
         </div>
     </div>
 </div>

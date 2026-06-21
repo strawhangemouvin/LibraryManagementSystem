@@ -1,74 +1,159 @@
-﻿@{
-    ViewBag.Title = "Dashboard Member";
+@{
+    ViewBag.Title = "Member Dashboard";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     var reminders = ViewBag.Reminders as List<LibraryManagementSystem.Models.ViewModel.BorrowingReminderViewModel>;
+
+    // Query stats dynamically in the view
+    var db = new LibraryManagementSystem.Services.Context.LibraryDbContext();
+    var userId = Convert.ToInt32(Session["UserId"]);
+    var member = db.Members.FirstOrDefault(x => x.UserId == userId);
+    int memberId = member != null ? member.Id : 0;
+
+    var activeLoans = memberId > 0 ? db.Borrowings.Count(b => b.MemberId == memberId && b.Status == "Borrowed") : 0;
+    var totalLoans = memberId > 0 ? db.Borrowings.Count(b => b.MemberId == memberId) : 0;
+    var unpaidFines = memberId > 0 ? db.Borrowings.Where(b => b.MemberId == memberId && b.FineStatus == "Unpaid").Sum(b => (decimal?)b.FineAmount) ?? 0 : 0;
 }
 
-<div class="container mt-4">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header rounded-top-4" style="background-color:#F7D9E3;">
-            <h4 class="mb-0" style="color:#7A4E60;">Dashboard Member</h4>
-            <small class="text-muted">Halaman utama member.</small>
+<div class="container-fluid">
+    <!-- Welcome Header Banner -->
+    <div class="card border-0 rounded-4 mb-4" style="background: linear-gradient(135deg, #4A2E35 0%, #301A1E 100%); color: white; box-shadow: 0 10px 30px rgba(74, 46, 53, 0.15);">
+        <div class="card-body p-4 p-md-5 d-flex align-items-center justify-content-between">
+            <div>
+                <span class="badge rounded-pill mb-2 px-3 py-1" style="background: rgba(201, 122, 126, 0.2); border: 1px solid rgba(255,255,255,0.15); color: #FFF0F2; font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Member Portal</span>
+                <h2 style="font-family: 'Playfair Display', serif; font-weight: 800; font-size: 32px;">Welcome back, @Session["FullName"]!</h2>
+                <p class="mb-0 opacity-75 mt-1" style="max-width: 600px; font-size: 14px;">Browse books, request a borrow, check your history, and manage late fines from your personal dashboard.</p>
+            </div>
+            <div class="d-none d-lg-block text-end">
+                <i class="bi bi-moon-stars-fill" style="font-size: 72px; color: rgba(255,255,255,0.15); line-height: 1;"></i>
+            </div>
         </div>
+    </div>
 
-        <div class="card-body">
-            <h5>Selamat datang, @Session["FullName"]</h5>
-            <p class="text-muted">Silakan lihat buku atau riwayat peminjaman.</p>
-
-            @if (reminders != null && reminders.Any())
-            {
-                <div class="alert alert-warning rounded-4 mt-3">
-                    <h6 class="mb-2">
-                        Pengingat Pengembalian Buku
-                    </h6>
-
+    <!-- Active Reminders Alerts -->
+    @if (reminders != null && reminders.Any())
+    {
+        <div class="alert alert-warning border-0 rounded-4 shadow-sm p-4 mb-4 d-flex align-items-start gap-3" style="background: rgba(230, 197, 135, 0.15); border-left: 5px solid #E6C587 !important;">
+            <div class="p-2 rounded-3 bg-warning text-dark">
+                <i class="bi bi-bell-fill fs-5" style="line-height: 1;"></i>
+            </div>
+            <div class="flex-1">
+                <h6 class="alert-heading fw-bold mb-2" style="color: #6a4f21;">Return Due Date Warnings</h6>
+                <div class="d-flex flex-column gap-2">
                     @foreach (var item in reminders)
                     {
-                        <div class="mb-2">
-                            <strong>@item.BookTitle</strong><br />
-
-                            @if (item.DaysRemaining < 0)
-                            {
-                                <span class="text-danger">
-                                    Buku ini sudah terlambat @Math.Abs(item.DaysRemaining) hari.
-                                </span>
-                            }
-                            else if (item.DaysRemaining == 0)
-                            {
-                                <span class="text-danger">
-                                    Buku ini harus dikembalikan hari ini.
-                                </span>
-                            }
-                            else
-                            {
-                                <span>
-                                    Buku ini harus dikembalikan dalam @item.DaysRemaining hari lagi.
-                                </span>
-                            }
-
-                            <br />
-                            <small class="text-muted">
-                                Jatuh tempo: @(item.DueDate == null ? "-" : item.DueDate.Value.ToString("dd-MM-yyyy"))
-                            </small>
+                        <div class="p-3 bg-white rounded-3 border border-warning border-opacity-25" style="font-size: 13px; color: #4A2E35;">
+                            <strong>@item.BookTitle</strong>
+                            <div class="mt-1 d-flex flex-wrap align-items-center gap-2">
+                                @if (item.DaysRemaining < 0)
+                                {
+                                    <span class="badge bg-danger rounded-pill">Overdue by @Math.Abs(item.DaysRemaining) Days</span>
+                                }
+                                else if (item.DaysRemaining == 0)
+                                {
+                                    <span class="badge bg-danger rounded-pill">Due Today</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark rounded-pill">Due in @item.DaysRemaining Days</span>
+                                }
+                                <span class="text-muted">|</span>
+                                <span class="text-muted">Due Date: @(item.DueDate == null ? "-" : item.DueDate.Value.ToString("dd-MM-yyyy"))</span>
+                            </div>
                         </div>
                     }
                 </div>
-            }
+            </div>
+        </div>
+    }
 
-            <hr />
+    <!-- Live Statistics Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 rounded-4 shadow-sm h-100" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.35);">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-4" style="background: rgba(201, 122, 126, 0.15); color: var(--primary-rose);">
+                        <i class="bi bi-book-half fs-3" style="line-height: 1;"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block" style="font-size: 11px; font-weight: 600; text-transform: uppercase;">Active Loans</small>
+                        <h3 class="mb-0" style="font-weight: 800; color: #4A2E35;">@activeLoans</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-primary rounded-pill">
-                Daftar Buku
-            </a>
+        <div class="col-md-4">
+            <div class="card border-0 rounded-4 shadow-sm h-100" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.35);">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-4" style="background: rgba(255, 213, 194, 0.25); color: #E5989B;">
+                        <i class="bi bi-clock-history fs-3" style="line-height: 1;"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block" style="font-size: 11px; font-weight: 600; text-transform: uppercase;">Borrow History</small>
+                        <h3 class="mb-0" style="font-weight: 800; color: #4A2E35;">@totalLoans</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <a href="@Url.Action("MyHistory", "MVCBorrowings")" class="btn btn-outline-secondary rounded-pill">
-                Riwayat Peminjaman
-            </a>
+        <div class="col-md-4">
+            <div class="card border-0 rounded-4 shadow-sm h-100" style="background: rgba(255, 255, 255, 0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.35);">
+                <div class="card-body p-4 d-flex align-items-center gap-3">
+                    <div class="p-3 rounded-4" style="background: @(unpaidFines > 0 ? "rgba(220, 53, 69, 0.1)" : "rgba(40, 167, 69, 0.1)"); color: @(unpaidFines > 0 ? "#dc3545" : "#28a745");">
+                        <i class="bi @(unpaidFines > 0 ? "bi-exclamation-octagon-fill" : "bi-shield-check-fill") fs-3" style="line-height: 1;"></i>
+                    </div>
+                    <div>
+                        <small class="text-muted d-block" style="font-size: 11px; font-weight: 600; text-transform: uppercase;">Unpaid Fines</small>
+                        <h3 class="mb-0" style="font-weight: 800; color: @(unpaidFines > 0 ? "#dc3545" : "#28a745");">
+                            @(unpaidFines > 0 ? "Rp " + unpaidFines.ToString("N0") : "None")
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            <a href="@Url.Action("Logout", "AuthMvc")" class="btn btn-danger rounded-pill">
-                Logout
-            </a>
+    <!-- Quick Action Cards -->
+    <h5 style="font-family: 'Playfair Display', serif; font-weight: 800; color: #4A2E35; margin-bottom: 20px; font-size: 20px;">Catalog &amp; Logs</h5>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card border-0 rounded-4 shadow-sm p-4 h-100" style="background: white; border: 1px solid rgba(0,0,0,0.04);">
+                <div class="card-body d-flex flex-column justify-content-between p-0">
+                    <div>
+                        <div class="success-icon-container" style="background: rgba(201, 122, 126, 0.1); color: var(--primary-rose); width: 48px; height: 48px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 15px;">
+                            <i class="bi bi-search"></i>
+                        </div>
+                        <h5 style="font-weight: 700; color: #4A2E35;">Browse Book Catalog</h5>
+                        <p class="text-muted mb-0" style="font-size: 13px; line-height: 1.6;">Search our digital collection of books, view their details, check availability status, and make borrow requests instantly.</p>
+                    </div>
+                    <div class="mt-4">
+                        <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-main rounded-pill px-4 py-2 w-100">
+                            Explore Books
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card border-0 rounded-4 shadow-sm p-4 h-100" style="background: white; border: 1px solid rgba(0,0,0,0.04);">
+                <div class="card-body d-flex flex-column justify-content-between p-0">
+                    <div>
+                        <div class="success-icon-container" style="background: rgba(255, 213, 194, 0.25); color: #E5989B; width: 48px; height: 48px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 15px;">
+                            <i class="bi bi-journal-text"></i>
+                        </div>
+                        <h5 style="font-weight: 700; color: #4A2E35;">Personal Borrowing History</h5>
+                        <p class="text-muted mb-0" style="font-size: 13px; line-height: 1.6;">Check your active loans, track outstanding due dates, review return status, and see past transaction notes or fines paid.</p>
+                    </div>
+                    <div class="mt-4">
+                        <a href="@Url.Action("MyHistory", "MVCBorrowings")" class="btn btn-outline-secondary rounded-pill px-4 py-2 w-100">
+                            View History
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

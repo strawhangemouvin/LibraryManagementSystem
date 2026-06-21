@@ -1,67 +1,70 @@
-﻿@model LibraryManagementSystem.Models.Entity.Member
+@model LibraryManagementSystem.Models.ViewModel.MemberViewModel
 
 @{
-    ViewBag.Title = "Details";
+    ViewBag.Title = "Member Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Details</h2>
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4" style="background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.25);">
+        <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose); color: white; padding: 20px;">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700;">Member Profile</h4>
+                    <p class="mb-0 opacity-75" style="font-size: 13px;">Complete account and membership profile details.</p>
+                </div>
+                <a href="@Url.Action("Index", "MVCMembers")" class="btn btn-sm btn-light rounded-pill px-3" style="color: var(--primary-rose); font-weight: 600;">
+                    <i class="bi bi-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+        </div>
 
-<div>
-    <h4>Member</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.ApprovedByUser.FullName)
-        </dt>
+        <div class="card-body p-4">
+            <dl class="dl-horizontal">
+                <dt>Full Name</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.FullName) ? "-" : Model.FullName)</dd>
 
-        <dd>
-            @Html.DisplayFor(model => model.ApprovedByUser.FullName)
-        </dd>
+                <dt>Username</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Username) ? "-" : Model.Username)</dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.User.FullName)
-        </dt>
+                <dt>Member Code</dt>
+                <dd><code class="text-dark" style="font-weight: 700;">@Model.MemberCode</code></dd>
 
-        <dd>
-            @Html.DisplayFor(model => model.User.FullName)
-        </dd>
+                <dt>Email</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)</dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.MemberCode)
-        </dt>
+                <dt>Address</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.Address) ? "-" : Model.Address)</dd>
 
-        <dd>
-            @Html.DisplayFor(model => model.MemberCode)
-        </dd>
+                <dt>Class</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.ClassName) ? "-" : Model.ClassName)</dd>
 
+                <dt>Status</dt>
+                <dd>
+                    @if (Model.Status == "Active")
+                    {
+                        <span class="badge bg-success rounded-pill px-3">Active</span>
+                    }
+                    else if (Model.Status == "Pending")
+                    {
+                        <span class="badge bg-warning text-dark rounded-pill px-3">Pending</span>
+                    }
+                    else if (Model.Status == "Rejected")
+                    {
+                        <span class="badge bg-danger rounded-pill px-3">Rejected</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary rounded-pill px-3">@(string.IsNullOrWhiteSpace(Model.Status) ? "-" : Model.Status)</span>
+                    }
+                </dd>
 
-        <dt>
-            @Html.DisplayNameFor(model => model.Address)
-        </dt>
+                <dt>Approved By</dt>
+                <dd>@(string.IsNullOrWhiteSpace(Model.ApprovedByName) ? "-" : Model.ApprovedByName)</dd>
 
-        <dd>
-            @Html.DisplayFor(model => model.Address)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.ClassName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.ClassName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.ApprovedAt)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.ApprovedAt)
-        </dd>
-
-    </dl>
+                <dt>Approval Date</dt>
+                <dd>@(Model.ApprovedAt == null ? "-" : Model.ApprovedAt.Value.ToString("dd-MM-yyyy HH:mm"))</dd>
+            </dl>
+        </div>
+    </div>
 </div>
-<p>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |
-    @Html.ActionLink("Back to List", "Index")
-</p>
