@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Configuration;
 using System.Net;
 using System.Net.Mail;
@@ -53,7 +53,7 @@ namespace LibraryManagementSystem.Helpers
 
             using (MailMessage message = new MailMessage())
             {
-                message.From = new MailAddress(smtpEmail, "Moon Books");
+                message.From = new MailAddress(smtpEmail, "Moon Books Area");
 
                 // INI YANG PALING PENTING
                 message.To.Add(toEmail);

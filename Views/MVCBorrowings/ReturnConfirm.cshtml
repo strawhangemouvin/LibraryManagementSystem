@@ -1,7 +1,7 @@
-﻿@model LibraryManagementSystem.Models.Entity.Borrowing
+@model LibraryManagementSystem.Models.Entity.Borrowing
 
 @{
-    ViewBag.Title = "Konfirmasi Pengembalian";
+    ViewBag.Title = "Return Book Confirmation";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     var lateDays = ViewBag.LateDays == null ? 0 : Convert.ToInt32(ViewBag.LateDays);
@@ -9,21 +9,21 @@
 }
 
 <div class="container-fluid mt-4">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+    <div class="card shadow-sm border-0 rounded-4" style="background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.25);">
+        <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose); color: white; padding: 20px;">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h4 class="mb-0" style="color:#7A4E60;">Konfirmasi Pengembalian</h4>
-                    <small class="text-muted">Periksa detail peminjaman sebelum memproses pengembalian buku.</small>
+                    <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700;">Return Book Confirmation</h4>
+                    <p class="mb-0 opacity-75" style="font-size: 13px;">Review the borrowing record details before processing the return.</p>
                 </div>
 
-                <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-sm btn-light rounded-pill">
-                    Kembali ke Data Peminjaman
+                <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-sm btn-light rounded-pill px-3" style="color: var(--primary-rose); font-weight: 600;">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Borrowings
                 </a>
             </div>
         </div>
 
-        <div class="card-body">
+        <div class="card-body p-4">
 
             @if (TempData["Error"] != null)
             {
@@ -32,109 +32,108 @@
                 </div>
             }
 
-            <div class="row">
+            <div class="row g-4">
                 <div class="col-md-6">
-                    <h5 style="color:#7A4E60;">Detail Buku</h5>
+                    <div class="p-3 rounded-4" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(0, 0, 0, 0.05); height: 100%;">
+                        <h5 style="color: var(--primary-rose); font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 20px;">
+                            <i class="bi bi-book me-2"></i>Book Details
+                        </h5>
 
-                    <table class="table table-borderless">
-                        <tr>
-                            <th style="width:180px;">Judul Buku</th>
-                            <td>
-                                @(Model.Book == null ? "-" : Model.Book.Title)
-                            </td>
-                        </tr>
+                        <table class="table table-borderless align-middle">
+                            <tr>
+                                <th style="width:160px; color: #5a5a5a; font-size: 14px;">Book Title</th>
+                                <td style="font-weight: 600;">@(Model.Book == null ? "-" : Model.Book.Title)</td>
+                            </tr>
 
-                        <tr>
-                            <th>Penulis</th>
-                            <td>
-                                @(Model.Book == null ? "-" : Model.Book.Author)
-                            </td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Author</th>
+                                <td style="font-weight: 600;">@(Model.Book == null ? "-" : Model.Book.Author)</td>
+                            </tr>
 
-                        <tr>
-                            <th>Kode Member</th>
-                            <td>
-                                @(Model.Member == null ? "-" : Model.Member.MemberCode)
-                            </td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Member Code</th>
+                                <td style="font-weight: 600;">@(Model.Member == null ? "-" : Model.Member.MemberCode)</td>
+                            </tr>
 
-                        <tr>
-                            <th>Status</th>
-                            <td>
-                                <span class="badge bg-primary">@Model.Status</span>
-                            </td>
-                        </tr>
-                    </table>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Status</th>
+                                <td>
+                                    <span class="badge bg-primary rounded-pill px-3 py-2">@Model.Status</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="col-md-6">
-                    <h5 style="color:#7A4E60;">Detail Tanggal</h5>
+                    <div class="p-3 rounded-4" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(0, 0, 0, 0.05); height: 100%;">
+                        <h5 style="color: var(--primary-rose); font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 20px;">
+                            <i class="bi bi-calendar-event me-2"></i>Timeline & Fines
+                        </h5>
 
-                    <table class="table table-borderless">
-                        <tr>
-                            <th style="width:180px;">Tanggal Pengajuan</th>
-                            <td>@Model.RequestDate.ToString("dd-MM-yyyy")</td>
-                        </tr>
+                        <table class="table table-borderless align-middle">
+                            <tr>
+                                <th style="width:160px; color: #5a5a5a; font-size: 14px;">Request Date</th>
+                                <td><i class="bi bi-calendar me-2 text-muted"></i>@Model.RequestDate.ToString("dd-MM-yyyy")</td>
+                            </tr>
 
-                        <tr>
-                            <th>Tanggal Pinjam</th>
-                            <td>
-                                @(Model.BorrowDate == null ? "-" : Model.BorrowDate.Value.ToString("dd-MM-yyyy"))
-                            </td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Borrow Date</th>
+                                <td><i class="bi bi-calendar-play me-2 text-muted"></i>@(Model.BorrowDate == null ? "-" : Model.BorrowDate.Value.ToString("dd-MM-yyyy"))</td>
+                            </tr>
 
-                        <tr>
-                            <th>Jatuh Tempo</th>
-                            <td>
-                                @(Model.DueDate == null ? "-" : Model.DueDate.Value.ToString("dd-MM-yyyy"))
-                            </td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Due Date</th>
+                                <td><i class="bi bi-calendar-x me-2 text-muted"></i>@(Model.DueDate == null ? "-" : Model.DueDate.Value.ToString("dd-MM-yyyy"))</td>
+                            </tr>
 
-                        <tr>
-                            <th>Tanggal Kembali</th>
-                            <td>@DateTime.Now.ToString("dd-MM-yyyy")</td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Return Date</th>
+                                <td><i class="bi bi-calendar-check me-2 text-muted"></i>@DateTime.Now.ToString("dd-MM-yyyy")</td>
+                            </tr>
 
-                        <tr>
-                            <th>Keterlambatan</th>
-                        <tr>
-                            <th>Total Denda</th>
-                            <td>
-                                @if (fineAmount > 0)
-                                {
-                                    <span class="badge bg-danger">
-                                        Rp @fineAmount.ToString("N0")
-                                    </span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-success">
-                                        Tidak ada denda
-                                    </span>
-                                }
-                            </td>
-                        </tr>
-                        </tr>
-                        <td>
-                            @if (lateDays > 0)
-                            {
-                                <span class="badge bg-danger">Terlambat @lateDays hari</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-success">Tidak terlambat</span>
-                            }
-                        </td>
-                        </tr>
-                    </table>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Late Duration</th>
+                                <td>
+                                    @if (lateDays > 0)
+                                    {
+                                        <span class="badge bg-danger rounded-pill px-3 py-2">Late by @lateDays Days</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success rounded-pill px-3 py-2">On Time</span>
+                                    }
+                                </td>
+                            </tr>
 
-                    <div class="alert alert-info rounded-3">
-                        Setelah diproses, status peminjaman akan berubah menjadi <b>Returned</b> dan stok buku akan bertambah kembali.
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Total Fine</th>
+                                <td>
+                                    @if (fineAmount > 0)
+                                    {
+                                        <span class="badge bg-danger rounded-pill px-3 py-2">
+                                            Rp @fineAmount.ToString("N0")
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success rounded-pill px-3 py-2">
+                                            No Fine
+                                        </span>
+                                    }
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>
 
-            <hr />
+            <div class="alert alert-info rounded-4 p-3 mt-4" style="border: none; background: rgba(122, 78, 96, 0.08); color: #4A2E35;">
+                <i class="bi bi-info-circle-fill me-2" style="color: var(--primary-rose);"></i>
+                Once processed, the borrowing status will update to <b>Returned</b> and the book's available stock will be automatically replenished.
+            </div>
+
+            <hr class="my-4" style="opacity: 0.1;" />
 
             @using (Html.BeginForm("ReturnConfirmed", "MVCBorrowings", FormMethod.Post))
             {
@@ -142,13 +141,14 @@
                 @Html.Hidden("id", Model.Id)
 
                 <button type="submit"
-                        class="btn btn-primary rounded-pill"
-                        onclick="return confirm('Proses pengembalian buku ini?');">
-                    Proses Pengembalian
+                        class="btn rounded-pill px-4 py-2"
+                        style="background-color: var(--primary-rose); color: white; font-weight: 600; border: none; box-shadow: 0 4px 12px rgba(201, 122, 126, 0.2);"
+                        onclick="return confirm('Process return for this book?');">
+                    <i class="bi bi-check2-circle me-1"></i> Process Return
                 </button>
 
-                <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-outline-secondary rounded-pill">
-                    Batal
+                <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-outline-secondary rounded-pill px-4 py-2 ms-2" style="font-weight: 600;">
+                    Cancel
                 </a>
             }
 

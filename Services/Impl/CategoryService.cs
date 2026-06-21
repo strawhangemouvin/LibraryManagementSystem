@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Models.Entity;
+using LibraryManagementSystem.Models.Entity;
 using LibraryManagementSystem.Services.Context;
 using LibraryManagementSystem.Services.Interface;
 using System;
@@ -30,12 +30,12 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (category == null)
             {
-                throw new Exception("Data kategori tidak boleh kosong");
+                throw new Exception("Category data cannot be empty");
             }
 
             if (string.IsNullOrWhiteSpace(category.CategoryName))
             {
-                throw new Exception("Nama kategori wajib diisi");
+                throw new Exception("Category name is required");
             }
 
             var categoryName = category.CategoryName.Trim();
@@ -44,7 +44,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (categoryExists)
             {
-                throw new Exception("Nama kategori sudah digunakan");
+                throw new Exception("Category name is already in use");
             }
 
             category.CategoryName = categoryName;
@@ -68,12 +68,12 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (category == null)
             {
-                throw new Exception("Data kategori tidak boleh kosong");
+                throw new Exception("Category data cannot be empty");
             }
 
             if (string.IsNullOrWhiteSpace(category.CategoryName))
             {
-                throw new Exception("Nama kategori wajib diisi");
+                throw new Exception("Category name is required");
             }
 
             var existingCategory = db.Categories.Find(id);
@@ -92,7 +92,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (categoryExists)
             {
-                throw new Exception("Nama kategori sudah digunakan");
+                throw new Exception("Category name is already in use");
             }
 
             existingCategory.CategoryName = categoryName;
@@ -124,7 +124,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (hasBooks)
             {
-                throw new Exception("Kategori tidak bisa dihapus karena masih digunakan oleh buku");
+                throw new Exception("Category cannot be deleted because it is still referenced by books");
             }
 
             db.Categories.Remove(category);

@@ -1,88 +1,142 @@
-﻿@model LibraryManagementSystem.Models.ViewModel.RegisterRequest
+@model LibraryManagementSystem.Models.ViewModel.RegisterRequest
 
 @{
     ViewBag.Title = "Sign Up";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row justify-content-center align-items-center" style="min-height: 70vh;">
-    <div class="col-md-7 col-lg-6">
-        <div class="text-center mb-4">
-            <div style="font-size:58px;">🌙</div>
-            <h2 style="color:#7B4F2C; font-weight:800;">Sign Up</h2>
-            <p class="text-muted">Daftar sebagai member Moon Books.</p>
-        </div>
+<style>
+    /* Make the default full-width page shell transparent for a centered look */
+    .moon-page-shell {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
 
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger">
-                @TempData["Error"]
+    .auth-card-wide {
+        background: rgba(255, 255, 255, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-radius: 32px !important;
+        padding: 40px !important;
+        box-shadow: 0 10px 40px rgba(74, 46, 53, 0.08) !important;
+        transition: var(--transition-smooth);
+        max-width: 680px;
+        margin: 0 auto;
+    }
+
+    .auth-card-wide:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 50px rgba(74, 46, 53, 0.12) !important;
+    }
+
+    .auth-icon-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 76px;
+        height: 76px;
+        background: rgba(255, 213, 194, 0.4);
+        border-radius: 24px;
+        color: var(--primary-rose);
+        font-size: 38px;
+        margin-bottom: 20px;
+        transition: var(--transition-smooth);
+    }
+
+    .auth-card-wide:hover .auth-icon-wrapper {
+        transform: scale(1.08) rotate(6deg);
+        background: var(--primary-rose);
+        color: white;
+    }
+</style>
+
+<div class="row justify-content-center align-items-center" style="min-height: 70vh; padding: 20px 0;">
+    <div class="col-12">
+        <div class="auth-card-wide">
+            <div class="text-center mb-4">
+                <div class="auth-icon-wrapper">
+                    <i class="bi bi-moon-stars-fill"></i>
+                </div>
+                <h3 style="color: #4A2E35; font-weight: 800; font-family: 'Playfair Display', serif; margin-bottom: 4px;">Sign Up</h3>
+                <p class="text-muted" style="font-size: 13px;">Register as a member of Moon Books.</p>
             </div>
-        }
 
-        @using (Html.BeginForm("Register", "AuthMvc", FormMethod.Post, new { id = "registerForm" }))
-        {
-            @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3" role="alert" style="font-size: 14px;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 1rem;"></button>
+                </div>
+            }
 
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Nama Lengkap</label>
-                    @Html.TextBoxFor(m => m.FullName, new { @class = "form-control", placeholder = "Masukkan nama lengkap" })
-                    @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger small" })
+            @using (Html.BeginForm("Register", "AuthMvc", FormMethod.Post, new { id = "registerForm" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Full Name</label>
+                        @Html.TextBoxFor(m => m.FullName, new { @class = "form-control", placeholder = "Enter full name", required = "required" })
+                        @Html.ValidationMessageFor(m => m.FullName, "", new { @class = "text-danger small mt-1 d-block" })
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Username</label>
+                        @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "example: nabila_07", required = "required" })
+                        @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger small mt-1 d-block" })
+                    </div>
                 </div>
 
-                <div class="col-md-6 mb-3">
-                    <label class="form-label">Username</label>
-                    @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "contoh: nabila_07" })
-                    @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger small" })
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Email</label>
+                        @Html.TextBoxFor(m => m.Email, new
+                        {
+                            @class = "form-control",
+                            id = "Email",
+                            placeholder = "example: monica07 then type @g",
+                            required = "required"
+                        })
+                        @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small mt-1 d-block" })
+                        <small class="text-muted d-block mt-1" style="font-size: 11px;">
+                            Type <b>@@g</b> for gmail, <b>@@y</b> for yahoo, or <b>@@e</b> for email.com.
+                        </small>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Class</label>
+                        @Html.TextBoxFor(m => m.ClassName, new { @class = "form-control", placeholder = "Example: TI-2A", required = "required" })
+                        @Html.ValidationMessageFor(m => m.ClassName, "", new { @class = "text-danger small mt-1 d-block" })
+                    </div>
                 </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "6-15 characters, lowercase letters and numbers", required = "required" })
+                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small mt-1 d-block" })
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Address</label>
+                    @Html.TextAreaFor(m => m.Address, new { @class = "form-control", rows = "2", placeholder = "Enter address", required = "required" })
+                    @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger small mt-1 d-block" })
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill" style="font-size: 15px; font-weight: 700;">
+                    Sign Up <i class="bi bi-person-plus ms-1"></i>
+                </button>
+            }
+
+            <div class="text-center mt-4 pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
+                <small class="text-muted">Already have an account?</small>
+                <a href="@Url.Action("Login", "AuthMvc")" style="color: var(--primary-rose); font-weight: 700; text-decoration: none; font-size: 14px;" class="ms-1">
+                    Sign In
+                </a>
             </div>
-
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-
-                @Html.TextBoxFor(m => m.Email, new
-                {
-                    @class = "form-control",
-                    id = "Email",
-                    placeholder = "contoh: monica07 lalu ketik @g"
-                })
-
-                @Html.ValidationMessageFor(m => m.Email, "", new { @class = "text-danger small" })
-
-                <small class="text-muted">
-                    Ketik <b>@@g</b> untuk gmail, <b>@@y</b> untuk yahoo, atau <b>@@e</b> untuk email.com.
-                </small>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "6-15 karakter, huruf kecil dan angka" })
-                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small" })
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Alamat</label>
-                @Html.TextAreaFor(m => m.Address, new { @class = "form-control", rows = "3", placeholder = "Masukkan alamat" })
-                @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger small" })
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Kelas</label>
-                @Html.TextBoxFor(m => m.ClassName, new { @class = "form-control", placeholder = "Contoh: TI-2A" })
-                @Html.ValidationMessageFor(m => m.ClassName, "", new { @class = "text-danger small" })
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100">
-                Sign Up
-            </button>
-        }
-
-        <div class="text-center mt-3">
-            <small class="text-muted">Sudah punya akun?</small>
-            <a href="@Url.Action("Login", "AuthMvc")" style="color:#7B4F2C; font-weight:600;">
-                Sign In
-            </a>
         </div>
     </div>
 </div>
@@ -94,57 +148,59 @@
         const emailInput = document.getElementById("Email");
         const at = String.fromCharCode(64);
 
-        emailInput.addEventListener("input", function () {
-            let value = emailInput.value.trim().toLowerCase();
+        if (emailInput) {
+            emailInput.addEventListener("input", function () {
+                let value = emailInput.value.trim().toLowerCase();
 
-            if (value.endsWith(at + "g")) {
-                emailInput.value = value.substring(0, value.length - 2) + at + "gmail.com";
-                moveCursorToEnd(emailInput);
-                return;
-            }
+                if (value.endsWith(at + "g")) {
+                    emailInput.value = value.substring(0, value.length - 2) + at + "gmail.com";
+                    moveCursorToEnd(emailInput);
+                    return;
+                }
 
-            if (value.endsWith(at + "gm")) {
-                emailInput.value = value.substring(0, value.length - 3) + at + "gmail.com";
-                moveCursorToEnd(emailInput);
-                return;
-            }
+                if (value.endsWith(at + "gm")) {
+                    emailInput.value = value.substring(0, value.length - 3) + at + "gmail.com";
+                    moveCursorToEnd(emailInput);
+                    return;
+                }
 
-            if (value.endsWith(at + "gmail")) {
-                emailInput.value = value.substring(0, value.length - 6) + at + "gmail.com";
-                moveCursorToEnd(emailInput);
-                return;
-            }
+                if (value.endsWith(at + "gmail")) {
+                    emailInput.value = value.substring(0, value.length - 6) + at + "gmail.com";
+                    moveCursorToEnd(emailInput);
+                    return;
+                }
 
-            if (value.endsWith(at + "y")) {
-                emailInput.value = value.substring(0, value.length - 2) + at + "yahoo.com";
-                moveCursorToEnd(emailInput);
-                return;
-            }
+                if (value.endsWith(at + "y")) {
+                    emailInput.value = value.substring(0, value.length - 2) + at + "yahoo.com";
+                    moveCursorToEnd(emailInput);
+                    return;
+                }
 
-            if (value.endsWith(at + "ya")) {
-                emailInput.value = value.substring(0, value.length - 3) + at + "yahoo.com";
-                moveCursorToEnd(emailInput);
-                return;
-            }
+                if (value.endsWith(at + "ya")) {
+                    emailInput.value = value.substring(0, value.length - 3) + at + "yahoo.com";
+                    moveCursorToEnd(emailInput);
+                    return;
+                }
 
-            if (value.endsWith(at + "yahoo")) {
-                emailInput.value = value.substring(0, value.length - 6) + at + "yahoo.com";
-                moveCursorToEnd(emailInput);
-                return;
-            }
+                if (value.endsWith(at + "yahoo")) {
+                    emailInput.value = value.substring(0, value.length - 6) + at + "yahoo.com";
+                    moveCursorToEnd(emailInput);
+                    return;
+                }
 
-            if (value.endsWith(at + "e")) {
-                emailInput.value = value.substring(0, value.length - 2) + at + "email.com";
-                moveCursorToEnd(emailInput);
-                return;
-            }
+                if (value.endsWith(at + "e")) {
+                    emailInput.value = value.substring(0, value.length - 2) + at + "email.com";
+                    moveCursorToEnd(emailInput);
+                    return;
+                }
 
-            if (value.endsWith(at + "email")) {
-                emailInput.value = value.substring(0, value.length - 6) + at + "email.com";
-                moveCursorToEnd(emailInput);
-                return;
-            }
-        });
+                if (value.endsWith(at + "email")) {
+                    emailInput.value = value.substring(0, value.length - 6) + at + "email.com";
+                    moveCursorToEnd(emailInput);
+                    return;
+                }
+            });
+        }
 
         function moveCursorToEnd(input) {
             setTimeout(function () {

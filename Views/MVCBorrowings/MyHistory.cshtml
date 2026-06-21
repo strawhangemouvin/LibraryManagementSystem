@@ -1,52 +1,52 @@
-﻿@model IEnumerable<LibraryManagementSystem.Models.ViewModel.BorrowingViewModel>
+@model IEnumerable<LibraryManagementSystem.Models.ViewModel.BorrowingViewModel>
 
 @{
-    ViewBag.Title = "Riwayat Peminjaman Saya";
+    ViewBag.Title = "My Borrowing History";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container-fluid mt-4">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+    <div class="card shadow-sm border-0 rounded-4" style="background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.25);">
+        <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose); color: white; padding: 20px;">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h4 class="mb-0" style="color:#7A4E60;">Riwayat Peminjaman Saya</h4>
-                    <small class="text-muted">Daftar pengajuan, peminjaman, dan pengembalian buku Anda.</small>
+                    <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700;">My Borrowing History</h4>
+                    <p class="mb-0 opacity-75" style="font-size: 13px;">List of your book requests, active borrowings, and return history.</p>
                 </div>
 
-                <a href="@Url.Action("Member", "DashboardMvc")" class="btn btn-sm btn-light rounded-pill">
-                    Kembali ke Dashboard
+                <a href="@Url.Action("Member", "DashboardMvc")" class="btn btn-sm btn-light rounded-pill px-3" style="color: var(--primary-rose); font-weight: 600;">
+                    <i class="bi bi-speedometer2 me-1"></i> Back to Dashboard
                 </a>
             </div>
         </div>
 
-        <div class="card-body">
+        <div class="card-body p-4">
             @if (TempData["Success"] != null)
             {
                 <div class="alert alert-success rounded-3">
-                    @TempData["Success"]
+                    <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
                 </div>
             }
 
             @if (TempData["Error"] != null)
             {
                 <div class="alert alert-danger rounded-3">
-                    @TempData["Error"]
+                    <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
                 </div>
             }
 
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead style="background-color:#FDF6F0;">
+            <div class="table-responsive rounded-4 border border-light">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background-color: rgba(201, 122, 126, 0.1); border-bottom: 2px solid rgba(201, 122, 126, 0.15);">
                         <tr>
-                            <th>No</th>
-                            <th>Judul Buku</th>
-                            <th>Tanggal Pengajuan</th>
-                            <th>Tanggal Pinjam</th>
-                            <th>Jatuh Tempo</th>
-                            <th>Tanggal Kembali</th>
-                            <th>Status</th>
-                            <th>Catatan</th>
+                            <th class="ps-3" style="color: #4A2E35;">No</th>
+                            <th style="color: #4A2E35;">Book Title</th>
+                            <th style="color: #4A2E35;">Request Date</th>
+                            <th style="color: #4A2E35;">Borrow Date</th>
+                            <th style="color: #4A2E35;">Due Date</th>
+                            <th style="color: #4A2E35;">Return Date</th>
+                            <th style="color: #4A2E35;">Status</th>
+                            <th class="pe-3" style="color: #4A2E35;">Notes</th>
                         </tr>
                     </thead>
 
@@ -58,8 +58,8 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td>@no</td>
-                                <td>@item.BookTitle</td>
+                                <td class="ps-3" style="font-weight: 600;">@no</td>
+                                <td style="font-weight: 600; color: #4A2E35;">@item.BookTitle</td>
                                 <td>@item.RequestDate.ToString("dd-MM-yyyy")</td>
                                 <td>
                                     @(item.BorrowDate == null ? "-" : item.BorrowDate.Value.ToString("dd-MM-yyyy"))
@@ -73,26 +73,26 @@
                                 <td>
                                     @if (item.Status == "Requested")
                                     {
-                                        <span class="badge bg-warning text-dark">Requested</span>
+                                        <span class="badge bg-warning text-dark rounded-pill px-3 py-1">Requested</span>
                                     }
                                     else if (item.Status == "Borrowed")
                                     {
-                                        <span class="badge bg-primary">Borrowed</span>
+                                        <span class="badge bg-primary rounded-pill px-3 py-1">Borrowed</span>
                                     }
                                     else if (item.Status == "Returned")
                                     {
-                                        <span class="badge bg-success">Returned</span>
+                                        <span class="badge bg-success rounded-pill px-3 py-1">Returned</span>
                                     }
                                     else if (item.Status == "Rejected")
                                     {
-                                        <span class="badge bg-danger">Rejected</span>
+                                        <span class="badge bg-danger rounded-pill px-3 py-1">Rejected</span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary">@item.Status</span>
+                                        <span class="badge bg-secondary rounded-pill px-3 py-1">@item.Status</span>
                                     }
                                 </td>
-                                <td>
+                                <td class="pe-3">
                                     @if (string.IsNullOrWhiteSpace(item.Notes))
                                     {
                                         <span class="text-muted">-</span>
@@ -110,8 +110,9 @@
                         @if (!Model.Any())
                         {
                             <tr>
-                                <td colspan="8" class="text-center text-muted">
-                                    Belum ada riwayat peminjaman.
+                                <td colspan="8" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox-fill d-block fs-3 mb-2 opacity-50"></i>
+                                    No borrowing history found.
                                 </td>
                             </tr>
                         }
@@ -121,4 +122,3 @@
         </div>
     </div>
 </div>
-

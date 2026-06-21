@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Models.ViewModel;
+using LibraryManagementSystem.Models.ViewModel;
 using LibraryManagementSystem.Services.Impl;
 using LibraryManagementSystem.Services.Interface;
 using System;
@@ -45,7 +45,7 @@ namespace LibraryManagementSystem.Controllers.MVC
                     return RedirectToAction("Member", "DashboardMvc");
                 }
 
-                TempData["Error"] = "Role tidak dikenali.";
+                TempData["Error"] = "Unrecognized role.";
                 return RedirectToAction("Login");
             }
             catch (Exception ex)
@@ -68,13 +68,13 @@ namespace LibraryManagementSystem.Controllers.MVC
             {
                 if (!ModelState.IsValid)
                 {
-                    TempData["Error"] = "Data register belum valid. Periksa kembali input yang wajib diisi.";
+                    TempData["Error"] = "Registration data is invalid. Please check the required inputs.";
                     return View(request);
                 }
 
                 authService.Register(request);
 
-                TempData["Success"] = "Registrasi berhasil. Akun menunggu persetujuan pustakawan.";
+                TempData["Success"] = "Registration successful. Your account is pending librarian approval.";
                 return RedirectToAction("Login");
             }
             catch (Exception ex)

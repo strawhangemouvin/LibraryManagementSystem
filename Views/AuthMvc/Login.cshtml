@@ -1,56 +1,110 @@
-﻿@model LibraryManagementSystem.Models.ViewModel.LoginRequest
+@model LibraryManagementSystem.Models.ViewModel.LoginRequest
 
 @{
     ViewBag.Title = "Sign In";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="row justify-content-center align-items-center" style="min-height: 68vh;">
-    <div class="col-md-5 col-lg-4">
-        <div class="text-center mb-4">
-            <div style="font-size:58px;">🌙</div>
-            <h2 style="color:#7B4F2C; font-weight:800;">Sign In</h2>
-            <p class="text-muted">Masuk ke akun Moon Books kamu.</p>
-        </div>
+<style>
+    /* Make the default full-width page shell transparent for a centered compact look */
+    .moon-page-shell {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
 
-        @if (TempData["Success"] != null)
-        {
-            <div class="alert alert-success">
-                @TempData["Success"]
+    .auth-card {
+        background: rgba(255, 255, 255, 0.8) !important;
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border-radius: 32px !important;
+        padding: 40px !important;
+        box-shadow: 0 10px 40px rgba(74, 46, 53, 0.08) !important;
+        transition: var(--transition-smooth);
+        max-width: 440px;
+        margin: 0 auto;
+    }
+
+    .auth-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 50px rgba(74, 46, 53, 0.12) !important;
+    }
+
+    .auth-icon-wrapper {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 76px;
+        height: 76px;
+        background: rgba(255, 213, 194, 0.4);
+        border-radius: 24px;
+        color: var(--primary-rose);
+        font-size: 38px;
+        margin-bottom: 20px;
+        transition: var(--transition-smooth);
+    }
+
+    .auth-card:hover .auth-icon-wrapper {
+        transform: scale(1.08) rotate(6deg);
+        background: var(--primary-rose);
+        color: white;
+    }
+</style>
+
+<div class="row justify-content-center align-items-center" style="min-height: 70vh; padding: 20px 0;">
+    <div class="col-12">
+        <div class="auth-card">
+            <div class="text-center mb-4">
+                <div class="auth-icon-wrapper">
+                    <i class="bi bi-moon-stars-fill"></i>
+                </div>
+                <h3 style="color: #4A2E35; font-weight: 800; font-family: 'Playfair Display', serif; margin-bottom: 4px;">Sign In</h3>
+                <p class="text-muted" style="font-size: 13px;">Sign in to your Moon Books account.</p>
             </div>
-        }
 
-        @if (TempData["Error"] != null)
-        {
-            <div class="alert alert-danger">
-                @TempData["Error"]
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show rounded-3 mb-3" role="alert" style="font-size: 14px;">
+                    <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 1rem;"></button>
+                </div>
+            }
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3" role="alert" style="font-size: 14px;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 1rem;"></button>
+                </div>
+            }
+
+            @using (Html.BeginForm("Login", "AuthMvc", FormMethod.Post))
+            {
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "Enter username", required = "required" })
+                    @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger small mt-1 d-block" })
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Password</label>
+                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Enter password", required = "required" })
+                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small mt-1 d-block" })
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill" style="font-size: 15px; font-weight: 700;">
+                    Sign In <i class="bi bi-box-arrow-in-right ms-1"></i>
+                </button>
+            }
+
+            <div class="text-center mt-4 pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
+                <small class="text-muted">Don't have an account?</small>
+                <a href="@Url.Action("Register", "AuthMvc")" style="color: var(--primary-rose); font-weight: 700; text-decoration: none; font-size: 14px;" class="ms-1">
+                    Sign Up
+                </a>
             </div>
-        }
-
-        @using (Html.BeginForm("Login", "AuthMvc", FormMethod.Post))
-        {
-            <div class="mb-3">
-                <label class="form-label">Username</label>
-                @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "Masukkan username" })
-                @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger small" })
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Password</label>
-                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Masukkan password" })
-                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small" })
-            </div>
-
-            <button type="submit" class="btn btn-primary w-100">
-                Sign In
-            </button>
-        }
-
-        <div class="text-center mt-3">
-            <small class="text-muted">Belum punya akun?</small>
-            <a href="@Url.Action("Register", "AuthMvc")" style="color:#7B4F2C; font-weight:600;">
-                Sign Up
-            </a>
         </div>
     </div>
 </div>

@@ -1,8 +1,7 @@
-﻿```cshtml
 @model LibraryManagementSystem.Models.Entity.Book
 
 @{
-    ViewBag.Title = "Konfirmasi Peminjaman";
+    ViewBag.Title = "Borrowing Confirmation";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     var member = ViewBag.Member as LibraryManagementSystem.Models.Entity.Member;
@@ -10,21 +9,21 @@
 }
 
 <div class="container-fluid mt-4">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
+    <div class="card shadow-sm border-0 rounded-4" style="background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.25);">
+        <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose); color: white; padding: 20px;">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h4 class="mb-0" style="color:#7A4E60;">Konfirmasi Peminjaman</h4>
-                    <small class="text-muted">Periksa kembali detail buku sebelum mengajukan peminjaman.</small>
+                    <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700;">Borrowing Confirmation</h4>
+                    <p class="mb-0 opacity-75" style="font-size: 13px;">Review the book details before submitting your borrowing request.</p>
                 </div>
 
-                <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-sm btn-light rounded-pill">
-                    Kembali ke Daftar Buku
+                <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-sm btn-light rounded-pill px-3" style="color: var(--primary-rose); font-weight: 600;">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Books
                 </a>
             </div>
         </div>
 
-        <div class="card-body">
+        <div class="card-body p-4">
 
             @if (TempData["Error"] != null)
             {
@@ -33,108 +32,105 @@
                 </div>
             }
 
-            <div class="row">
+            <div class="row g-4">
                 <div class="col-md-7">
-                    <h5 style="color:#7A4E60;">Detail Buku</h5>
+                    <div class="p-3 rounded-4" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(0, 0, 0, 0.05); height: 100%;">
+                        <h5 style="color: var(--primary-rose); font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 20px;">
+                            <i class="bi bi-book me-2"></i>Book Details
+                        </h5>
 
-                    <table class="table table-borderless">
-                        <tr>
-                            <th style="width:180px;">Judul Buku</th>
-                            <td>@Model.Title</td>
-                        </tr>
+                        <table class="table table-borderless align-middle">
+                            <tr>
+                                <th style="width:160px; color: #5a5a5a; font-size: 14px;">Book Title</th>
+                                <td style="font-weight: 600;">@Model.Title</td>
+                            </tr>
 
-                        <tr>
-                            <th>Penulis</th>
-                            <td>@Model.Author</td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Author</th>
+                                <td style="font-weight: 600;">@Model.Author</td>
+                            </tr>
 
-                        <tr>
-                            <th>Kategori</th>
-                            <td>
-                                @(Model.Category == null ? "-" : Model.Category.CategoryName)
-                            </td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Category</th>
+                                <td>@(Model.Category == null ? "-" : Model.Category.CategoryName)</td>
+                            </tr>
 
-                        <tr>
-                            <th>Penerbit</th>
-                            <td>
-                                @(string.IsNullOrWhiteSpace(Model.Publisher) ? "-" : Model.Publisher)
-                            </td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Publisher</th>
+                                <td>@(string.IsNullOrWhiteSpace(Model.Publisher) ? "-" : Model.Publisher)</td>
+                            </tr>
 
-                        <tr>
-                            <th>Tahun Terbit</th>
-                            <td>
-                                @(Model.PublishYear == null ? "-" : Model.PublishYear.ToString())
-                            </td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Publish Year</th>
+                                <td>@(Model.PublishYear == null ? "-" : Model.PublishYear.ToString())</td>
+                            </tr>
 
-                        <tr>
-                            <th>ISBN</th>
-                            <td>
-                                @(string.IsNullOrWhiteSpace(Model.ISBN) ? "-" : Model.ISBN)
-                            </td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">ISBN</th>
+                                <td>@(string.IsNullOrWhiteSpace(Model.ISBN) ? "-" : Model.ISBN)</td>
+                            </tr>
 
-                        <tr>
-                            <th>Stok Tersedia</th>
-                            <td>
-                                @if (Model.AvailableStock > 0)
-                                {
-                                    <span class="badge bg-success">@Model.AvailableStock tersedia</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger">Habis</span>
-                                }
-                            </td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Available Stock</th>
+                                <td>
+                                    @if (Model.AvailableStock > 0)
+                                    {
+                                        <span class="badge bg-success rounded-pill px-3 py-1">@Model.AvailableStock available</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-danger rounded-pill px-3 py-1">Out of Stock</span>
+                                    }
+                                </td>
+                            </tr>
 
-                        <tr>
-                            <th>Deskripsi</th>
-                            <td>
-                                @(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)
-                            </td>
-                        </tr>
-                    </table>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px; vertical-align: top;">Description</th>
+                                <td>@(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="col-md-5">
-                    <h5 style="color:#7A4E60;">Detail Pengajuan</h5>
+                    <div class="p-3 rounded-4" style="background: rgba(255, 255, 255, 0.6); border: 1px solid rgba(0, 0, 0, 0.05); height: 100%;">
+                        <h5 style="color: var(--primary-rose); font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 20px;">
+                            <i class="bi bi-person-badge me-2"></i>Request Details
+                        </h5>
 
-                    <table class="table table-borderless">
-                        <tr>
-                            <th style="width:180px;">Nama Member</th>
-                            <td>@fullName</td>
-                        </tr>
+                        <table class="table table-borderless align-middle">
+                            <tr>
+                                <th style="width:140px; color: #5a5a5a; font-size: 14px;">Member Name</th>
+                                <td style="font-weight: 600;">@fullName</td>
+                            </tr>
 
-                        <tr>
-                            <th>Kode Member</th>
-                            <td>
-                                @(member == null ? "-" : member.MemberCode)
-                            </td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Member Code</th>
+                                <td style="font-weight: 600;">@(member == null ? "-" : member.MemberCode)</td>
+                            </tr>
 
-                        <tr>
-                            <th>Tanggal Pengajuan</th>
-                            <td>@DateTime.Now.ToString("dd-MM-yyyy HH:mm")</td>
-                        </tr>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Request Date</th>
+                                <td><i class="bi bi-clock me-2 text-muted"></i>@DateTime.Now.ToString("dd-MM-yyyy HH:mm")</td>
+                            </tr>
 
-                        <tr>
-                            <th>Status Awal</th>
-                            <td>
-                                <span class="badge bg-warning text-dark">Requested</span>
-                            </td>
-                        </tr>
-                    </table>
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Initial Status</th>
+                                <td>
+                                    <span class="badge bg-warning text-dark rounded-pill px-3 py-1">Requested</span>
+                                </td>
+                            </tr>
+                        </table>
 
-                    <div class="alert alert-info rounded-3">
-                        Setelah diajukan, peminjaman akan menunggu persetujuan pustakawan.
+                        <div class="alert alert-info rounded-4 p-3 mt-4 mb-0" style="border: none; background: rgba(122, 78, 96, 0.08); color: #4A2E35; font-size: 13px;">
+                            <i class="bi bi-info-circle-fill me-1" style="color: var(--primary-rose);"></i>
+                            Once requested, your borrowing transaction must await librarian review and approval.
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <hr />
+            <hr class="my-4" style="opacity: 0.1;" />
 
             @using (Html.BeginForm("RequestConfirmed", "MVCBorrowings", FormMethod.Post))
             {
@@ -142,17 +138,17 @@
                 @Html.Hidden("bookId", Model.Id)
 
                 <button type="submit"
-                        class="btn btn-primary rounded-pill"
-                        onclick="return confirm('Ajukan peminjaman buku ini?');">
-                    Ajukan Peminjaman
+                        class="btn rounded-pill px-4 py-2"
+                        style="background-color: var(--primary-rose); color: white; font-weight: 600; border: none; box-shadow: 0 4px 12px rgba(201, 122, 126, 0.2);"
+                        onclick="return confirm('Submit borrowing request for this book?');">
+                    <i class="bi bi-send me-1"></i> Request Borrowing
                 </button>
 
-                <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-outline-secondary rounded-pill">
-                    Batal
+                <a href="@Url.Action("Index", "MVCBooks")" class="btn btn-outline-secondary rounded-pill px-4 py-2 ms-2" style="font-weight: 600;">
+                    Cancel
                 </a>
             }
 
         </div>
     </div>
 </div>
-```

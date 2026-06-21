@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Models.Entity;
+using LibraryManagementSystem.Models.Entity;
 using LibraryManagementSystem.Services.Context;
 using LibraryManagementSystem.Services.Impl;
 using LibraryManagementSystem.Services.Interface;
@@ -56,7 +56,7 @@ namespace LibraryManagementSystem.Controllers.MVC
 
             if (member == null)
             {
-                TempData["Error"] = "Data member tidak ditemukan.";
+                TempData["Error"] = "Member data not found.";
                 return RedirectToAction("Member", "DashboardMvc");
             }
 
@@ -89,13 +89,13 @@ namespace LibraryManagementSystem.Controllers.MVC
 
             if (book == null)
             {
-                TempData["Error"] = "Buku tidak ditemukan.";
+                TempData["Error"] = "Book not found.";
                 return RedirectToAction("Index", "MVCBooks");
             }
 
             if (book.AvailableStock <= 0)
             {
-                TempData["Error"] = "Stok buku tidak tersedia.";
+                TempData["Error"] = "Book stock is not available.";
                 return RedirectToAction("Index", "MVCBooks");
             }
 
@@ -105,7 +105,7 @@ namespace LibraryManagementSystem.Controllers.MVC
 
             if (member == null)
             {
-                TempData["Error"] = "Data member tidak ditemukan.";
+                TempData["Error"] = "Member data not found.";
                 return RedirectToAction("Member", "DashboardMvc");
             }
 
@@ -139,7 +139,7 @@ namespace LibraryManagementSystem.Controllers.MVC
 
                 if (member == null)
                 {
-                    TempData["Error"] = "Data member tidak ditemukan.";
+                    TempData["Error"] = "Member data not found.";
                     return RedirectToAction("Member", "DashboardMvc");
                 }
 
@@ -147,12 +147,12 @@ namespace LibraryManagementSystem.Controllers.MVC
                 {
                     BookId = bookId,
                     MemberId = member.Id,
-                    Notes = "Pengajuan peminjaman dari member"
+                    Notes = "Borrowing request from member"
                 };
 
                 borrowingService.RequestBorrowing(borrowing);
 
-                TempData["Success"] = "Pengajuan peminjaman berhasil dikirim. Silakan menunggu persetujuan pustakawan.";
+                TempData["Success"] = "Borrowing request sent successfully. Please wait for librarian approval.";
                 return RedirectToAction("MyHistory");
             }
             catch (Exception ex)
@@ -181,7 +181,7 @@ namespace LibraryManagementSystem.Controllers.MVC
                 int approvedBy = Convert.ToInt32(Session["UserId"]);
                 borrowingService.ApproveBorrowing(id, approvedBy);
 
-                TempData["Success"] = "Peminjaman berhasil disetujui.";
+                TempData["Success"] = "Borrowing request successfully approved.";
             }
             catch (Exception ex)
             {
@@ -210,7 +210,7 @@ namespace LibraryManagementSystem.Controllers.MVC
                 int rejectedBy = Convert.ToInt32(Session["UserId"]);
                 borrowingService.RejectBorrowing(id, rejectedBy);
 
-                TempData["Success"] = "Peminjaman berhasil ditolak.";
+                TempData["Success"] = "Borrowing request successfully rejected.";
             }
             catch (Exception ex)
             {
@@ -245,13 +245,13 @@ namespace LibraryManagementSystem.Controllers.MVC
 
             if (borrowing == null)
             {
-                TempData["Error"] = "Data peminjaman tidak ditemukan.";
+                TempData["Error"] = "Borrowing record not found.";
                 return RedirectToAction("Index");
             }
 
             if (borrowing.Status != "Borrowed")
             {
-                TempData["Error"] = "Hanya peminjaman dengan status Borrowed yang dapat dikembalikan.";
+                TempData["Error"] = "Only borrowing requests with Borrowed status can be returned.";
                 return RedirectToAction("Index");
             }
 
@@ -289,7 +289,7 @@ namespace LibraryManagementSystem.Controllers.MVC
 
                 borrowingService.ReturnBook(id, returnedBy);
 
-                TempData["Success"] = "Buku berhasil dikembalikan.";
+                TempData["Success"] = "Book successfully returned.";
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -297,6 +297,59 @@ namespace LibraryManagementSystem.Controllers.MVC
                 TempData["Error"] = ex.Message;
                 return RedirectToAction("Index");
             }
+        }
+
+        // GET: MVCBorrowings/SimulateFine/5
+        public ActionResult SimulateFine(int id)
+        {
+            if (Session["UserId"] == null)
+            {
+                return RedirectToAction("Login", "AuthMvc");
+            }
+
+            if (Session["Role"] == null || Session["Role"].ToString() != "Librarian")
+            {
+                return RedirectToAction("Login", "AuthMvc");
+            }
+
+            try
+            {
+                var borrowing = db.Borrowings.Find(id);
+                if (borrowing != null && borrowing.Status == "Borrowed")
+                {
+                    borrowing.Status = "Returned";
+                    borrowing.ReturnDate = DateTime.Now;
+                    borrowing.ReturnedBy = Convert.ToInt32(Session["UserId"]);
+                    borrowing.ReturnedAt = DateTime.Now;
+                    borrowing.DueDate = DateTime.Now.AddDays(-5);
+                    borrowing.LateDays = 5;
+                    borrowing.FineAmount = 10000;
+                    borrowing.FineStatus = "Unpaid";
+
+                    var book = db.Books.Find(borrowing.BookId);
+                    if (book != null)
+                    {
+                        book.AvailableStock = book.AvailableStock + 1;
+                        if (book.AvailableStock > book.Stock)
+                        {
+                            book.AvailableStock = book.Stock;
+                        }
+                    }
+
+                    db.SaveChanges();
+                    TempData["Success"] = "Successfully simulated a late return with a fine of Rp 10,000.";
+                }
+                else
+                {
+                    TempData["Error"] = "Only active borrowings (Borrowed status) can be simulated for late return.";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Simulation failed: " + ex.Message;
+            }
+
+            return RedirectToAction("Index");
         }
         // GET: MVCBorrowings/PayFineConfirm/5
         // Pustakawan melihat QRIS simulasi untuk pembayaran denda
@@ -316,19 +369,19 @@ namespace LibraryManagementSystem.Controllers.MVC
 
             if (borrowing == null)
             {
-                TempData["Error"] = "Data peminjaman tidak ditemukan.";
+                TempData["Error"] = "Borrowing record not found.";
                 return RedirectToAction("Index");
             }
 
             if (borrowing.FineAmount == null || borrowing.FineAmount <= 0)
             {
-                TempData["Error"] = "Peminjaman ini tidak memiliki denda.";
+                TempData["Error"] = "This borrowing request does not have any fine.";
                 return RedirectToAction("Index");
             }
 
             if (borrowing.FineStatus == "Paid")
             {
-                TempData["Error"] = "Denda sudah dibayar.";
+                TempData["Error"] = "Fine has already been paid.";
                 return RedirectToAction("Index");
             }
 
@@ -357,13 +410,13 @@ namespace LibraryManagementSystem.Controllers.MVC
 
                 if (borrowing == null)
                 {
-                    TempData["Error"] = "Data peminjaman tidak ditemukan.";
+                    TempData["Error"] = "Borrowing record not found.";
                     return RedirectToAction("Index");
                 }
 
                 if (borrowing.FineAmount == null || borrowing.FineAmount <= 0)
                 {
-                    TempData["Error"] = "Peminjaman ini tidak memiliki denda.";
+                    TempData["Error"] = "This borrowing request does not have any fine.";
                     return RedirectToAction("Index");
                 }
 
@@ -373,14 +426,14 @@ namespace LibraryManagementSystem.Controllers.MVC
                 {
                     UserId = Convert.ToInt32(Session["UserId"]),
                     Action = "Pay Fine",
-                    Description = "Pustakawan menandai denda peminjaman ID " + borrowing.Id + " sebagai Paid",
+                    Description = "Librarian marked borrowing ID " + borrowing.Id + " fine as Paid",
                     CreatedAt = DateTime.Now
                 };
 
                 db.ActivityLogs.Add(log);
                 db.SaveChanges();
 
-                TempData["Success"] = "Denda berhasil ditandai sudah dibayar.";
+                TempData["Success"] = "Fine was successfully marked as paid.";
                 return RedirectToAction("Index");
             }
             catch (Exception ex)

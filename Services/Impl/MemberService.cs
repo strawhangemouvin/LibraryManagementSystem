@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Models.Entity;
+using LibraryManagementSystem.Models.Entity;
 using LibraryManagementSystem.Models.ViewModel;
 using LibraryManagementSystem.Services.Context;
 using LibraryManagementSystem.Services.Interface;
@@ -108,19 +108,19 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (approvedBy <= 0)
             {
-                throw new Exception("ApprovedBy wajib diisi");
+                throw new Exception("ApprovedBy is required");
             }
 
             var librarian = db.Users.Find(approvedBy);
 
             if (librarian == null)
             {
-                throw new Exception("User pustakawan tidak ditemukan");
+                throw new Exception("Librarian user not found");
             }
 
             if (librarian.Role != "Librarian" || librarian.Status != "Active")
             {
-                throw new Exception("Hanya pustakawan aktif yang bisa menyetujui member");
+                throw new Exception("Only active librarians can approve members");
             }
 
             var member = db.Members.Find(id);
@@ -134,22 +134,22 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (user == null)
             {
-                throw new Exception("User dari member ini tidak ditemukan");
+                throw new Exception("User for this member not found");
             }
 
             if (user.Status == "Active")
             {
-                throw new Exception("Member ini sudah aktif");
+                throw new Exception("This member is already active");
             }
 
             if (user.Status == "Rejected")
             {
-                throw new Exception("Member yang sudah ditolak tidak bisa langsung disetujui");
+                throw new Exception("Rejected members cannot be directly approved");
             }
 
             if (user.Status != "Pending")
             {
-                throw new Exception("Member hanya bisa disetujui jika status masih Pending");
+                throw new Exception("Member can only be approved if status is Pending");
             }
 
             user.Status = "Active";
@@ -162,7 +162,7 @@ namespace LibraryManagementSystem.Services.Impl
             {
                 UserId = approvedBy,
                 Action = "Approve Member",
-                Description = "Pustakawan menyetujui member " + user.FullName,
+                Description = "Librarian approved member " + user.FullName,
                 CreatedAt = DateTime.Now
             };
 
@@ -173,7 +173,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             return new
             {
-                message = "Member berhasil disetujui",
+                message = "Member successfully approved",
                 memberId = member.Id,
                 userId = user.Id,
                 fullName = user.FullName,
@@ -190,19 +190,19 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (rejectedBy <= 0)
             {
-                throw new Exception("RejectedBy wajib diisi");
+                throw new Exception("RejectedBy is required");
             }
 
             var librarian = db.Users.Find(rejectedBy);
 
             if (librarian == null)
             {
-                throw new Exception("User pustakawan tidak ditemukan");
+                throw new Exception("Librarian user not found");
             }
 
             if (librarian.Role != "Librarian" || librarian.Status != "Active")
             {
-                throw new Exception("Hanya pustakawan aktif yang bisa menolak member");
+                throw new Exception("Only active librarians can reject members");
             }
 
             var member = db.Members.Find(id);
@@ -216,22 +216,22 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (user == null)
             {
-                throw new Exception("User dari member ini tidak ditemukan");
+                throw new Exception("User for this member not found");
             }
 
             if (user.Status == "Rejected")
             {
-                throw new Exception("Member ini sudah ditolak");
+                throw new Exception("This member is already rejected");
             }
 
             if (user.Status == "Active")
             {
-                throw new Exception("Member yang sudah aktif tidak bisa ditolak");
+                throw new Exception("Active members cannot be rejected");
             }
 
             if (user.Status != "Pending")
             {
-                throw new Exception("Member hanya bisa ditolak jika status masih Pending");
+                throw new Exception("Member can only be rejected if status is Pending");
             }
 
             user.Status = "Rejected";
@@ -244,7 +244,7 @@ namespace LibraryManagementSystem.Services.Impl
             {
                 UserId = rejectedBy,
                 Action = "Reject Member",
-                Description = "Pustakawan menolak member " + user.FullName,
+                Description = "Librarian rejected member " + user.FullName,
                 CreatedAt = DateTime.Now
             };
 
@@ -253,7 +253,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             return new
             {
-                message = "Member berhasil ditolak",
+                message = "Member successfully rejected",
                 memberId = member.Id,
                 userId = user.Id,
                 fullName = user.FullName,
@@ -270,23 +270,23 @@ namespace LibraryManagementSystem.Services.Impl
             {
                 EmailHelper.SendEmail(
                     user.Email,
-                    "Akun Anda Telah Disetujui",
+                    "Your Account Has Been Approved",
                     $@"
-            <h3>Akun Member Disetujui</h3>
-            <p>Halo <b>{user.FullName}</b>,</p>
-            <p>Akun Anda pada <b>Library Management System</b> telah disetujui oleh pustakawan.</p>
-            <p>Status akun Anda sekarang: <b>Active</b>.</p>
-            <p>Anda sudah dapat login menggunakan username dan password yang telah dibuat saat registrasi.</p>
+            <h3>Member Account Approved</h3>
+            <p>Hello <b>{user.FullName}</b>,</p>
+            <p>Your account on <b>Library Management System</b> has been approved by the librarian.</p>
+            <p>Your account status is now: <b>Active</b>.</p>
+            <p>You can now log in using the username and password created during registration.</p>
             <br/>
-            <p>Terima kasih.</p>
+            <p>Thank you.</p>
             "
                 );
 
-                return "Email pemberitahuan approval berhasil dikirim.";
+                return "Approval notification email sent successfully.";
             }
             catch (Exception ex)
             {
-                return "Member berhasil di-approve, tetapi email gagal dikirim: " + ex.Message;
+                return "Member successfully approved, but email failed to send: " + ex.Message;
             }
         }
     }

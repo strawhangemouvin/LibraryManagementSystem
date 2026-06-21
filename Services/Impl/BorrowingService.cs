@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Helpers;
+using LibraryManagementSystem.Helpers;
 using LibraryManagementSystem.Models.Entity;
 using LibraryManagementSystem.Models.ViewModel;
 using LibraryManagementSystem.Services.Context;
@@ -111,48 +111,48 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (borrowing == null)
             {
-                throw new Exception("Data peminjaman tidak boleh kosong");
+                throw new Exception("Borrowing data cannot be empty");
             }
 
             if (borrowing.MemberId <= 0)
             {
-                throw new Exception("MemberId wajib diisi");
+                throw new Exception("MemberId is required");
             }
 
             if (borrowing.BookId <= 0)
             {
-                throw new Exception("BookId wajib diisi");
+                throw new Exception("BookId is required");
             }
 
             var member = db.Members.Find(borrowing.MemberId);
 
             if (member == null)
             {
-                throw new Exception("Member tidak ditemukan");
+                throw new Exception("Member not found");
             }
 
             var user = db.Users.Find(member.UserId);
 
             if (user == null)
             {
-                throw new Exception("User member tidak ditemukan");
+                throw new Exception("Member user not found");
             }
 
             if (user.Status != "Active")
             {
-                throw new Exception("Member belum aktif, tidak bisa mengajukan peminjaman");
+                throw new Exception("Member is not active yet, cannot request borrowing");
             }
 
             var book = db.Books.Find(borrowing.BookId);
 
             if (book == null)
             {
-                throw new Exception("Buku tidak ditemukan");
+                throw new Exception("Book not found");
             }
 
             if (book.AvailableStock <= 0)
             {
-                throw new Exception("Stok buku tidak tersedia");
+                throw new Exception("Book stock is not available");
             }
 
             var alreadyBorrowingSameBook = db.Borrowings.Any(x =>
@@ -163,7 +163,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (alreadyBorrowingSameBook)
             {
-                throw new Exception("Member masih memiliki pengajuan atau peminjaman aktif untuk buku ini");
+                throw new Exception("Member already has a pending or active borrowing request for this book");
             }
 
             var activeBorrowingCount = db.Borrowings.Count(x =>
@@ -173,7 +173,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (activeBorrowingCount >= 3)
             {
-                throw new Exception("Member maksimal hanya boleh memiliki 3 peminjaman aktif");
+                throw new Exception("Members are only allowed to have a maximum of 3 active borrowings");
             }
 
             var notes = borrowing.Notes;
@@ -213,7 +213,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             return new
             {
-                message = "Pengajuan peminjaman berhasil dibuat",
+                message = "Borrowing request successfully created",
                 borrowingId = newBorrowing.Id,
                 status = newBorrowing.Status
             };
@@ -223,19 +223,19 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (approvedBy <= 0)
             {
-                throw new Exception("ApprovedBy wajib diisi");
+                throw new Exception("ApprovedBy is required");
             }
 
             var librarian = db.Users.Find(approvedBy);
 
             if (librarian == null)
             {
-                throw new Exception("User pustakawan tidak ditemukan");
+                throw new Exception("Librarian user not found");
             }
 
             if (librarian.Role != "Librarian" || librarian.Status != "Active")
             {
-                throw new Exception("Hanya pustakawan aktif yang bisa menyetujui peminjaman");
+                throw new Exception("Only active librarians can approve borrowing requests");
             }
 
             var borrowing = db.Borrowings.Find(id);
@@ -247,19 +247,19 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (borrowing.Status != "Requested")
             {
-                throw new Exception("Peminjaman ini sudah diproses");
+                throw new Exception("This borrowing request has already been processed");
             }
 
             var book = db.Books.Find(borrowing.BookId);
 
             if (book == null)
             {
-                throw new Exception("Buku tidak ditemukan");
+                throw new Exception("Book not found");
             }
 
             if (book.AvailableStock <= 0)
             {
-                throw new Exception("Stok buku tidak tersedia");
+                throw new Exception("Book stock is not available");
             }
 
             borrowing.Status = "Borrowed";
@@ -275,7 +275,7 @@ namespace LibraryManagementSystem.Services.Impl
             {
                 UserId = approvedBy,
                 Action = "Approve Borrowing",
-                Description = "Pustakawan menyetujui peminjaman buku dengan ID " + borrowing.BookId,
+                Description = "Librarian approved book borrowing with ID " + borrowing.BookId,
                 CreatedAt = DateTime.Now
             };
 
@@ -286,7 +286,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             return new
             {
-                message = "Peminjaman berhasil disetujui",
+                message = "Borrowing request successfully approved",
                 borrowingId = borrowing.Id,
                 status = borrowing.Status,
                 borrowDate = borrowing.BorrowDate,
@@ -299,19 +299,19 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (rejectedBy <= 0)
             {
-                throw new Exception("RejectedBy wajib diisi");
+                throw new Exception("RejectedBy is required");
             }
 
             var librarian = db.Users.Find(rejectedBy);
 
             if (librarian == null)
             {
-                throw new Exception("User pustakawan tidak ditemukan");
+                throw new Exception("Librarian user not found");
             }
 
             if (librarian.Role != "Librarian" || librarian.Status != "Active")
             {
-                throw new Exception("Hanya pustakawan aktif yang bisa menolak peminjaman");
+                throw new Exception("Only active librarians can reject borrowing requests");
             }
 
             var borrowing = db.Borrowings.Find(id);
@@ -323,7 +323,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (borrowing.Status != "Requested")
             {
-                throw new Exception("Peminjaman ini sudah diproses");
+                throw new Exception("This borrowing request has already been processed");
             }
 
             borrowing.Status = "Rejected";
@@ -334,7 +334,7 @@ namespace LibraryManagementSystem.Services.Impl
             {
                 UserId = rejectedBy,
                 Action = "Reject Borrowing",
-                Description = "Pustakawan menolak pengajuan peminjaman buku dengan ID " + borrowing.BookId,
+                Description = "Librarian rejected book borrowing request with ID " + borrowing.BookId,
                 CreatedAt = DateTime.Now
             };
 
@@ -345,7 +345,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             return new
             {
-                message = "Pengajuan peminjaman berhasil ditolak",
+                message = "Borrowing request successfully rejected",
                 borrowingId = borrowing.Id,
                 status = borrowing.Status
             };
@@ -355,19 +355,19 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (returnedBy <= 0)
             {
-                throw new Exception("ReturnedBy wajib diisi");
+                throw new Exception("ReturnedBy is required");
             }
 
             var librarian = db.Users.Find(returnedBy);
 
             if (librarian == null)
             {
-                throw new Exception("User pustakawan tidak ditemukan");
+                throw new Exception("Librarian user not found");
             }
 
             if (librarian.Role != "Librarian" || librarian.Status != "Active")
             {
-                throw new Exception("Hanya pustakawan aktif yang bisa memproses pengembalian buku");
+                throw new Exception("Only active librarians can process book returns");
             }
 
             var borrowing = db.Borrowings.Find(id);
@@ -379,14 +379,14 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (borrowing.Status != "Borrowed")
             {
-                throw new Exception("Buku ini belum dalam status dipinjam atau sudah dikembalikan");
+                throw new Exception("This book is not currently borrowed or has already been returned");
             }
 
             var book = db.Books.Find(borrowing.BookId);
 
             if (book == null)
             {
-                throw new Exception("Buku tidak ditemukan");
+                throw new Exception("Book not found");
             }
 
             DateTime returnDate = DateTime.Now;
@@ -429,7 +429,7 @@ namespace LibraryManagementSystem.Services.Impl
             {
                 UserId = returnedBy,
                 Action = "Return Book",
-                Description = "Pustakawan memproses pengembalian buku dengan ID " + borrowing.BookId,
+                Description = "Librarian processed book return with ID " + borrowing.BookId,
                 CreatedAt = DateTime.Now
             };
 
@@ -438,7 +438,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             return new
             {
-                message = "Buku berhasil dikembalikan",
+                message = "Book successfully returned",
                 borrowingId = borrowing.Id,
                 status = borrowing.Status,
                 returnDate = borrowing.ReturnDate,
@@ -482,30 +482,30 @@ namespace LibraryManagementSystem.Services.Impl
 
                 EmailHelper.SendEmail(
                     data.Email,
-                    "Pengajuan Peminjaman Buku - Moon Books",
+                    "Book Borrowing Request - Moon Books",
                     $@"
-                    <h3>Pengajuan Peminjaman Berhasil</h3>
-                    <p>Halo <b>{data.FullName}</b>,</p>
+                    <h3>Borrowing Request Submitted</h3>
+                    <p>Hello <b>{data.FullName}</b>,</p>
 
-                    <p>Pengajuan peminjaman buku Anda telah berhasil dikirim.</p>
+                    <p>Your book borrowing request has been successfully submitted.</p>
 
                     <p>
-                        <b>Judul Buku:</b> {data.BookTitle}<br/>
-                        <b>Tanggal Pengajuan:</b> {data.RequestDate.ToString("dd-MM-yyyy HH:mm")}<br/>
-                        <b>Status:</b> Menunggu persetujuan pustakawan
+                        <b>Book Title:</b> {data.BookTitle}<br/>
+                        <b>Request Date:</b> {data.RequestDate.ToString("dd-MM-yyyy HH:mm")}<br/>
+                        <b>Status:</b> Pending librarian approval
                     </p>
 
-                    <p>Silakan menunggu konfirmasi dari pustakawan Moon Books.</p>
+                    <p>Please wait for confirmation from a Moon Books librarian.</p>
 
                     <br/>
-                    <p>Salam hangat,</p>
+                    <p>Warm regards,</p>
                     <p><b>Moon Books</b></p>
                     "
                 );
             }
             catch (Exception ex)
             {
-                throw new Exception("Email pengajuan peminjaman gagal dikirim: " + ex.Message);
+                throw new Exception("Failed to send borrowing request email: " + ex.Message);
             }
         }
 
@@ -543,30 +543,30 @@ namespace LibraryManagementSystem.Services.Impl
 
                 EmailHelper.SendEmail(
                     data.Email,
-                    "Peminjaman Buku Disetujui - Moon Books",
+                    "Book Borrowing Approved - Moon Books",
                     $@"
-                    <h3>Peminjaman Buku Disetujui</h3>
-                    <p>Halo <b>{data.FullName}</b>,</p>
+                    <h3>Book Borrowing Approved</h3>
+                    <p>Hello <b>{data.FullName}</b>,</p>
 
-                    <p>Pengajuan peminjaman buku Anda telah disetujui oleh pustakawan.</p>
+                    <p>Your book borrowing request has been approved by the librarian.</p>
 
                     <p>
-                        <b>Judul Buku:</b> {data.BookTitle}<br/>
-                        <b>Tanggal Pinjam:</b> {(data.BorrowDate == null ? "-" : data.BorrowDate.Value.ToString("dd-MM-yyyy"))}<br/>
-                        <b>Jatuh Tempo:</b> {(data.DueDate == null ? "-" : data.DueDate.Value.ToString("dd-MM-yyyy"))}
+                        <b>Book Title:</b> {data.BookTitle}<br/>
+                        <b>Borrow Date:</b> {(data.BorrowDate == null ? "-" : data.BorrowDate.Value.ToString("dd-MM-yyyy"))}<br/>
+                        <b>Due Date:</b> {(data.DueDate == null ? "-" : data.DueDate.Value.ToString("dd-MM-yyyy"))}
                     </p>
 
-                    <p>Harap mengembalikan buku sebelum tanggal jatuh tempo agar tidak terkena denda keterlambatan.</p>
+                    <p>Please return the book before the due date to avoid late return fines.</p>
 
                     <br/>
-                    <p>Salam hangat,</p>
+                    <p>Warm regards,</p>
                     <p><b>Moon Books</b></p>
                     "
                 );
             }
             catch (Exception ex)
             {
-                throw new Exception("Email persetujuan peminjaman gagal dikirim: " + ex.Message);
+                throw new Exception("Failed to send borrowing approval email: " + ex.Message);
             }
         }
 
@@ -602,29 +602,29 @@ namespace LibraryManagementSystem.Services.Impl
 
                 EmailHelper.SendEmail(
                     data.Email,
-                    "Pengajuan Peminjaman Ditolak - Moon Books",
+                    "Book Borrowing Request Rejected - Moon Books",
                     $@"
-                    <h3>Pengajuan Peminjaman Ditolak</h3>
-                    <p>Halo <b>{data.FullName}</b>,</p>
+                    <h3>Book Borrowing Request Rejected</h3>
+                    <p>Hello <b>{data.FullName}</b>,</p>
 
-                    <p>Mohon maaf, pengajuan peminjaman buku Anda belum dapat disetujui.</p>
+                    <p>We are sorry, your book borrowing request was not approved.</p>
 
                     <p>
-                        <b>Judul Buku:</b> {data.BookTitle}<br/>
-                        <b>Status:</b> Ditolak
+                        <b>Book Title:</b> {data.BookTitle}<br/>
+                        <b>Status:</b> Rejected
                     </p>
 
-                    <p>Silakan hubungi pustakawan untuk informasi lebih lanjut.</p>
+                    <p>Please contact a librarian for further information.</p>
 
                     <br/>
-                    <p>Salam hangat,</p>
+                    <p>Warm regards,</p>
                     <p><b>Moon Books</b></p>
                     "
                 );
             }
             catch (Exception ex)
             {
-                throw new Exception("Email penolakan peminjaman gagal dikirim: " + ex.Message);
+                throw new Exception("Failed to send borrowing rejection email: " + ex.Message);
             }
         }
     }

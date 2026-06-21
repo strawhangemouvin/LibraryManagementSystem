@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Models.Entity;
+using LibraryManagementSystem.Models.Entity;
 using LibraryManagementSystem.Models.ViewModel;
 using LibraryManagementSystem.Services.Context;
 using LibraryManagementSystem.Services.Interface;
@@ -78,44 +78,44 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (book == null)
             {
-                throw new Exception("Data buku tidak boleh kosong");
+                throw new Exception("Book data cannot be empty");
             }
 
             if (book.CategoryId <= 0)
             {
-                throw new Exception("CategoryId wajib diisi");
+                throw new Exception("CategoryId is required");
             }
 
             var categoryExists = db.Categories.Any(x => x.Id == book.CategoryId);
 
             if (!categoryExists)
             {
-                throw new Exception("Kategori tidak ditemukan");
+                throw new Exception("Category not found");
             }
 
             if (string.IsNullOrWhiteSpace(book.Title))
             {
-                throw new Exception("Judul buku wajib diisi");
+                throw new Exception("Book title is required");
             }
 
             if (string.IsNullOrWhiteSpace(book.Author))
             {
-                throw new Exception("Author wajib diisi");
+                throw new Exception("Author is required");
             }
 
             if (book.Stock < 0)
             {
-                throw new Exception("Stock tidak boleh kurang dari 0");
+                throw new Exception("Stock cannot be negative");
             }
 
             if (book.AvailableStock < 0)
             {
-                throw new Exception("AvailableStock tidak boleh kurang dari 0");
+                throw new Exception("Available stock cannot be negative");
             }
 
             if (book.AvailableStock > book.Stock)
             {
-                throw new Exception("AvailableStock tidak boleh lebih besar dari Stock");
+                throw new Exception("Available stock cannot exceed total stock");
             }
 
             var isbnExists = false;
@@ -128,7 +128,7 @@ namespace LibraryManagementSystem.Services.Impl
 
                 if (isbnExists)
                 {
-                    throw new Exception("ISBN sudah digunakan oleh buku lain");
+                    throw new Exception("ISBN is already used by another book");
                 }
 
                 book.ISBN = isbn;
@@ -160,7 +160,7 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (book == null)
             {
-                throw new Exception("Data buku tidak boleh kosong");
+                throw new Exception("Book data cannot be empty");
             }
 
             var existingBook = db.Books.Find(id);
@@ -172,39 +172,39 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (book.CategoryId <= 0)
             {
-                throw new Exception("CategoryId wajib diisi");
+                throw new Exception("CategoryId is required");
             }
 
             var categoryExists = db.Categories.Any(x => x.Id == book.CategoryId);
 
             if (!categoryExists)
             {
-                throw new Exception("Kategori tidak ditemukan");
+                throw new Exception("Category not found");
             }
 
             if (string.IsNullOrWhiteSpace(book.Title))
             {
-                throw new Exception("Judul buku wajib diisi");
+                throw new Exception("Book title is required");
             }
 
             if (string.IsNullOrWhiteSpace(book.Author))
             {
-                throw new Exception("Author wajib diisi");
+                throw new Exception("Author is required");
             }
 
             if (book.Stock < 0)
             {
-                throw new Exception("Stock tidak boleh kurang dari 0");
+                throw new Exception("Stock cannot be negative");
             }
 
             if (book.AvailableStock < 0)
             {
-                throw new Exception("AvailableStock tidak boleh kurang dari 0");
+                throw new Exception("Available stock cannot be negative");
             }
 
             if (book.AvailableStock > book.Stock)
             {
-                throw new Exception("AvailableStock tidak boleh lebih besar dari Stock");
+                throw new Exception("Available stock cannot exceed total stock");
             }
 
             if (!string.IsNullOrWhiteSpace(book.ISBN))
@@ -218,7 +218,7 @@ namespace LibraryManagementSystem.Services.Impl
 
                 if (isbnExists)
                 {
-                    throw new Exception("ISBN sudah digunakan oleh buku lain");
+                    throw new Exception("ISBN is already used by another book");
                 }
 
                 existingBook.ISBN = isbn;
@@ -278,7 +278,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (isBorrowed)
             {
-                throw new Exception("Buku tidak bisa dihapus karena sedang dipinjam");
+                throw new Exception("Book cannot be deleted because it is currently borrowed");
             }
 
             var hasRequestedBorrowing = db.Borrowings.Any(x =>
@@ -288,7 +288,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (hasRequestedBorrowing)
             {
-                throw new Exception("Buku tidak bisa dihapus karena masih memiliki pengajuan peminjaman");
+                throw new Exception("Book cannot be deleted because there are pending borrowing requests");
             }
 
             db.Books.Remove(book);

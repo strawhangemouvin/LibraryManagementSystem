@@ -1,13 +1,36 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title - Moon Books</title>
 
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
 
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
     <style>
+        :root {
+            --primary-rose: #C97A7E;
+            --primary-rose-hover: #B56B6B;
+            --secondary-peach: #FFD5C2;
+            --accent-gold: #E6C587;
+            --text-dark: #3A1F24;
+            --text-muted: #7E6569;
+            --bg-gradient: linear-gradient(135deg, #FFF0F2 0%, #FFFDF8 50%, #F6EFFF 100%);
+            --glass-bg: rgba(255, 255, 255, 0.65);
+            --glass-border: rgba(255, 255, 255, 0.5);
+            --shadow-soft: 0 16px 36px rgba(201, 122, 126, 0.08);
+            --shadow-hover: 0 24px 48px rgba(201, 122, 126, 0.16);
+            --transition-smooth: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
         html {
             min-height: 100%;
         }
@@ -15,206 +38,279 @@
         body {
             margin: 0;
             min-height: 100vh;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            background: linear-gradient(135deg, #FFF8EC, #F6E7CF, #EBD6B8);
-            color: #4A3526;
+            font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-dark);
         }
 
         .moon-navbar {
-            background: rgba(255, 248, 236, 0.94);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(139, 98, 57, 0.18);
-            box-shadow: 0 6px 20px rgba(103, 70, 38, 0.10);
-            padding: 14px 38px;
+            background: rgba(255, 245, 245, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+            padding: 16px 40px;
             position: sticky;
             top: 0;
             z-index: 999;
+            transition: var(--transition-smooth);
         }
 
         .moon-brand {
-            font-size: 24px;
+            font-family: 'Playfair Display', serif;
+            font-size: 26px;
             font-weight: 800;
-            color: #7B4F2C !important;
+            color: var(--text-dark) !important;
             text-decoration: none;
-            letter-spacing: 0.3px;
-            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.5px;
+            transition: var(--transition-smooth);
         }
 
-            .moon-brand:hover {
-                color: #5F3A1E !important;
-            }
+        .moon-brand:hover {
+            color: var(--primary-rose) !important;
+            transform: translateY(-1px);
+        }
+
+        .moon-brand span {
+            color: var(--primary-rose);
+        }
 
         .moon-nav-link {
-            color: #7B4F2C !important;
+            font-size: 15px;
+            color: var(--text-dark) !important;
             font-weight: 500;
             margin-left: 8px;
             border-radius: 24px;
-            padding: 8px 16px !important;
-            transition: 0.2s;
+            padding: 8px 18px !important;
+            transition: var(--transition-smooth);
         }
 
-            .moon-nav-link:hover {
-                background-color: #EFE0C7;
-                color: #5F3A1E !important;
-            }
+        .moon-nav-link:hover {
+            background-color: rgba(201, 122, 126, 0.1);
+            color: var(--primary-rose) !important;
+        }
 
         .moon-container {
-            padding: 34px 42px 10px 42px;
+            padding: 40px 60px 20px 60px;
             min-height: calc(100vh - 170px);
         }
 
         .moon-page-shell {
-            background: rgba(255, 252, 245, 0.72);
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             border-radius: 28px;
-            padding: 22px;
-            box-shadow: 0 14px 36px rgba(103, 70, 38, 0.10);
-            border: 1px solid rgba(255, 255, 255, 0.70);
+            padding: 35px;
+            box-shadow: var(--shadow-soft);
         }
 
         .card {
             border: none !important;
             border-radius: 24px !important;
-            box-shadow: 0 12px 28px rgba(103, 70, 38, 0.12) !important;
+            box-shadow: var(--shadow-soft) !important;
             overflow: hidden;
-            background-color: #FFFCF5 !important;
+            background: rgba(255, 255, 255, 0.8) !important;
+            backdrop-filter: blur(8px);
+            transition: var(--transition-smooth);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-hover) !important;
         }
 
         .card-header {
-            background: linear-gradient(135deg, #F8E9D0, #EFE0C7) !important;
-            border-bottom: none !important;
-            color: #7B4F2C !important;
+            background: linear-gradient(135deg, rgba(255, 240, 242, 0.8), rgba(255, 255, 255, 0.8)) !important;
+            border-bottom: 1px solid rgba(201, 122, 126, 0.15) !important;
+            color: var(--text-dark) !important;
+            padding: 16px 24px !important;
         }
 
-            .card-header h4,
-            .card-header h5 {
-                color: #7B4F2C !important;
-                font-weight: 800;
-            }
+        .card-header h4,
+        .card-header h5 {
+            color: var(--text-dark) !important;
+            font-family: 'Playfair Display', serif;
+            font-weight: 800;
+            margin-bottom: 0;
+        }
 
         .btn-primary,
         .btn-main {
-            background-color: #7B4F2C !important;
-            border-color: #7B4F2C !important;
+            background: linear-gradient(135deg, var(--primary-rose) 0%, #E5989B 100%) !important;
+            border: none !important;
             color: white !important;
             border-radius: 24px !important;
-            padding-left: 18px;
-            padding-right: 18px;
+            padding: 8px 22px !important;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(201, 122, 126, 0.2);
+            transition: var(--transition-smooth);
         }
 
-            .btn-primary:hover,
-            .btn-main:hover {
-                background-color: #5F3A1E !important;
-                border-color: #5F3A1E !important;
-            }
+        .btn-primary:hover,
+        .btn-main:hover {
+            background: linear-gradient(135deg, var(--primary-rose-hover) 0%, var(--primary-rose) 100%) !important;
+            box-shadow: 0 8px 20px rgba(201, 122, 126, 0.35);
+            transform: translateY(-1px);
+        }
 
         .btn-outline-secondary,
         .btn-outline-primary {
-            border-color: #7B4F2C !important;
-            color: #7B4F2C !important;
+            border: 1.5px solid var(--primary-rose) !important;
+            color: var(--primary-rose) !important;
+            background: transparent !important;
             border-radius: 24px !important;
+            padding: 8px 22px !important;
+            font-weight: 600;
+            transition: var(--transition-smooth);
         }
 
-            .btn-outline-secondary:hover,
-            .btn-outline-primary:hover {
-                background-color: #7B4F2C !important;
-                color: white !important;
-            }
+        .btn-outline-secondary:hover,
+        .btn-outline-primary:hover {
+            background: var(--primary-rose) !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(201, 122, 126, 0.25);
+            transform: translateY(-1px);
+        }
 
         .btn-danger,
         .btn-success,
         .btn-warning {
             border-radius: 24px !important;
+            padding: 8px 20px !important;
+            font-weight: 600;
+            transition: var(--transition-smooth);
         }
 
         .table {
-            background-color: #FFFCF5;
+            background-color: rgba(255, 255, 255, 0.5);
             border-radius: 18px;
             overflow: hidden;
+            border-collapse: collapse;
         }
 
-            .table thead {
-                background: #F8E9D0 !important;
-                color: #7B4F2C;
-            }
+        .table thead {
+            background: rgba(255, 213, 194, 0.4) !important;
+            color: var(--text-dark);
+        }
 
-            .table th {
-                font-weight: 700;
-                white-space: nowrap;
-            }
+        .table th {
+            font-weight: 700;
+            white-space: nowrap;
+            color: var(--text-dark);
+            border-bottom: 2px solid rgba(201, 122, 126, 0.15);
+        }
 
-            .table td {
-                vertical-align: middle !important;
-            }
+        .table td {
+            vertical-align: middle !important;
+            border-bottom: 1px solid rgba(201, 122, 126, 0.1);
+        }
 
         .form-control,
         .form-select {
             border-radius: 16px !important;
-            border: 1px solid #D8BA91 !important;
+            border: 1px solid rgba(201, 122, 126, 0.25) !important;
             padding: 11px 14px;
-            background-color: #FFFCF5 !important;
-            color: #4A3526 !important;
+            background-color: rgba(255, 255, 255, 0.8) !important;
+            color: var(--text-dark) !important;
+            transition: var(--transition-smooth);
         }
 
-            .form-control:focus,
-            .form-select:focus {
-                border-color: #7B4F2C !important;
-                box-shadow: 0 0 0 0.2rem rgba(123, 79, 44, 0.15) !important;
-            }
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-rose) !important;
+            background-color: white !important;
+            box-shadow: 0 0 0 4px rgba(201, 122, 126, 0.12) !important;
+        }
 
         .badge {
             border-radius: 18px;
-            padding: 7px 11px;
+            padding: 6px 12px;
+            font-weight: 600;
         }
 
         .alert {
             border-radius: 18px !important;
+            border: none;
         }
 
         .moon-footer {
-            margin-top: 30px;
-            padding: 34px 40px 20px 40px;
-            background: rgba(255, 248, 236, 0.90);
-            border-top: 1px solid rgba(139, 98, 57, 0.15);
-            color: #7B4F2C;
-            box-shadow: 0 -6px 18px rgba(103, 70, 38, 0.07);
+            margin-top: 50px;
+            padding: 60px 60px 30px 60px;
+            background: radial-gradient(circle at 10% 20%, #4A2E35 0%, #301A1E 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: #F6EFFF;
+            box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.05);
+            border-radius: 28px 28px 0 0;
         }
 
         .moon-footer-title {
-            font-size: 22px;
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
             font-weight: 800;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
+            color: white;
         }
 
         .moon-footer-link {
-            display: block;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             text-decoration: none;
-            color: #7B4F2C;
-            margin-bottom: 6px;
+            color: #E5D9DC;
+            margin-bottom: 10px;
             font-size: 14px;
+            transition: var(--transition-smooth);
         }
 
-            .moon-footer-link:hover {
-                color: #5F3A1E;
-                text-decoration: underline;
-            }
+        .text-center .moon-footer-link {
+            justify-content: center;
+        }
+
+        .moon-footer-link::before {
+            content: '\2726';
+            font-size: 9px;
+            color: var(--primary-rose);
+            opacity: 0.7;
+        }
+
+        .moon-footer-link:hover {
+            color: white;
+            padding-left: 6px;
+        }
+
+        .text-center .moon-footer-link:hover {
+            padding-left: 0;
+        }
 
         .moon-footer-badge {
             display: inline-block;
-            background: #EFE0C7;
-            color: #7B4F2C;
-            padding: 7px 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #F6EFFF;
+            padding: 6px 12px;
             border-radius: 18px;
-            margin: 4px 4px 4px 0;
+            margin: 0 4px 8px 0;
             font-size: 13px;
+            transition: var(--transition-smooth);
+        }
+
+        .moon-footer-badge:hover {
+            background: var(--primary-rose);
+            border-color: var(--primary-rose);
+            transform: translateY(-2px);
         }
 
         .moon-footer-bottom {
-            border-top: 1px solid rgba(139, 98, 57, 0.18);
-            margin-top: 22px;
-            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 30px;
+            padding-top: 18px;
             text-align: center;
             font-size: 14px;
-            color: #7B4F2C;
+            color: #E5D9DC;
+            opacity: 0.7;
         }
 
         .moon-decoration {
@@ -222,11 +318,11 @@
             width: 180px;
             height: 180px;
             border-radius: 50%;
-            background: rgba(255, 248, 236, 0.55);
-            box-shadow: 0 0 90px rgba(255, 248, 236, 0.90);
+            background: radial-gradient(circle, rgba(255, 182, 193, 0.2) 0%, rgba(255, 255, 255, 0) 70%);
             right: -55px;
             top: 130px;
             z-index: -1;
+            pointer-events: none;
         }
 
         .moon-decoration-small {
@@ -234,28 +330,145 @@
             width: 85px;
             height: 85px;
             border-radius: 50%;
-            background: rgba(123, 79, 44, 0.08);
+            background: radial-gradient(circle, rgba(224, 176, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
             left: 35px;
             bottom: 80px;
             z-index: -1;
+            pointer-events: none;
         }
 
-        @@media (max-width: 768px) {
+        @@media (max-width: 992px) {
             .moon-navbar {
-                padding: 14px 18px;
+                padding: 16px 24px;
             }
 
             .moon-container {
-                padding: 22px 16px 8px 16px;
+                padding: 30px 24px 20px 24px;
             }
 
             .moon-page-shell {
-                padding: 14px;
+                padding: 24px;
             }
 
             .moon-footer {
-                padding: 30px 22px 18px 22px;
+                padding: 40px 24px 20px 24px;
             }
+        }
+
+        @@media (max-width: 576px) {
+            .moon-brand {
+                font-size: 20px;
+            }
+        }
+
+        .moon-footer p {
+            word-break: break-all;
+        }
+
+        /* Scaffolding CRUD overrides to align inputs cleanly */
+        .moon-page-shell .form-horizontal {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(201, 122, 126, 0.15);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .moon-page-shell .form-horizontal h2,
+        .moon-page-shell .form-horizontal h4 {
+            font-family: 'Playfair Display', serif;
+            color: var(--text-dark);
+            font-weight: 800;
+        }
+
+        .moon-page-shell .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .moon-page-shell .form-group .control-label {
+            text-align: left !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: none !important;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+        }
+
+        .moon-page-shell .form-group .col-md-10 {
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: none !important;
+            padding: 0 !important;
+        }
+
+        .moon-page-shell .form-group input,
+        .moon-page-shell .form-group select,
+        .moon-page-shell .form-group textarea {
+            width: 100% !important;
+            max-width: 100% !important;
+            border-radius: 16px !important;
+            border: 1px solid rgba(201, 122, 126, 0.25) !important;
+            padding: 11px 14px !important;
+            background-color: rgba(255, 255, 255, 0.8) !important;
+            color: var(--text-dark) !important;
+            box-sizing: border-box;
+        }
+
+        .moon-page-shell .form-group input:focus,
+        .moon-page-shell .form-group select:focus,
+        .moon-page-shell .form-group textarea:focus {
+            border-color: var(--primary-rose) !important;
+            background-color: white !important;
+            box-shadow: 0 0 0 4px rgba(201, 122, 126, 0.12) !important;
+            outline: none;
+        }
+
+        /* Description lists in Details / Delete views */
+        .moon-page-shell dl.dl-horizontal {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(201, 122, 126, 0.15);
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        .moon-page-shell dl.dl-horizontal dt {
+            font-weight: 700;
+            color: var(--text-dark);
+            text-align: left;
+        }
+
+        .moon-page-shell dl.dl-horizontal dd {
+            margin-left: 0;
+            color: var(--text-muted);
+        }
+
+        /* Action link styles in page shell */
+        .moon-page-shell > div > a,
+        .moon-page-shell > p > a,
+        .moon-page-shell a.back-to-list {
+            display: inline-block;
+            margin-top: 15px;
+            color: var(--primary-rose);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+
+        .moon-page-shell > div > a:hover,
+        .moon-page-shell > p > a:hover,
+        .moon-page-shell a.back-to-list:hover {
+            color: var(--primary-rose-hover);
+            transform: translateX(-3px);
         }
     </style>
 </head>
@@ -266,7 +479,7 @@
 
     <nav class="navbar navbar-expand-lg moon-navbar">
         <a class="navbar-brand moon-brand" href="@Url.Action("Index", "HomeMvc")">
-            🌙📚 Moon Books
+            <i class="bi bi-moon-stars-fill me-2" style="color: var(--primary-rose);"></i>Moon <span>Books</span>
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#moonNavbar">
@@ -281,16 +494,16 @@
                         <a class="nav-link moon-nav-link" href="@Url.Action("Librarian", "DashboardMvc")">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCBooks")">Buku</a>
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCBooks")">Books</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCMembers")">Member</a>
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCMembers")">Members</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCBorrowings")">Peminjaman</a>
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCBorrowings")">Borrowings</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "ReportsMvc")">Laporan</a>
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "ReportsMvc")">Reports</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link moon-nav-link" href="@Url.Action("Logout", "AuthMvc")">Logout</a>
@@ -302,10 +515,10 @@
                         <a class="nav-link moon-nav-link" href="@Url.Action("Member", "DashboardMvc")">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCBooks")">Daftar Buku</a>
+                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCBooks")">Book List</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("MyHistory", "MVCBorrowings")">Riwayat</a>
+                        <a class="nav-link moon-nav-link" href="@Url.Action("MyHistory", "MVCBorrowings")">History</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link moon-nav-link" href="@Url.Action("Logout", "AuthMvc")">Logout</a>
@@ -336,27 +549,27 @@
     <footer class="moon-footer">
         <div class="row">
             <div class="col-md-4 mb-3">
-                <div class="moon-footer-title">🌙📚 Moon Books</div>
-                <p class="mb-0">
-                    Sistem manajemen perpustakaan digital dengan nuansa hangat, rapi, dan mudah digunakan.
+                <div class="moon-footer-title"><i class="bi bi-moon-stars-fill me-2" style="color: var(--primary-rose);"></i>Moon <span>Books</span></div>
+                <p class="mb-0" style="opacity: 0.8; font-size: 14px; line-height: 1.8;">
+                    Digital library management system with a warm, neat, and user-friendly feel.
                 </p>
             </div>
 
-            <div class="col-md-3 mb-3">
-                <h6>Quick Links</h6>
+            <div class="col-md-3 mb-3 text-center">
+                <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Quick Links</h6>
                 <a href="@Url.Action("Index", "HomeMvc")" class="moon-footer-link">Home</a>
 
                 @if (Session["Role"] != null && Session["Role"].ToString() == "Librarian")
                 {
-                    <a href="@Url.Action("Librarian", "DashboardMvc")" class="moon-footer-link">Dashboard Pustakawan</a>
-                    <a href="@Url.Action("Index", "MVCBorrowings")" class="moon-footer-link">Data Peminjaman</a>
-                    <a href="@Url.Action("Index", "ReportsMvc")" class="moon-footer-link">Laporan</a>
+                    <a href="@Url.Action("Librarian", "DashboardMvc")" class="moon-footer-link">Librarian Dashboard</a>
+                    <a href="@Url.Action("Index", "MVCBorrowings")" class="moon-footer-link">Borrowings Data</a>
+                    <a href="@Url.Action("Index", "ReportsMvc")" class="moon-footer-link">Reports</a>
                 }
                 else if (Session["Role"] != null && Session["Role"].ToString() == "Member")
                 {
-                    <a href="@Url.Action("Member", "DashboardMvc")" class="moon-footer-link">Dashboard Member</a>
-                    <a href="@Url.Action("Index", "MVCBooks")" class="moon-footer-link">Daftar Buku</a>
-                    <a href="@Url.Action("MyHistory", "MVCBorrowings")" class="moon-footer-link">Riwayat Peminjaman</a>
+                    <a href="@Url.Action("Member", "DashboardMvc")" class="moon-footer-link">Member Dashboard</a>
+                    <a href="@Url.Action("Index", "MVCBooks")" class="moon-footer-link">Book List</a>
+                    <a href="@Url.Action("MyHistory", "MVCBorrowings")" class="moon-footer-link">Borrowing History</a>
                 }
                 else
                 {
@@ -365,25 +578,26 @@
                 }
             </div>
 
-            <div class="col-md-3 mb-3">
-                <h6>Fitur</h6>
-                <span class="moon-footer-badge">Buku</span>
-                <span class="moon-footer-badge">Member</span>
-                <span class="moon-footer-badge">Peminjaman</span>
-                <span class="moon-footer-badge">Pengembalian</span>
-                <span class="moon-footer-badge">Reminder</span>
-                <span class="moon-footer-badge">Denda</span>
+            <div class="col-md-3 mb-3 text-center">
+                <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Modules &amp; Features</h6>
+                <span class="moon-footer-badge">Books</span>
+                <span class="moon-footer-badge">Members</span>
+                <span class="moon-footer-badge">Borrowings</span>
+                <span class="moon-footer-badge">Returns</span>
+                <span class="moon-footer-badge">Reminders</span>
+                <span class="moon-footer-badge">Fines</span>
             </div>
 
             <div class="col-md-2 mb-3">
-                <h6>Kontak</h6>
-                <p class="mb-1">✉️ moonbooks@email.com</p>
-                <p class="mb-1">⏰ 08.00 - 16.00</p>
+                <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Contact</h6>
+                <p class="mb-2" style="font-size: 14px; opacity: 0.8; word-break: break-all;"><i class="bi bi-envelope me-2"></i>moonbooks@gmail.com</p>
+                <p class="mb-2" style="font-size: 14px; opacity: 0.8;"><i class="bi bi-telephone me-2"></i>083148448516</p>
+                <p class="mb-0" style="font-size: 14px; opacity: 0.8;"><i class="bi bi-clock me-2"></i>08:00 AM - 04:00 PM</p>
             </div>
         </div>
 
         <div class="moon-footer-bottom">
-            © @DateTime.Now.Year Moon Books — A Warm Digital Library Space
+            &copy; @DateTime.Now.Year Moon Books. Crafted with <i class="bi bi-heart-fill" style="color: var(--primary-rose); font-size: 12px;"></i> for a beautiful reading experience.
         </div>
     </footer>
 

@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Helpers;
+using LibraryManagementSystem.Helpers;
 using LibraryManagementSystem.Models.Entity;
 using LibraryManagementSystem.Models.ViewModel;
 using LibraryManagementSystem.Services.Context;
@@ -17,17 +17,17 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (request == null)
             {
-                throw new Exception("Data login tidak boleh kosong");
+                throw new Exception("Login data cannot be empty");
             }
 
             if (string.IsNullOrWhiteSpace(request.Username))
             {
-                throw new Exception("Username wajib diisi");
+                throw new Exception("Username is required");
             }
 
             if (string.IsNullOrWhiteSpace(request.Password))
             {
-                throw new Exception("Password wajib diisi");
+                throw new Exception("Password is required");
             }
 
             var username = request.Username.Trim();
@@ -35,41 +35,41 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (!Regex.IsMatch(username, @"^[a-z0-9_.]+$"))
             {
-                throw new Exception("Username hanya boleh huruf kecil, angka, underscore (_), dan titik (.)");
+                throw new Exception("Username can only contain lowercase letters, numbers, underscores (_), and periods (.)");
             }
 
             if (!Regex.IsMatch(password, @"^[a-z0-9]+$"))
             {
-                throw new Exception("Password hanya boleh huruf kecil dan angka");
+                throw new Exception("Password can only contain lowercase letters and numbers");
             }
 
             var user = db.Users.FirstOrDefault(x => x.Username == username);
 
             if (user == null)
             {
-                throw new Exception("Username atau password salah");
+                throw new Exception("Invalid username or password");
             }
 
             var passwordValid = PasswordHelper.VerifyPassword(password, user.Password);
 
             if (!passwordValid)
             {
-                throw new Exception("Username atau password salah");
+                throw new Exception("Invalid username or password");
             }
 
             if (user.Status == "Pending")
             {
-                throw new Exception("Akun belum aktif. Menunggu persetujuan pustakawan.");
+                throw new Exception("Account is not active yet. Pending librarian approval.");
             }
 
             if (user.Status == "Rejected")
             {
-                throw new Exception("Akun ditolak. Silakan hubungi pustakawan.");
+                throw new Exception("Account rejected. Please contact the librarian.");
             }
 
             if (user.Status == "Inactive")
             {
-                throw new Exception("Akun tidak aktif.");
+                throw new Exception("Account is inactive.");
             }
 
             var token = TokenHelper.GenerateToken();
@@ -87,7 +87,7 @@ namespace LibraryManagementSystem.Services.Impl
                 Role = user.Role,
                 Status = user.Status,
                 Token = token,
-                Message = "Login berhasil"
+                Message = "Login successful"
             };
         }
 
@@ -95,7 +95,7 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (request == null)
             {
-                throw new Exception("Data register tidak boleh kosong");
+                throw new Exception("Registration data cannot be empty");
             }
 
             ValidateRegisterInput(request);
@@ -116,14 +116,14 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (usernameExists)
             {
-                throw new Exception("Username sudah digunakan");
+                throw new Exception("Username is already taken");
             }
 
             var emailExists = db.Users.Any(x => x.Email == email);
 
             if (emailExists)
             {
-                throw new Exception("Email sudah digunakan");
+                throw new Exception("Email is already taken");
             }
 
             var user = new User
@@ -158,7 +158,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             return new
             {
-                message = "Register berhasil. Akun menunggu persetujuan pustakawan.",
+                message = "Registration successful. Your account is pending librarian approval.",
                 userId = user.Id,
                 memberId = member.Id,
                 memberCode = member.MemberCode,
@@ -172,12 +172,12 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (string.IsNullOrWhiteSpace(username))
             {
-                throw new Exception("Username wajib diisi");
+                throw new Exception("Username is required");
             }
 
             if (string.IsNullOrWhiteSpace(newPassword))
             {
-                throw new Exception("Password baru wajib diisi");
+                throw new Exception("New password is required");
             }
 
             var cleanUsername = username.Trim();
@@ -185,19 +185,19 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (!Regex.IsMatch(cleanPassword, @"^[a-z0-9]+$"))
             {
-                throw new Exception("Password hanya boleh huruf kecil dan angka");
+                throw new Exception("Password can only contain lowercase letters and numbers");
             }
 
             if (cleanPassword.Length < 6 || cleanPassword.Length > 15)
             {
-                throw new Exception("Password minimal 6 karakter dan maksimal 15 karakter");
+                throw new Exception("Password must be between 6 and 15 characters");
             }
 
             var user = db.Users.FirstOrDefault(x => x.Username == cleanUsername);
 
             if (user == null)
             {
-                throw new Exception("User tidak ditemukan");
+                throw new Exception("User not found");
             }
 
             user.Password = PasswordHelper.HashPassword(cleanPassword);
@@ -207,7 +207,7 @@ namespace LibraryManagementSystem.Services.Impl
 
             return new
             {
-                message = "Password berhasil di-hash",
+                message = "Password successfully hashed",
                 username = user.Username
             };
         }
@@ -216,22 +216,22 @@ namespace LibraryManagementSystem.Services.Impl
         {
             if (string.IsNullOrWhiteSpace(request.FullName))
             {
-                throw new Exception("Nama lengkap wajib diisi");
+                throw new Exception("Full name is required");
             }
 
             if (string.IsNullOrWhiteSpace(request.Username))
             {
-                throw new Exception("Username wajib diisi");
+                throw new Exception("Username is required");
             }
 
             if (string.IsNullOrWhiteSpace(request.Email))
             {
-                throw new Exception("Email wajib diisi");
+                throw new Exception("Email is required");
             }
 
             if (string.IsNullOrWhiteSpace(request.Password))
             {
-                throw new Exception("Password wajib diisi");
+                throw new Exception("Password is required");
             }
 
             var fullName = request.FullName.Trim();
@@ -241,56 +241,56 @@ namespace LibraryManagementSystem.Services.Impl
 
             if (fullName.Length < 3 || fullName.Length > 100)
             {
-                throw new Exception("Nama lengkap minimal 3 karakter dan maksimal 100 karakter");
+                throw new Exception("Full name must be between 3 and 100 characters");
             }
 
             if (username.Length < 4 || username.Length > 15)
             {
-                throw new Exception("Username minimal 4 karakter dan maksimal 15 karakter");
+                throw new Exception("Username must be between 4 and 15 characters");
             }
 
             if (username.Contains(" "))
             {
-                throw new Exception("Username tidak boleh mengandung spasi");
+                throw new Exception("Username cannot contain spaces");
             }
 
             if (!Regex.IsMatch(username, @"^[a-z0-9_.]+$"))
             {
-                throw new Exception("Username hanya boleh huruf kecil, angka, underscore (_), dan titik (.)");
+                throw new Exception("Username can only contain lowercase letters, numbers, underscores (_), and periods (.)");
             }
 
             if (!Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
             {
-                throw new Exception("Format email tidak valid");
+                throw new Exception("Invalid email format");
             }
 
             if (!email.EndsWith("@gmail.com") &&
                 !email.EndsWith("@yahoo.com") &&
                 !email.EndsWith("@email.com"))
             {
-                throw new Exception("Email hanya boleh menggunakan domain @gmail.com, @yahoo.com, atau @email.com");
+                throw new Exception("Email can only use @gmail.com, @yahoo.com, or @email.com domains");
             }
 
             if (password.Length < 6 || password.Length > 15)
             {
-                throw new Exception("Password minimal 6 karakter dan maksimal 15 karakter");
+                throw new Exception("Password must be between 6 and 15 characters");
             }
 
             if (!Regex.IsMatch(password, @"^[a-z0-9]+$"))
             {
-                throw new Exception("Password hanya boleh huruf kecil dan angka");
+                throw new Exception("Password can only contain lowercase letters and numbers");
             }
 
             if (!string.IsNullOrWhiteSpace(request.Address) &&
                 request.Address.Trim().Length > 255)
             {
-                throw new Exception("Alamat maksimal 255 karakter");
+                throw new Exception("Address must be at most 255 characters");
             }
 
             if (!string.IsNullOrWhiteSpace(request.ClassName) &&
                 request.ClassName.Trim().Length > 50)
             {
-                throw new Exception("Kelas maksimal 50 karakter");
+                throw new Exception("Class name must be at most 50 characters");
             }
         }
 
@@ -315,22 +315,22 @@ namespace LibraryManagementSystem.Services.Impl
 
                 EmailHelper.SendEmail(
                     user.Email,
-                    "Registrasi Akun Moon Books",
+                    "Moon Books Account Registration",
                     $@"
-            <h3>Registrasi Berhasil</h3>
-            <p>Halo <b>{user.FullName}</b>,</p>
+            <h3>Registration Successful</h3>
+            <p>Hello <b>{user.FullName}</b>,</p>
 
-            <p>Terima kasih telah melakukan registrasi pada <b>Moon Books</b>.</p>
+            <p>Thank you for registering at <b>Moon Books</b>.</p>
 
-            <p>Status akun Anda saat ini: <b>Pending</b>.</p>
+            <p>Your current account status: <b>Pending</b>.</p>
 
             <p>
-                Silakan menunggu persetujuan dari pustakawan agar akun Anda dapat
-                digunakan untuk login dan mengajukan peminjaman buku.
+                Please wait for approval from a librarian so your account can be
+                used to log in and request book borrowing.
             </p>
 
             <br/>
-            <p>Salam hangat,</p>
+            <p>Warm regards,</p>
             <p><b>Moon Books</b></p>
             "
                 );

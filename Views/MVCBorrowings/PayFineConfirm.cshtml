@@ -1,115 +1,618 @@
-﻿```cshtml
 @model LibraryManagementSystem.Models.Entity.Borrowing
 
 @{
-    ViewBag.Title = "Pembayaran Denda";
+    ViewBag.Title = "Fine Payment Simulator";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    // Get dynamic URL to enable phone scanners to detect it as a web link
+    var rawUrl = Request.Url.GetLeftPart(UriPartial.Authority) + Url.Action("PayFineConfirm", "MVCBorrowings", new { id = Model.Id });
 }
 
+<style>
+    /* Make default page shell transparent */
+    .moon-page-shell {
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    /* Virtual Phone Simulation CSS */
+    .phone-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        perspective: 1000px;
+    }
+
+    .phone-frame {
+        width: 340px;
+        height: 600px;
+        background: #1e1e24;
+        border-radius: 42px;
+        padding: 12px;
+        box-shadow: 0 25px 60px rgba(74, 46, 53, 0.35);
+        border: 4px solid #3d3d45;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Notch */
+    .phone-notch {
+        width: 130px;
+        height: 18px;
+        background: #1e1e24;
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-bottom-left-radius: 14px;
+        border-bottom-right-radius: 14px;
+        z-index: 10;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .phone-camera {
+        width: 8px;
+        height: 8px;
+        background: #101015;
+        border-radius: 50%;
+    }
+
+    .phone-screen {
+        width: 100%;
+        height: 100%;
+        background: #fcfcfc;
+        border-radius: 32px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    /* Simulated Phone Header & Status Bar */
+    .phone-header {
+        background: linear-gradient(135deg, #4A2E35 0%, #301A1E 100%);
+        color: white;
+        padding-bottom: 8px;
+    }
+
+    .phone-status-bar {
+        height: 30px;
+        background: transparent;
+        color: white;
+        padding: 8px 20px 0 20px;
+        font-size: 11px;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 5;
+    }
+
+    .phone-status-icons i {
+        margin-left: 4px;
+    }
+
+    .phone-app-bar {
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 18px;
+    }
+
+    .phone-app-title {
+        font-weight: 700;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        color: #fff;
+    }
+
+    /* Phone Content Wrapper */
+    .phone-body {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+        background: #FAF5F6;
+        -ms-overflow-style: none;  /* IE/Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+
+    .phone-body::-webkit-scrollbar {
+        display: none; /* Chrome/Safari/Opera */
+    }
+
+    /* Keypad & PIN CSS */
+    .pin-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 2px solid #C97A7E;
+        background: transparent;
+        transition: all 0.15s ease;
+    }
+
+    .pin-dot.filled {
+        background: #C97A7E;
+        transform: scale(1.15);
+    }
+
+    .btn-pin {
+        width: 100%;
+        height: 46px;
+        border-radius: 12px;
+        background: white;
+        border: 1px solid rgba(0,0,0,0.05);
+        font-weight: 700;
+        font-size: 16px;
+        color: #4A2E35;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.1s ease;
+    }
+
+    .btn-pin:active {
+        background: #C97A7E;
+        color: white;
+        border-color: #C97A7E;
+        transform: scale(0.95);
+    }
+
+    /* Receipt dashed divider */
+    .receipt-divider {
+        position: relative;
+        height: 20px;
+        border-top: 2px dashed rgba(201, 122, 126, 0.25);
+        margin: 15px 0;
+    }
+    .receipt-divider::before,
+    .receipt-divider::after {
+        content: '';
+        position: absolute;
+        top: -11px;
+        width: 20px;
+        height: 20px;
+        background: #FAF5F6; /* Matches the phone screen background */
+        border-radius: 50%;
+    }
+    .receipt-divider::before { left: -26px; }
+    .receipt-divider::after { right: -26px; }
+
+    /* Success checkmark animation */
+    .success-icon-container {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 54px;
+        height: 54px;
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border-radius: 50%;
+        font-size: 26px;
+        animation: pulseGreen 1.5s infinite;
+        margin: 8px auto;
+    }
+
+    @keyframes pulseGreen {
+        0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.4); }
+        70% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(40, 167, 69, 0); }
+        100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    }
+
+    /* Custom slide-up transition for the phone modal */
+    #phoneSimModal.modal.fade .modal-dialog {
+        transform: translateY(120px) scale(0.95);
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #phoneSimModal.modal.show .modal-dialog {
+        transform: translateY(0) scale(1);
+    }
+</style>
+
 <div class="container-fluid mt-4">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h4 class="mb-0" style="color:#7A4E60;">Pembayaran Denda</h4>
-                    <small class="text-muted">QRIS simulasi untuk pembayaran denda keterlambatan.</small>
+    <div class="row g-4">
+        <!-- Left Side: Fine Details Information -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4" style="background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.25); height: 100%;">
+                <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose); color: white; padding: 20px;">
+                    <div>
+                        <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700;">Fine Payment</h4>
+                        <p class="mb-0 opacity-75" style="font-size: 13px;">Review details and trigger QRIS Mobile simulator.</p>
+                    </div>
                 </div>
 
-                <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-sm btn-light rounded-pill">
-                    Kembali ke Data Peminjaman
-                </a>
+                <div class="card-body p-4 d-flex flex-column justify-content-between">
+                    <div>
+                        <h5 style="color: var(--primary-rose); font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 20px;">
+                            <i class="bi bi-file-text me-2"></i>Borrowing & Fine Details
+                        </h5>
+
+                        <table class="table table-borderless align-middle">
+                            <tr>
+                                <th style="width:160px; color: #5a5a5a; font-size: 14px;">Book Title</th>
+                                <td style="font-weight: 600;">@(Model.Book == null ? "-" : Model.Book.Title)</td>
+                            </tr>
+
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Member Code</th>
+                                <td style="font-weight: 600;">@(Model.Member == null ? "-" : Model.Member.MemberCode)</td>
+                            </tr>
+
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Due Date</th>
+                                <td><i class="bi bi-calendar-event me-2 text-muted"></i>@(Model.DueDate == null ? "-" : Model.DueDate.Value.ToString("dd-MM-yyyy"))</td>
+                            </tr>
+
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Return Date</th>
+                                <td><i class="bi bi-calendar-check me-2 text-muted"></i>@(Model.ReturnDate == null ? "-" : Model.ReturnDate.Value.ToString("dd-MM-yyyy"))</td>
+                            </tr>
+
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Late Duration</th>
+                                <td>
+                                    <span class="badge bg-danger rounded-pill px-3 py-2">
+                                        @(Model.LateDays ?? 0) Days
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Fine Amount</th>
+                                <td>
+                                    <span class="badge bg-danger rounded-pill px-3 py-2" style="background-color: var(--primary-rose) !important;">
+                                        Rp @((Model.FineAmount ?? 0).ToString("N0"))
+                                    </span>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th style="color: #5a5a5a; font-size: 14px;">Fine Status</th>
+                                <td>
+                                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2">
+                                        @(string.IsNullOrWhiteSpace(Model.FineStatus) ? "Unpaid" : Model.FineStatus)
+                                    </span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top d-flex gap-2">
+                        <!-- Direct simulation trigger -->
+                        <button type="button" class="btn btn-main rounded-pill px-4 py-2" data-bs-toggle="modal" data-bs-target="#phoneSimModal" onclick="resetPhoneSim();">
+                            <i class="bi bi-qr-code-scan me-1"></i> Simulate Mobile Scan
+                        </button>
+                        <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-outline-secondary rounded-pill px-4 py-2" style="font-weight: 600;">
+                            Cancel
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <h5 style="color:#7A4E60;">Detail Denda</h5>
+        <!-- Right Side: Large QRIS code card -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0 rounded-4 text-center p-4" style="background: white; border: 1px solid rgba(0, 0, 0, 0.08); box-shadow: 0 4px 20px rgba(0,0,0,0.03); height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                <h5 style="color: var(--primary-rose); font-family: 'Playfair Display', serif; font-weight: 700; margin-bottom: 20px;">
+                    <i class="bi bi-qr-code-scan me-2"></i>QRIS Payment
+                </h5>
 
-                    <table class="table table-borderless">
-                        <tr>
-                            <th style="width:180px;">Judul Buku</th>
-                            <td>@(Model.Book == null ? "-" : Model.Book.Title)</td>
-                        </tr>
-
-                        <tr>
-                            <th>Kode Member</th>
-                            <td>@(Model.Member == null ? "-" : Model.Member.MemberCode)</td>
-                        </tr>
-
-                        <tr>
-                            <th>Jatuh Tempo</th>
-                            <td>@(Model.DueDate == null ? "-" : Model.DueDate.Value.ToString("dd-MM-yyyy"))</td>
-                        </tr>
-
-                        <tr>
-                            <th>Tanggal Kembali</th>
-                            <td>@(Model.ReturnDate == null ? "-" : Model.ReturnDate.Value.ToString("dd-MM-yyyy"))</td>
-                        </tr>
-
-                        <tr>
-                            <th>Terlambat</th>
-                            <td>
-                                <span class="badge bg-danger">
-                                    @(Model.LateDays ?? 0) hari
-                                </span>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>Total Denda</th>
-                            <td>
-                                <span class="badge bg-danger">
-                                    Rp @((Model.FineAmount ?? 0).ToString("N0"))
-                                </span>
-                            </td>
-                        </tr>
-
-                        <tr>
-                            <th>Status Denda</th>
-                            <td>
-                                <span class="badge bg-warning text-dark">
-                                    @(string.IsNullOrWhiteSpace(Model.FineStatus) ? "Unpaid" : Model.FineStatus)
-                                </span>
-                            </td>
-                        </tr>
-                    </table>
+                <div class="d-inline-block p-3 rounded-4 bg-light mb-3" style="border: 2px dashed #C97A7E;">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=@(HttpUtility.UrlEncode(rawUrl))" 
+                         alt="QRIS Code" class="img-fluid rounded-3" style="max-height: 240px; width: 240px;" />
                 </div>
 
-                <div class="col-md-6 text-center">
-                    <h5 style="color:#7A4E60;">QRIS Simulasi</h5>
-
-                    <div class="border rounded-4 p-4 bg-light">
-                        <div style="font-size:80px;">▦</div>
-                        <h5 class="mt-2">QRIS SIMULASI</h5>
-                        <p class="text-muted mb-1">Scan untuk pembayaran denda</p>
-                        <h4>Rp @((Model.FineAmount ?? 0).ToString("N0"))</h4>
-                    </div>
-
-                    <small class="text-muted d-block mt-2">
-                        Ini QRIS simulasi untuk kebutuhan demo aplikasi.
-                    </small>
+                <div class="mb-3">
+                    <span class="badge bg-secondary px-3 py-2 rounded-pill">QRIS NATIONAL STANDARD</span>
                 </div>
+                
+                <p class="text-muted mb-1 px-4" style="font-size: 13px;">
+                    Since real banking apps reject simulation codes, please click the <b>Simulate Mobile Scan</b> button to pay using the virtual phone simulation.
+                </p>
+                <h3 style="font-weight: 800; color: #4A2E35;">Rp @((Model.FineAmount ?? 0).ToString("N0"))</h3>
             </div>
-
-            <hr />
-
-            @using (Html.BeginForm("PayFineConfirmed", "MVCBorrowings", FormMethod.Post))
-            {
-                @Html.AntiForgeryToken()
-                @Html.Hidden("id", Model.Id)
-
-                <button type="submit"
-                        class="btn btn-success rounded-pill"
-                        onclick="return confirm('Tandai denda ini sudah dibayar?');">
-                    Tandai Sudah Dibayar
-                </button>
-
-                <a href="@Url.Action("Index", "MVCBorrowings")" class="btn btn-outline-secondary rounded-pill">
-                    Batal
-                </a>
-            }
         </div>
     </div>
 </div>
-```
+
+@section scripts {
+    <!-- Modal: Virtual Smartphone Simulator -->
+    <div class="modal fade" id="phoneSimModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+            <div class="modal-content border-0 bg-transparent">
+                <div class="phone-container">
+                    <div class="phone-frame">
+                        <div class="phone-notch">
+                            <div class="phone-camera"></div>
+                        </div>
+                        <div class="phone-screen">
+                            
+                            <!-- Phone Top App Header (Status bar + App Bar merged) -->
+                            <div class="phone-header">
+                                <div class="phone-status-bar">
+                                    <span id="phoneTime">12:00</span>
+                                    <div class="phone-status-icons">
+                                        <i class="bi bi-wifi"></i>
+                                        <i class="bi bi-reception-4"></i>
+                                        <i class="bi bi-battery-half"></i>
+                                    </div>
+                                </div>
+                                <div class="phone-app-bar">
+                                    <i class="bi bi-wallet2 text-white" style="font-size: 16px;"></i>
+                                    <span class="phone-app-title">Moon Pay Mobile</span>
+                                    <i class="bi bi-shield-check text-white-50" style="font-size: 16px;"></i>
+                                </div>
+                            </div>
+
+                            <!-- 1. Screen Confirmation -->
+                            <div id="screenConfirm" class="phone-body text-center d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="alert alert-success py-2 rounded-3 text-center mb-2" style="border: none; font-size: 11px; font-weight: 600; background: rgba(40,167,69,0.1); color: #28a745; margin-top: 5px;">
+                                        <i class="bi bi-qr-code-scan me-1"></i> QRIS Code Detected
+                                    </div>
+
+                                    <div class="p-3 rounded-4 mb-2" style="background: white; border: 1px solid rgba(0,0,0,0.06); text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.02);">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <small class="text-muted" style="font-size: 11px;">Merchant Name</small>
+                                            <strong style="color: #4A2E35; font-size: 12px;">Moon Books Library</strong>
+                                        </div>
+                                        <hr class="my-2" style="opacity: 0.05; margin: 4px 0;" />
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <small class="text-muted" style="font-size: 11px;">Fine Details</small>
+                                            <strong style="color: #4A2E35; font-size: 12px; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                @(Model.Book != null ? Model.Book.Title : "Late Fine")
+                                            </strong>
+                                        </div>
+                                        <hr class="my-2" style="opacity: 0.05; margin: 4px 0;" />
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small class="text-muted" style="font-size: 11px;">Ref Code</small>
+                                            <code class="text-dark" style="font-size: 11px;">MB-FINE-@Model.Id</code>
+                                        </div>
+                                    </div>
+
+                                    <div class="p-3 rounded-4 mb-3" style="background: linear-gradient(135deg, rgba(201, 122, 126, 0.1) 0%, rgba(255, 213, 194, 0.1) 100%); border: 1px solid rgba(201, 122, 126, 0.15); text-align: center;">
+                                        <small class="text-muted" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Total Payment</small>
+                                        <h3 style="font-weight: 800; color: #4A2E35; margin: 4px 0 0 0; font-size: 22px;">Rp @((Model.FineAmount ?? 0).ToString("N0"))</h3>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p style="font-size: 11px; color: #7E6569; line-height: 1.4; margin-bottom: 12px;">Are you sure you want to approve this simulated fine payment?</p>
+                                    <button type="button" class="btn w-100 rounded-pill mb-2 py-2" style="background: var(--primary-rose); color: white; font-weight: 700; font-size: 13px;" onclick="goToPinScreen();">
+                                        Confirm &amp; Pay
+                                    </button>
+                                    <button type="button" class="btn btn-light w-100 rounded-pill py-2" style="font-weight: 600; font-size: 13px;" data-bs-dismiss="modal">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 1.5. Screen Enter PIN -->
+                            <div id="screenPin" class="phone-body text-center d-none flex-column justify-content-between">
+                                <div class="mt-2">
+                                    <h6 style="font-weight: 800; color: #4A2E35;">Enter Secure PIN</h6>
+                                    <p class="text-muted" style="font-size: 11px;">Please enter your 6-digit Moon Pay PIN</p>
+                                    
+                                    <!-- PIN Dots -->
+                                    <div class="d-flex justify-content-center gap-3 my-3">
+                                        <span class="pin-dot" id="dot1"></span>
+                                        <span class="pin-dot" id="dot2"></span>
+                                        <span class="pin-dot" id="dot3"></span>
+                                        <span class="pin-dot" id="dot4"></span>
+                                        <span class="pin-dot" id="dot5"></span>
+                                        <span class="pin-dot" id="dot6"></span>
+                                    </div>
+                                </div>
+
+                                <!-- Keypad -->
+                                <div class="pin-keypad mb-2">
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-4"><button type="button" class="btn btn-pin" onclick="pressPinKey(1)">1</button></div>
+                                        <div class="col-4"><button type="button" class="btn btn-pin" onclick="pressPinKey(2)">2</button></div>
+                                        <div class="col-4"><button type="button" class="btn btn-pin" onclick="pressPinKey(3)">3</button></div>
+                                    </div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-4"><button type="button" class="btn btn-pin" onclick="pressPinKey(4)">4</button></div>
+                                        <div class="col-4"><button type="button" class="btn btn-pin" onclick="pressPinKey(5)">5</button></div>
+                                        <div class="col-4"><button type="button" class="btn btn-pin" onclick="pressPinKey(6)">6</button></div>
+                                    </div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-4"><button type="button" class="btn btn-pin" onclick="pressPinKey(7)">7</button></div>
+                                        <div class="col-4"><button type="button" class="btn btn-pin" onclick="pressPinKey(8)">8</button></div>
+                                        <div class="col-4"><button type="button" class="btn btn-pin" onclick="pressPinKey(9)">9</button></div>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-4"><button type="button" class="btn btn-pin text-danger" onclick="clearPin()"><i class="bi bi-x-circle"></i></button></div>
+                                        <div class="col-4"><button type="button" class="btn btn-pin" onclick="pressPinKey(0)">0</button></div>
+                                        <div class="col-4"><button type="button" class="btn btn-pin text-muted" onclick="backspacePin()"><i class="bi bi-backspace"></i></button></div>
+                                    </div>
+                                </div>
+                                
+                                <div style="font-size: 10px; color: #7E6569; margin-bottom: 5px;">
+                                    <i class="bi bi-shield-lock me-1"></i> Simulated payment. Enter any 6 digits to verify.
+                                </div>
+                            </div>
+
+                            <!-- 2. Screen Loading -->
+                            <div id="screenLoading" class="phone-body text-center d-none flex-column justify-content-center align-items-center">
+                                <div class="spinner-border" role="status" style="width: 2.5rem; height: 2.5rem; color: var(--primary-rose);">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <h5 class="mt-4" style="font-weight: 700; color: #4A2E35; font-size: 15px;">Processing Payment</h5>
+                                <p class="text-muted px-3 mt-1" style="font-size: 12px;">Securing simulated bank transaction...</p>
+                            </div>
+
+                            <!-- 3. Screen Receipt -->
+                            <div id="screenReceipt" class="phone-body d-none flex-column justify-content-between" style="background: #FAF5F6;">
+                                <div class="card p-3 border-0 rounded-4 text-center mt-2" style="background: white !important; box-shadow: 0 10px 30px rgba(0,0,0,0.03) !important;">
+                                    <div class="success-icon-container">
+                                        <i class="bi bi-check2"></i>
+                                    </div>
+                                    <h5 class="mt-1 mb-1" style="font-weight: 800; color: #28a745; font-size: 15px;">Payment Successful</h5>
+                                    <small class="text-muted" style="font-size: 10px;">Ref No: <span id="receiptRef">MB-REF-000</span></small>
+
+                                    <div class="receipt-divider"></div>
+
+                                    <div style="text-align: left; font-size: 12px;">
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">Merchant</span>
+                                            <strong class="text-dark">Moon Books Library</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">Payment Type</span>
+                                            <span class="text-dark">QRIS (Simulated)</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="text-muted">Date &amp; Time</span>
+                                            <span class="text-dark" id="receiptTime">22-06-2026 12:00</span>
+                                        </div>
+                                        
+                                        <hr style="opacity: 0.05; margin: 8px 0;" />
+                                        
+                                        <div class="d-flex justify-content-between mb-0" style="font-size: 13px;">
+                                            <span class="text-muted" style="font-weight: 600;">Total Paid</span>
+                                            <strong style="color: #4A2E35; font-size: 14px;">Rp @((Model.FineAmount ?? 0).ToString("N0"))</strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3">
+                                    <div class="alert alert-info py-2 rounded-3 text-center mb-2" style="border: none; font-size: 10px; color: #31708f; background: rgba(49, 112, 143, 0.1); padding: 8px;">
+                                        <i class="bi bi-info-circle me-1"></i> Payment confirmed in Library Database.
+                                    </div>
+
+                                    @using (Html.BeginForm("PayFineConfirmed", "MVCBorrowings", FormMethod.Post, new { id = "paymentConfirmForm" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+                                        @Html.Hidden("id", Model.Id)
+                                        
+                                        <button type="submit" class="btn btn-success w-100 rounded-pill py-2" style="font-weight: 700; font-size: 13px;">
+                                            Done &amp; Exit
+                                        </button>
+                                    }
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update Time on simulated phone
+        function updatePhoneTime() {
+            const now = new Date();
+            let hours = now.getHours().toString().padStart(2, '0');
+            let minutes = now.getMinutes().toString().padStart(2, '0');
+            const phoneTimeEl = document.getElementById("phoneTime");
+            if (phoneTimeEl) {
+                phoneTimeEl.innerText = `${hours}:${minutes}`;
+            }
+        }
+        setInterval(updatePhoneTime, 1000);
+        updatePhoneTime();
+
+        let currentPin = "";
+
+        // Reset the phone simulator screens
+        function resetPhoneSim() {
+            clearPin();
+            document.getElementById("screenConfirm").classList.remove("d-none");
+            document.getElementById("screenConfirm").classList.add("d-flex");
+            document.getElementById("screenPin").classList.add("d-none");
+            document.getElementById("screenPin").classList.remove("d-flex");
+            document.getElementById("screenLoading").classList.add("d-none");
+            document.getElementById("screenLoading").classList.remove("d-flex");
+            document.getElementById("screenReceipt").classList.add("d-none");
+            document.getElementById("screenReceipt").classList.remove("d-flex");
+        }
+
+        function goToPinScreen() {
+            clearPin();
+            document.getElementById("screenConfirm").classList.remove("d-flex");
+            document.getElementById("screenConfirm").classList.add("d-none");
+            
+            document.getElementById("screenPin").classList.remove("d-none");
+            document.getElementById("screenPin").classList.add("d-flex");
+        }
+
+        function pressPinKey(num) {
+            if (currentPin.length < 6) {
+                currentPin += num;
+                updatePinDots();
+                if (currentPin.length === 6) {
+                    // Auto submit PIN after small delay
+                    setTimeout(submitPayment, 350);
+                }
+            }
+        }
+
+        function backspacePin() {
+            if (currentPin.length > 0) {
+                currentPin = currentPin.slice(0, -1);
+                updatePinDots();
+            }
+        }
+
+        function clearPin() {
+            currentPin = "";
+            updatePinDots();
+        }
+
+        function updatePinDots() {
+            for (let i = 1; i <= 6; i++) {
+                const dot = document.getElementById(`dot${i}`);
+                if (dot) {
+                    if (i <= currentPin.length) {
+                        dot.classList.add("filled");
+                    } else {
+                        dot.classList.remove("filled");
+                    }
+                }
+            }
+        }
+
+        // Action when Clicking "Confirm & Pay"
+        function submitPayment() {
+            // Transition to screen 2 (Loading)
+            document.getElementById("screenPin").classList.remove("d-flex");
+            document.getElementById("screenPin").classList.add("d-none");
+            
+            document.getElementById("screenLoading").classList.remove("d-none");
+            document.getElementById("screenLoading").classList.add("d-flex");
+
+            // Generate receipt values
+            const now = new Date();
+            const dateStr = now.getDate().toString().padStart(2, '0') + '-' + 
+                            (now.getMonth() + 1).toString().padStart(2, '0') + '-' + 
+                            now.getFullYear() + ' ' + 
+                            now.getHours().toString().padStart(2, '0') + ':' + 
+                            now.getMinutes().toString().padStart(2, '0');
+            
+            const refNo = 'MB-' + Math.random().toString(36).substring(2, 10).toUpperCase();
+
+            document.getElementById("receiptTime").innerText = dateStr;
+            document.getElementById("receiptRef").innerText = refNo;
+
+            // Simulate server lag for 1.8 seconds, then transition to Screen 3 (Receipt)
+            setTimeout(function() {
+                document.getElementById("screenLoading").classList.remove("d-flex");
+                document.getElementById("screenLoading").classList.add("d-none");
+
+                document.getElementById("screenReceipt").classList.remove("d-none");
+                document.getElementById("screenReceipt").classList.add("d-flex");
+            }, 1800);
+        }
+    </script>
+}

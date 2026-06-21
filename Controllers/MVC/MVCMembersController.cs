@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Services.Impl;
+using LibraryManagementSystem.Services.Impl;
 using LibraryManagementSystem.Services.Interface;
 using System;
 using System.Linq;
@@ -64,7 +64,7 @@ namespace LibraryManagementSystem.Controllers.MVC
                     return HttpNotFound();
                 }
 
-                TempData["Success"] = "Member berhasil disetujui.";
+                TempData["Success"] = "Member successfully approved.";
                 return RedirectToAction("Pending");
             }
             catch (Exception ex)
@@ -92,7 +92,7 @@ namespace LibraryManagementSystem.Controllers.MVC
                     return HttpNotFound();
                 }
 
-                TempData["Success"] = "Member berhasil ditolak.";
+                TempData["Success"] = "Member successfully rejected.";
                 return RedirectToAction("Pending");
             }
             catch (Exception ex)
@@ -104,19 +104,19 @@ namespace LibraryManagementSystem.Controllers.MVC
 
         public ActionResult Create()
         {
-            TempData["Error"] = "Member tidak dibuat manual. Silakan gunakan halaman Register.";
+            TempData["Error"] = "Members cannot be created manually. Please use the Registration page.";
             return RedirectToAction("Index");
         }
 
         public ActionResult Edit(int? id)
         {
-            TempData["Error"] = "Data member tidak diedit dari halaman ini.";
+            TempData["Error"] = "Member details cannot be edited from this page.";
             return RedirectToAction("Index");
         }
 
         public ActionResult Delete(int? id)
         {
-            TempData["Error"] = "Member tidak dapat dihapus dari halaman ini.";
+            TempData["Error"] = "Members cannot be deleted from this page.";
             return RedirectToAction("Index");
         }
 
