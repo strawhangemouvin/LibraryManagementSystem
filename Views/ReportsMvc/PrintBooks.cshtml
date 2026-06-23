@@ -1,7 +1,8 @@
 @model IEnumerable<LibraryManagementSystem.Models.ViewModel.BookReportViewModel>
 @{
     Layout = null;
-    var selectedDateStr = ViewBag.SelectedDate != null ? ((DateTime)ViewBag.SelectedDate).ToString("dd MMMM yyyy") : "Semua Waktu";
+    var selectedDate = ViewBag.SelectedDate as DateTime?;
+    var selectedDateStr = selectedDate.HasValue ? selectedDate.Value.ToString("dd MMMM yyyy") : "Semua Waktu";
 }
 <!DOCTYPE html>
 <html>
@@ -70,7 +71,7 @@
             margin: 0 auto;
             font-weight: 700;
         }
-        @media print {
+        @@media print {
             body {
                 padding: 20px;
             }

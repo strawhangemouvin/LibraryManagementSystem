@@ -636,128 +636,87 @@
         }
 
         /* Footer */
-        .footer-custom {
+        .moon-footer {
+            margin-top: 50px;
+            padding: 60px 60px 30px 60px;
             background: radial-gradient(circle at 10% 20%, #4A2E35 0%, #301A1E 100%);
-            color: #F6EFFF;
-            padding: 80px 80px 30px 80px;
-            position: relative;
-            overflow: hidden;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
+            color: #F6EFFF;
+            box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.05);
+            border-radius: 28px 28px 0 0;
         }
 
-        .footer-custom::before {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(201, 122, 126, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
-            bottom: -100px;
-            left: -100px;
-            pointer-events: none;
-        }
-
-        .footer-title {
+        .moon-footer-title {
             font-family: 'Playfair Display', serif;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 800;
-            margin-bottom: 20px;
-            color: white;
-        }
-
-        .footer-desc {
-            font-size: 14px;
-            line-height: 1.8;
-            opacity: 0.8;
-            margin-bottom: 20px;
-        }
-
-        .footer-heading {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            color: white;
-            position: relative;
-            padding-bottom: 8px;
-        }
-
-        .footer-heading::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--primary-rose);
-            border-radius: 2px;
-        }
-
-        .footer-link {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #E5D9DC;
-            text-decoration: none;
             margin-bottom: 12px;
+            color: white;
+        }
+
+        .moon-footer-link {
+            display: inline-block;
+            text-decoration: none;
+            color: #E5D9DC;
+            margin-bottom: 10px;
             font-size: 14px;
             transition: var(--transition-smooth);
+            text-align: center;
         }
 
-        .text-center .footer-link {
-            justify-content: center;
-        }
-
-        .text-center .footer-heading::after {
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .footer-link::before {
-            content: '\2726';
-            font-size: 10px;
-            color: var(--primary-rose);
-            opacity: 0;
-            transition: var(--transition-smooth);
-            transform: translateX(-5px);
-        }
-
-        .footer-link:hover {
+        .moon-footer-link:hover {
             color: white;
-            padding-left: 8px;
+            transform: translateY(-2px);
         }
 
-        .text-center .footer-link:hover {
-            padding-left: 0;
+        .moon-contact-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #F6EFFF;
+            font-size: 18px;
+            text-decoration: none;
+            transition: var(--transition-smooth);
         }
 
-        .footer-link:hover::before {
-            opacity: 1;
-            transform: translateX(0);
+        .moon-contact-icon:hover {
+            background: var(--primary-rose);
+            border-color: var(--primary-rose);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(201, 122, 126, 0.3);
         }
 
-        .footer-badge {
+        .moon-footer-badge {
             display: inline-block;
             background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #F6EFFF;
-            padding: 6px 14px;
-            border-radius: 20px;
-            margin: 0 6px 10px 0;
+            padding: 6px 12px;
+            border-radius: 18px;
+            margin: 0 4px 8px 0;
             font-size: 13px;
             transition: var(--transition-smooth);
         }
 
-        .footer-badge:hover {
+        .moon-footer-badge:hover {
             background: var(--primary-rose);
             border-color: var(--primary-rose);
             transform: translateY(-2px);
         }
 
-        .footer-bottom {
+        .moon-footer-bottom {
             border-top: 1px solid rgba(255, 255, 255, 0.08);
-            margin-top: 50px;
-            padding-top: 25px;
+            margin-top: 30px;
+            padding-top: 18px;
             text-align: center;
             font-size: 14px;
+            color: #E5D9DC;
             opacity: 0.7;
         }
 
@@ -850,7 +809,7 @@
         <div class="nav-menu">
             <a href="#home" class="nav-link-custom">Home</a>
             <a href="#about" class="nav-link-custom">About</a>
-            <a href="#books-pick" class="nav-link-custom">Featured</a>
+            <a href="#books-pick" class="nav-link-custom">Recommended</a>
             <a href="#contact" class="nav-link-custom">Contact</a>
             <a href="@Url.Action("Login", "AuthMvc")" class="btn-outline-main">Sign In</a>
             <a href="@Url.Action("Register", "AuthMvc")" class="btn-main">Sign Up</a>
@@ -1143,44 +1102,59 @@
         </div>
     </section>
 
-    <footer class="footer-custom">
-        <div class="row g-4">
-            <div class="col-lg-4 col-md-6">
-                <div class="footer-title"><i class="bi bi-moon-stars-fill me-2" style="color: var(--primary-rose);"></i>Moon Books</div>
-                <p class="footer-desc">
-                    Moon Books provides a digital book management and circulation system with a warm, modern, and aesthetic feel. Inspiring reading comfort anytime, anywhere.
-                </p>
+    <footer class="moon-footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="moon-footer-title"><i class="bi bi-moon-stars-fill me-2" style="color: var(--primary-rose);"></i>Moon <span>Books</span></div>
+                    <p class="mb-0" style="opacity: 0.8; font-size: 14px; line-height: 1.8;">
+                        Moon Books is a warmly designed digital library management platform tailored specifically to simplify daily digital and physical library operations.
+                    </p>
+                </div>
+
+                <div class="col-md-3 mb-4 text-center">
+                    <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Quick Links</h6>
+                    <div class="d-flex flex-column align-items-center">
+                        <a href="#home" class="moon-footer-link">Home</a>
+                        <a href="@Url.Action("Login", "AuthMvc")" class="moon-footer-link">Sign In</a>
+                        <a href="@Url.Action("Register", "AuthMvc")" class="moon-footer-link">Sign Up</a>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4 text-center">
+                    <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Modules &amp; Features</h6>
+                    <div class="d-flex flex-wrap justify-content-center">
+                        <span class="moon-footer-badge">Books</span>
+                        <span class="moon-footer-badge">Members</span>
+                        <span class="moon-footer-badge">Borrowings</span>
+                        <span class="moon-footer-badge">Returns</span>
+                        <span class="moon-footer-badge">Reminders</span>
+                        <span class="moon-footer-badge">Fines</span>
+                    </div>
+                </div>
+
+                <div class="col-md-2 mb-4 text-center text-md-start">
+                    <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Contact</h6>
+                    <div class="d-flex gap-2 justify-content-center justify-content-md-start align-items-center">
+                        <a href="mailto:moonbooks@gmail.com" class="moon-contact-icon" title="Email">
+                            <i class="bi bi-envelope-fill"></i>
+                        </a>
+                        <a href="https://wa.me/qr/UMMSR7FC5ZKHA1" class="moon-contact-icon" title="WhatsApp" target="_blank">
+                            <i class="bi bi-whatsapp"></i>
+                        </a>
+                        <a href="https://www.instagram.com/bilaamnc?igsh=a3lsMzc1ZWxsZDJt" class="moon-contact-icon" title="Instagram" target="_blank">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="https://github.com/strawhangemouvin" class="moon-contact-icon" title="GitHub" target="_blank">
+                            <i class="bi bi-github"></i>
+                        </a>
+                    </div>
+                </div>
             </div>
 
-            <div class="col-lg-2 col-md-6 text-center">
-                <h6 class="footer-heading">Navigation</h6>
-                <a href="#home" class="footer-link">Home</a>
-                <a href="#about" class="footer-link">About Us</a>
-                <a href="#books-pick" class="footer-link">Featured</a>
-                <a href="#contact" class="footer-link">Contact</a>
+            <div class="moon-footer-bottom">
+                &copy; @DateTime.Now.Year Moon Books. Crafted with <i class="bi bi-heart-fill" style="color: var(--primary-rose); font-size: 12px;"></i> for a beautiful reading experience.
             </div>
-
-            <div class="col-lg-3 col-md-6 text-center">
-                <h6 class="footer-heading">Modules &amp; Features</h6>
-                <span class="footer-badge">Book Catalog</span>
-                <span class="footer-badge">Membership</span>
-                <span class="footer-badge">Borrowings</span>
-                <span class="footer-badge">Circulation Fines</span>
-                <span class="footer-badge">Notifications</span>
-                <span class="footer-badge">QRIS Simulation</span>
-            </div>
-
-            <div class="col-lg-3 col-md-6">
-                <h6 class="footer-heading">Official Contact</h6>
-                <p class="mb-2" style="font-size: 14px; opacity: 0.8;"><i class="bi bi-geo-alt me-2"></i>Jakarta, Indonesia</p>
-                <p class="mb-2" style="font-size: 14px; opacity: 0.8; word-break: break-all;"><i class="bi bi-envelope me-2"></i>moonbooks@gmail.com</p>
-                <p class="mb-2" style="font-size: 14px; opacity: 0.8;"><i class="bi bi-telephone me-2"></i>083148448516</p>
-                <p class="mb-0" style="font-size: 14px; opacity: 0.8;"><i class="bi bi-clock me-2"></i>Service Hours: 08:00 AM - 04:00 PM</p>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            &copy; @DateTime.Now.Year Moon Books. Crafted with <i class="bi bi-heart-fill" style="color: var(--primary-rose); font-size: 12px;"></i> for a beautiful reading experience.
         </div>
     </footer>
 </body>

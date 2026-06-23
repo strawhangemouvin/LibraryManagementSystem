@@ -26,7 +26,7 @@
             <div class="row g-4">
                 <!-- Left Column: Avatar -->
                 <div class="col-lg-3 col-md-4">
-                    <div class="p-4 rounded-4 bg-white bg-opacity-50 border border-white shadow-sm h-100 d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 300px;">
+                    <div class="p-4 rounded-4 bg-white bg-opacity-50 border border-white shadow-sm d-flex flex-column align-items-center text-center" style="min-height: 320px;">
                         <div class="position-relative d-inline-block mb-3">
                             <img src="@avatarUrl" alt="@Model.FullName Avatar" class="rounded-circle border border-3 border-white shadow-sm" style="width: 140px; height: 140px; object-fit: cover;" />
                             @if (Model.Status == "Active")
@@ -43,7 +43,8 @@
                             }
                         </div>
                         <h5 class="mb-1 fw-bold" style="color: #4A2E35;">@Model.FullName</h5>
-                        <p class="text-muted small mb-0">@@@Model.Username</p>
+                        <p class="text-muted small mb-3">@@@Model.Username</p>
+                        <span class="badge rounded-pill px-3 py-1" style="background: var(--primary-rose); color: white; font-weight: 600;">Member</span>
                     </div>
                 </div>
 

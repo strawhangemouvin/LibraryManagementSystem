@@ -58,6 +58,21 @@
         background: var(--primary-rose);
         color: white;
     }
+
+    .form-control {
+        border-radius: 30px !important;
+        padding: 12px 20px !important;
+        border: 1px solid rgba(74, 46, 53, 0.15) !important;
+        background: rgba(255, 255, 255, 0.6) !important;
+        color: #3A1F24 !important;
+        transition: var(--transition-smooth) !important;
+    }
+
+    .form-control:focus {
+        background: rgba(255, 255, 255, 0.9) !important;
+        border-color: var(--primary-rose) !important;
+        box-shadow: 0 0 0 0.25rem rgba(201, 122, 126, 0.25) !important;
+    }
 </style>
 
 <div class="row justify-content-center align-items-center" style="min-height: 70vh; padding: 20px 0;">
@@ -121,21 +136,25 @@
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "6-15 characters, lowercase letters and numbers", required = "required" })
-                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small mt-1 d-block" })
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Password</label>
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "6-15 characters, lowercase letters and numbers", required = "required" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small mt-1 d-block" })
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">Address</label>
+                        @Html.TextAreaFor(m => m.Address, new { @class = "form-control", rows = "2", style = "height: 80px; resize: vertical; border-radius: 18px !important;", placeholder = "Enter address", required = "required" })
+                        @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger small mt-1 d-block" })
+                    </div>
                 </div>
 
-                <div class="mb-4">
-                    <label class="form-label">Address</label>
-                    @Html.TextAreaFor(m => m.Address, new { @class = "form-control", rows = "2", placeholder = "Enter address", required = "required" })
-                    @Html.ValidationMessageFor(m => m.Address, "", new { @class = "text-danger small mt-1 d-block" })
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary px-5 py-2.5 rounded-pill" style="font-size: 15px; font-weight: 700; min-width: 160px;">
+                        Sign Up <i class="bi bi-person-plus ms-1"></i>
+                    </button>
                 </div>
-
-                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill" style="font-size: 15px; font-weight: 700;">
-                    Sign Up <i class="bi bi-person-plus ms-1"></i>
-                </button>
             }
 
             <div class="text-center mt-4 pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">

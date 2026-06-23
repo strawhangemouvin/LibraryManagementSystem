@@ -34,14 +34,16 @@
             <div class="row g-4">
                 <!-- Left Column: Book Cover -->
                 <div class="col-lg-3 col-md-4">
-                    <div class="p-3 rounded-4 bg-white bg-opacity-50 border border-white shadow-sm h-100 d-flex flex-column align-items-center justify-content-center" style="min-height: 320px;">
+                    <div class="p-3 rounded-4 bg-white bg-opacity-50 border border-white shadow-sm d-flex flex-column align-items-center justify-content-center" style="min-height: 320px;">
                         @if (!string.IsNullOrEmpty(Model.CoverImage))
                         {
-                            <img src="@Model.CoverImage" alt="@Model.Title Cover" class="img-fluid rounded-4 shadow-sm border border-2 border-white" style="object-fit: cover; max-height: 300px; width: 100%;" />
+                            <div class="shadow-sm border border-2 border-white rounded-4 overflow-hidden" style="width: 200px; height: 280px;">
+                                <img src="@Model.CoverImage" alt="@Model.Title Cover" style="width: 100%; height: 100%; object-fit: cover;" />
+                            </div>
                         }
                         else
                         {
-                            <div class="d-flex align-items-center justify-content-center rounded-4 w-100" style="height: 260px; background-color: rgba(201, 122, 126, 0.1) !important;">
+                            <div class="d-flex align-items-center justify-content-center rounded-4 shadow-sm border border-2 border-white" style="width: 200px; height: 280px; background-color: rgba(201, 122, 126, 0.1) !important;">
                                 <i class="bi bi-book-half text-muted" style="font-size: 80px; color: var(--primary-rose) !important;"></i>
                             </div>
                             <p class="text-muted small mt-3 mb-0">No cover image available</p>

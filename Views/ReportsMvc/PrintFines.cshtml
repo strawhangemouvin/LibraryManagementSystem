@@ -1,7 +1,8 @@
 @model IEnumerable<LibraryManagementSystem.Models.ViewModel.FineReportViewModel>
 @{
     Layout = null;
-    var selectedDateStr = ViewBag.SelectedDate != null ? ((DateTime)ViewBag.SelectedDate).ToString("dd MMMM yyyy") : "Semua Waktu";
+    var selectedDate = ViewBag.SelectedDate as DateTime?;
+    var selectedDateStr = selectedDate.HasValue ? selectedDate.Value.ToString("dd MMMM yyyy") : "Semua Waktu";
     decimal totalFine = Model.Sum(x => x.FineAmount ?? 0);
 }
 <!DOCTYPE html>
@@ -71,7 +72,7 @@
             margin: 0 auto;
             font-weight: 700;
         }
-        @media print {
+        @@media print {
             body {
                 padding: 20px;
             }

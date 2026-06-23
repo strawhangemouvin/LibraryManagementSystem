@@ -175,6 +175,20 @@
             color: var(--primary-rose) !important;
         }
 
+        .moon-nav-link.active {
+            background-color: rgba(201, 122, 126, 0.15) !important;
+            color: var(--primary-rose) !important;
+            font-weight: 700 !important;
+            border: 1px solid rgba(201, 122, 126, 0.25) !important;
+        }
+
+        .btn-outline-primary.active-btn {
+            background: linear-gradient(135deg, var(--primary-rose) 0%, #E5989B 100%) !important;
+            color: white !important;
+            border-color: transparent !important;
+            box-shadow: 0 4px 15px rgba(201, 122, 126, 0.3) !important;
+        }
+
         .moon-container {
             padding: 40px 60px 20px 60px;
             min-height: calc(100vh - 170px);
@@ -1084,6 +1098,9 @@
     }
     else
     {
+        var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+        var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
         <!-- Standard Public Top Navbar -->
         <nav class="navbar navbar-expand-lg moon-navbar">
             <a class="navbar-brand moon-brand" href="@Url.Action("Index", "HomeMvc")">
@@ -1097,13 +1114,13 @@
             <div class="collapse navbar-collapse justify-content-end" id="moonNavbar">
                 <ul class="navbar-nav align-items-lg-center">
                     <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "HomeMvc")">Home</a>
+                        <a class="nav-link moon-nav-link @(currentController == "HomeMvc" && currentAction == "Index" ? "active" : "")" href="@Url.Action("Index", "HomeMvc")">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Login", "AuthMvc")">Sign In</a>
+                        <a class="nav-link moon-nav-link @(currentController == "AuthMvc" && currentAction == "Login" ? "active" : "")" href="@Url.Action("Login", "AuthMvc")">Sign In</a>
                     </li>
                     <li class="nav-item">
-                        <a class="btn btn-primary ms-lg-2" href="@Url.Action("Register", "AuthMvc")">Sign Up</a>
+                        <a class="btn btn-outline-primary ms-lg-2 @(currentController == "AuthMvc" && currentAction == "Register" ? "active-btn" : "")" href="@Url.Action("Register", "AuthMvc")" style="font-size: 15px;">Sign Up</a>
                     </li>
                 </ul>
             </div>
