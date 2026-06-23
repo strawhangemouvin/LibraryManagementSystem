@@ -20,7 +20,7 @@ namespace LibraryManagementSystem.Controllers.MVC
 
         // GET: MVCBorrowings
         // Halaman pustakawan untuk melihat semua data peminjaman
-        public ActionResult Index()
+        public ActionResult Index(string search)
         {
             if (Session["UserId"] == null)
             {
@@ -33,12 +33,26 @@ namespace LibraryManagementSystem.Controllers.MVC
             }
 
             var borrowings = borrowingService.GetAllBorrowings();
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim().ToLower();
+                borrowings = borrowings.Where(x => 
+                    (!string.IsNullOrEmpty(x.BookTitle) && x.BookTitle.ToLower().Contains(search)) ||
+                    (!string.IsNullOrEmpty(x.MemberName) && x.MemberName.ToLower().Contains(search)) ||
+                    (!string.IsNullOrEmpty(x.Username) && x.Username.ToLower().Contains(search)) ||
+                    (!string.IsNullOrEmpty(x.Status) && x.Status.ToLower().Contains(search)) ||
+                    (!string.IsNullOrEmpty(x.FineStatus) && x.FineStatus.ToLower().Contains(search))
+                ).ToList();
+                ViewBag.Search = search;
+            }
+
             return View(borrowings);
         }
 
         // GET: MVCBorrowings/MyHistory
         // Halaman member untuk melihat riwayat peminjamannya sendiri
-        public ActionResult MyHistory()
+        public ActionResult MyHistory(string search)
         {
             if (Session["UserId"] == null)
             {
@@ -61,12 +75,24 @@ namespace LibraryManagementSystem.Controllers.MVC
             }
 
             var history = borrowingService.GetBorrowingsByMember(member.Id);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim().ToLower();
+                history = history.Where(x => 
+                    (!string.IsNullOrEmpty(x.BookTitle) && x.BookTitle.ToLower().Contains(search)) ||
+                    (!string.IsNullOrEmpty(x.Status) && x.Status.ToLower().Contains(search)) ||
+                    (!string.IsNullOrEmpty(x.FineStatus) && x.FineStatus.ToLower().Contains(search))
+                ).ToList();
+                ViewBag.Search = search;
+            }
+
             return View(history);
         }
 
         // GET: MVCBorrowings/Request?bookId=1
         // Link lama tetap aman, diarahkan ke halaman konfirmasi
-        public ActionResult Request(int bookId)
+        public new ActionResult Request(int bookId)
         {
             return RedirectToAction("RequestConfirm", new { bookId = bookId });
         }

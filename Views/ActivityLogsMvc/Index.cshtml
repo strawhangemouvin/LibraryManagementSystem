@@ -7,11 +7,11 @@
 
 <div class="container-fluid mt-4">
     <div class="card shadow-sm border-0 rounded-4" style="background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.25);">
-        <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose); color: white; padding: 20px;">
+        <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose) !important; color: var(--text-dark); padding: 20px;">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700;">System Audit Logs</h4>
-                    <p class="mb-0 opacity-75" style="font-size: 13px;">System-wide tracker for tracking librarian and member transactions, approvals, and actions.</p>
+                    <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700; color: var(--text-dark) !important;">System Audit Logs</h4>
+                    <p class="mb-0 text-muted" style="font-size: 13px; color: var(--text-dark) !important; opacity: 0.85;">System-wide tracker for tracking librarian and member transactions, approvals, and actions.</p>
                 </div>
 
                 <a href="@Url.Action("Librarian", "DashboardMvc")" class="btn btn-sm btn-light rounded-pill px-3" style="color: var(--primary-rose); font-weight: 600;">
@@ -22,7 +22,7 @@
 
         <div class="card-body p-4">
             <div class="table-responsive rounded-4 border border-light">
-                <table class="table table-hover align-middle mb-0 paginated-table" data-page-size="8">
+                <table class="table table-hover align-middle mb-0 paginated-table" data-page-size="5">
                     <thead style="background-color: rgba(201, 122, 126, 0.1); border-bottom: 2px solid rgba(201, 122, 126, 0.15);">
                         <tr>
                             <th class="ps-4" style="color: #4A2E35;">Activity Detail</th>

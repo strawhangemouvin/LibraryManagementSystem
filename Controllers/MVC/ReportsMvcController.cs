@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Services.Impl;
+using LibraryManagementSystem.Services.Impl;
 using LibraryManagementSystem.Services.Interface;
 using System.Web.Mvc;
 
@@ -59,6 +59,22 @@ namespace LibraryManagementSystem.Controllers.MVC
 
             var borrowings = reportService.GetBorrowingReport();
             return View(borrowings);
+        }
+
+        public ActionResult Fines()
+        {
+            if (Session["UserId"] == null)
+            {
+                return RedirectToAction("Login", "AuthMvc");
+            }
+
+            if (Session["Role"] == null || Session["Role"].ToString() != "Librarian")
+            {
+                return RedirectToAction("Login", "AuthMvc");
+            }
+
+            var fines = reportService.GetFineReport();
+            return View(fines);
         }
     }
 }

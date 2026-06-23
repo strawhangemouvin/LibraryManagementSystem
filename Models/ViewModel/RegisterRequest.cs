@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace LibraryManagementSystem.Models.ViewModel
 {
@@ -15,6 +15,7 @@ namespace LibraryManagementSystem.Models.ViewModel
 
         [Required(ErrorMessage = "Email wajib diisi")]
         [EmailAddress(ErrorMessage = "Format email tidak valid")]
+        [RegularExpression(@"^[^@\s]+@(gmail\.com|yahoo\.com|email\.com)$", ErrorMessage = "Email hanya boleh menggunakan domain @gmail.com, @yahoo.com, atau @email.com")]
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Password wajib diisi")]

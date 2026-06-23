@@ -1,0 +1,113 @@
+@using LibraryManagementSystem.Helpers
+@using LibraryManagementSystem.Models.Entity
+@{
+    ViewBag.Title = "Edit Profile";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var user = ViewBag.User as User;
+    var member = ViewBag.Member as Member;
+
+    string email = user?.Email ?? "";
+    string avatarUrl = AvatarHelper.GetUserAvatarUrl(user?.Username ?? "", email, 150);
+}
+
+<div class="container-fluid py-4">
+    <!-- Feedback Alerts -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4 mb-4" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4 mb-4" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 rounded-4 shadow-sm" style="background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3);">
+                <div class="card-header border-0 bg-transparent pt-4 px-4 pb-0">
+                    <h4 style="font-family: 'Playfair Display', serif; font-weight: 800; color: #4A2E35;" class="mb-0">
+                        <i class="bi bi-person-fill-gear me-2" style="color: var(--primary-rose);"></i>Edit Profile
+                    </h4>
+                    <p class="text-muted mb-0" style="font-size: 13px;">Update your account name, email address, profile picture, or class settings.</p>
+                    <hr class="mt-3 mb-0" style="opacity: 0.15;" />
+                </div>
+
+                <div class="card-body p-4">
+                    @using (Html.BeginForm("UpdateProfile", "AuthMvc", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        <div class="row g-4 align-items-center mb-4">
+                            <!-- Avatar Column -->
+                            <div class="col-md-3 text-center">
+                                <img src="@avatarUrl" alt="Avatar" class="rounded-circle border border-3 border-white shadow-sm mb-2" style="width: 110px; height: 110px; object-fit: cover;" />
+                                <span class="d-block text-muted" style="font-size: 12px;">Current Avatar</span>
+                            </div>
+                            <!-- Upload Column -->
+                            <div class="col-md-9">
+                                <label class="form-label font-weight-bold" style="font-weight: 600;">Upload Profile Picture</label>
+                                <input type="file" name="avatarFile" class="form-control" accept="image/jpeg,image/png,image/jpg,image/gif" />
+                                <small class="text-muted d-block mt-1" style="font-size: 11px;">
+                                    Upload an image file (.jpg, .jpeg, .png, or .gif) to customize your profile picture. Leaving this empty keeps your existing avatar.
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label font-weight-bold" style="font-weight: 600;">Username</label>
+                                <input type="text" class="form-control bg-light" value="@user.Username" disabled style="cursor: not-allowed;" />
+                                <small class="text-muted" style="font-size: 11px;">Username cannot be modified.</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label font-weight-bold" style="font-weight: 600;">Role</label>
+                                <input type="text" class="form-control bg-light" value="@user.Role" disabled style="cursor: not-allowed;" />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label font-weight-bold" style="font-weight: 600;">Full Name</label>
+                                <input type="text" name="fullName" value="@user.FullName" required class="form-control" placeholder="Enter full name" />
+                                <small class="text-muted" style="font-size: 11px;">Minimal 3 characters, max 100.</small>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label font-weight-bold" style="font-weight: 600;">Email Address</label>
+                                <input type="email" name="email" value="@user.Email" required class="form-control" placeholder="Enter email address" />
+                                <small class="text-muted" style="font-size: 11px;">Supported domains: @(Html.Raw("@gmail.com, @yahoo.com, @email.com")).</small>
+                            </div>
+
+                            @if (user.Role == "Member")
+                            {
+                                <div class="col-md-12">
+                                    <label class="form-label font-weight-bold" style="font-weight: 600;">Class / Section</label>
+                                    <input type="text" name="className" value="@(member != null ? member.ClassName : "")" class="form-control" placeholder="Enter class name (e.g. XI-IPA-1)" />
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label class="form-label font-weight-bold" style="font-weight: 600;">Home Address</label>
+                                    <textarea name="address" class="form-control" rows="3" placeholder="Enter home address">@(member != null ? member.Address : "")</textarea>
+                                </div>
+                            }
+
+                            <div class="col-12 mt-4 d-flex justify-content-between">
+                                <a href="@Url.Action("Profile", "AuthMvc")" class="btn btn-outline-secondary rounded-pill px-4">
+                                    <i class="bi bi-x-circle me-1"></i> Cancel
+                                </a>
+                                <button type="submit" class="btn btn-main rounded-pill px-4">
+                                    <i class="bi bi-save me-1"></i> Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

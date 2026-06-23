@@ -204,6 +204,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Helpers\AvatarHelper.cs" />
     <Compile Include="Helpers\EmailHelper.cs" />
     <Compile Include="Helpers\PasswordHelper.cs" />
     <Compile Include="Helpers\TokenAuthAttribute.cs" />
@@ -224,6 +225,7 @@
     <Compile Include="Models\ViewModel\MemberViewModel.cs" />
     <Compile Include="Models\ViewModel\RegisterRequest.cs" />
     <Compile Include="Models\ViewModel\SummaryReportViewModel.cs" />
+    <Compile Include="Models\ViewModel\FineReportViewModel.cs" />
     <Compile Include="Models\ViewModel\ActivityLogViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Base\BaseService.cs" />
@@ -330,6 +332,7 @@
     <Content Include="Views\ReportsMvc\Index.cshtml" />
     <Content Include="Views\ReportsMvc\Books.cshtml" />
     <Content Include="Views\ReportsMvc\Borrowings.cshtml" />
+    <Content Include="Views\ReportsMvc\Fines.cshtml" />
     <Content Include="Views\DashboardMvc\Index.cshtml" />
     <Content Include="Views\DashboardMvc\Librarian.cshtml" />
     <Content Include="Views\DashboardMvc\Member.cshtml" />
@@ -342,6 +345,9 @@
     <Content Include="Views\MVCBorrowings\PayFineConfirm.cshtml" />
     <Content Include="Views\HomeMvc\Index.cshtml" />
     <Content Include="Views\AuthMvc\Register.cshtml" />
+    <Content Include="Views\AuthMvc\Profile.cshtml" />
+    <Content Include="Views\AuthMvc\EditProfile.cshtml" />
+    <Content Include="Views\AuthMvc\ChangePassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

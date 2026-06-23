@@ -66,6 +66,13 @@ namespace LibraryManagementSystem.Controllers.MVC
                     return RedirectToAction("Index");
                 }
 
+                var cleanEmail = email.Trim().ToLower();
+                if (!System.Text.RegularExpressions.Regex.IsMatch(cleanEmail, @"^[^@\s]+@(gmail\.com|yahoo\.com|email\.com)$"))
+                {
+                    TempData["Error"] = "Email can only use @gmail.com, @yahoo.com, or @email.com domains.";
+                    return RedirectToAction("Index");
+                }
+
                 string subject = "Moon Books - New Contact Message from " + fullName;
                 string body = $@"
                     <h3>New Contact Message Received</h3>

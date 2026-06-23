@@ -1,143 +1,294 @@
-﻿@model LibraryManagementSystem.Models.ViewModel.SummaryReportViewModel
+@model LibraryManagementSystem.Models.ViewModel.SummaryReportViewModel
 
 @{
-    ViewBag.Title = "Laporan";
+    ViewBag.Title = "Library Reports";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container-fluid mt-4">
-    <div class="card shadow-sm border-0 rounded-4">
-        <div class="card-header border-0 rounded-top-4" style="background-color:#F7D9E3;">
-            <div class="d-flex justify-content-between align-items-center">
+<style>
+    .report-card {
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        border-radius: 20px !important;
+        transition: var(--transition-smooth);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .report-card:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-hover) !important;
+    }
+
+    .report-icon-bg {
+        position: absolute;
+        right: 20px;
+        bottom: 10px;
+        font-size: 56px;
+        opacity: 0.15;
+        line-height: 1;
+        pointer-events: none;
+    }
+
+    .status-indicator-card {
+        background: white !important;
+        border: 1px solid rgba(0,0,0,0.04) !important;
+        border-left: 5px solid transparent !important;
+        border-radius: 16px !important;
+        transition: var(--transition-smooth);
+    }
+
+    .status-indicator-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.02) !important;
+    }
+</style>
+
+<div class="container-fluid mt-2">
+    <div class="card shadow-sm border-0 rounded-4" style="background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.25);">
+        
+        <!-- Header -->
+        <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose) !important; color: var(--text-dark); padding: 20px;">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div>
-                    <h4 class="mb-0" style="color:#7A4E60;">Laporan Perpustakaan</h4>
-                    <small class="text-muted">Ringkasan data sistem perpustakaan.</small>
+                    <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700; color: var(--text-dark) !important;">Library Reports</h4>
+                    <p class="mb-0 text-muted" style="font-size: 13px; color: var(--text-dark) !important; opacity: 0.85;">Overview and breakdown of database statistics.</p>
                 </div>
 
-                <a href="@Url.Action("Librarian", "DashboardMvc")" class="btn btn-sm btn-light rounded-pill">
-                    Kembali ke Dashboard
+                <a href="@Url.Action("Librarian", "DashboardMvc")" class="btn btn-sm btn-light rounded-pill px-3" style="color: var(--primary-rose); font-weight: 600;">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
                 </a>
             </div>
         </div>
 
-        <div class="card-body">
-
-            <div class="mb-4">
-                <a href="@Url.Action("Books", "ReportsMvc")" class="btn btn-primary rounded-pill">
-                    Laporan Buku
+        <div class="card-body p-4">
+            
+            <!-- Navigation Sub-actions -->
+            <div class="d-flex gap-2 mb-4 flex-wrap">
+                <a href="@Url.Action("Index", "ReportsMvc")" class="btn btn-primary rounded-pill px-4">
+                    <i class="bi bi-bar-chart-line me-1"></i> System Summary
                 </a>
 
-                <a href="@Url.Action("Borrowings", "ReportsMvc")" class="btn btn-outline-secondary rounded-pill">
-                    Laporan Peminjaman
+                <a href="@Url.Action("Books", "ReportsMvc")" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-book-half me-1"></i> Book Reports
+                </a>
+
+                <a href="@Url.Action("Borrowings", "ReportsMvc")" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-arrow-left-right me-1"></i> Borrowing Reports
+                </a>
+
+                <a href="@Url.Action("Fines", "ReportsMvc")" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-cash-stack me-1"></i> Fine Reports
                 </a>
             </div>
 
-            <h5 class="mb-3" style="color:#7A4E60;">Ringkasan Sistem</h5>
+            <!-- Section 1: System Summary -->
+            <h5 class="mb-3 font-weight-bold" style="color: var(--text-dark); font-family: 'Playfair Display', serif; font-weight: 700;">System Summary</h5>
 
-            <div class="row mb-4">
-                <div class="col-md-3 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <small class="text-muted">Total Buku</small>
-                            <h3>@Model.TotalBooks</h3>
+            <div class="row mb-4 g-3">
+                <!-- Total Books -->
+                <div class="col-md-3 col-sm-6">
+                    <div class="card report-card shadow-sm border-0 h-100" style="background: linear-gradient(135deg, rgba(201, 122, 126, 0.15) 0%, rgba(201, 122, 126, 0.05) 100%);">
+                        <div class="card-body p-4">
+                            <small class="text-muted d-block font-weight-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Total Books</small>
+                            <h2 class="mb-0 mt-2 font-weight-bold" style="color: #4A2E35; font-size: 36px; font-weight: 800;">@Model.TotalBooks</h2>
+                            <div class="report-icon-bg" style="color: var(--primary-rose);"><i class="bi bi-book-fill"></i></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-3 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <small class="text-muted">Total Kategori</small>
-                            <h3>@Model.TotalCategories</h3>
+                <!-- Total Categories -->
+                <div class="col-md-3 col-sm-6">
+                    <div class="card report-card shadow-sm border-0 h-100" style="background: linear-gradient(135deg, rgba(255, 213, 194, 0.3) 0%, rgba(255, 213, 194, 0.1) 100%);">
+                        <div class="card-body p-4">
+                            <small class="text-muted d-block font-weight-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Total Categories</small>
+                            <h2 class="mb-0 mt-2 font-weight-bold" style="color: #4A2E35; font-size: 36px; font-weight: 800;">@Model.TotalCategories</h2>
+                            <div class="report-icon-bg" style="color: #E5989B;"><i class="bi bi-tags-fill"></i></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-3 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <small class="text-muted">Total Member</small>
-                            <h3>@Model.TotalMembers</h3>
+                <!-- Total Members -->
+                <div class="col-md-3 col-sm-6">
+                    <div class="card report-card shadow-sm border-0 h-100" style="background: linear-gradient(135deg, rgba(230, 197, 135, 0.2) 0%, rgba(230, 197, 135, 0.05) 100%);">
+                        <div class="card-body p-4">
+                            <small class="text-muted d-block font-weight-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Total Members</small>
+                            <h2 class="mb-0 mt-2 font-weight-bold" style="color: #4A2E35; font-size: 36px; font-weight: 800;">@Model.TotalMembers</h2>
+                            <div class="report-icon-bg" style="color: #C49E56;"><i class="bi bi-people-fill"></i></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-3 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <small class="text-muted">Total Peminjaman</small>
-                            <h3>@Model.TotalBorrowings</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <h5 class="mb-3" style="color:#7A4E60;">Status Member</h5>
-
-            <div class="row mb-4">
-                <div class="col-md-4 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <small class="text-muted">Active</small>
-                            <h3 class="text-success">@Model.ActiveMembers</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <small class="text-muted">Pending</small>
-                            <h3 class="text-warning">@Model.PendingMembers</h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-4 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <small class="text-muted">Rejected</small>
-                            <h3 class="text-danger">@Model.RejectedMembers</h3>
+                <!-- Total Borrowings -->
+                <div class="col-md-3 col-sm-6">
+                    <div class="card report-card shadow-sm border-0 h-100" style="background: linear-gradient(135deg, rgba(40, 167, 69, 0.08) 0%, rgba(40, 167, 69, 0.02) 100%);">
+                        <div class="card-body p-4">
+                            <small class="text-muted d-block font-weight-bold text-uppercase" style="font-size: 11px; letter-spacing: 0.5px;">Total Borrowings</small>
+                            <h2 class="mb-0 mt-2 font-weight-bold" style="color: #4A2E35; font-size: 36px; font-weight: 800;">@Model.TotalBorrowings</h2>
+                            <div class="report-icon-bg" style="color: #28a745;"><i class="bi bi-arrow-left-right"></i></div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <h5 class="mb-3" style="color:#7A4E60;">Status Peminjaman</h5>
+            <!-- Section 2: Member Status Breakdown -->
+            <h5 class="mb-3 font-weight-bold" style="color: var(--text-dark); font-family: 'Playfair Display', serif; font-weight: 700;">Member Registration Status</h5>
 
-            <div class="row">
-                <div class="col-md-3 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <small class="text-muted">Requested</small>
-                            <h3>@Model.RequestedBorrowings</h3>
+            <div class="row mb-4 g-3">
+                <!-- Active Members -->
+                <div class="col-md-4">
+                    <div class="card status-indicator-card shadow-sm border-0 h-100" style="border-left-color: #28a745 !important;">
+                        <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <small class="text-muted d-block font-weight-bold" style="font-size: 11px;">ACTIVE MEMBERS</small>
+                                <h3 class="mb-0 mt-1 font-weight-bold text-success" style="font-weight: 800;">@Model.ActiveMembers</h3>
+                            </div>
+                            <div class="p-2 rounded-3 bg-success bg-opacity-10 text-success">
+                                <i class="bi bi-person-check-fill fs-4" style="line-height: 1;"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-3 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <small class="text-muted">Borrowed</small>
-                            <h3>@Model.BorrowedBooks</h3>
+                <!-- Pending Approval -->
+                <div class="col-md-4">
+                    <div class="card status-indicator-card shadow-sm border-0 h-100" style="border-left-color: #ffc107 !important;">
+                        <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <small class="text-muted d-block font-weight-bold" style="font-size: 11px;">PENDING APPROVAL</small>
+                                <h3 class="mb-0 mt-1 font-weight-bold text-warning" style="font-weight: 800;">@Model.PendingMembers</h3>
+                            </div>
+                            <div class="p-2 rounded-3 bg-warning bg-opacity-10 text-warning">
+                                <i class="bi bi-person-clock-fill fs-4" style="line-height: 1;"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-3 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <small class="text-muted">Returned</small>
-                            <h3>@Model.ReturnedBooks</h3>
+                <!-- Rejected Applications -->
+                <div class="col-md-4">
+                    <div class="card status-indicator-card shadow-sm border-0 h-100" style="border-left-color: #dc3545 !important;">
+                        <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <small class="text-muted d-block font-weight-bold" style="font-size: 11px;">REJECTED APPLICATIONS</small>
+                                <h3 class="mb-0 mt-1 font-weight-bold text-danger" style="font-weight: 800;">@Model.RejectedMembers</h3>
+                            </div>
+                            <div class="p-2 rounded-3 bg-danger bg-opacity-10 text-danger">
+                                <i class="bi bi-person-x-fill fs-4" style="line-height: 1;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Borrowing Status Breakdown -->
+            <h5 class="mb-3 font-weight-bold" style="color: var(--text-dark); font-family: 'Playfair Display', serif; font-weight: 700;">Borrowing Lifecycle Status</h5>
+
+            <div class="row g-3">
+                <!-- Requested -->
+                <div class="col-md-3 col-sm-6">
+                    <div class="card status-indicator-card shadow-sm border-0 h-100" style="border-left-color: #e6c587 !important;">
+                        <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <small class="text-muted d-block font-weight-bold" style="font-size: 11px;">REQUESTED</small>
+                                <h3 class="mb-0 mt-1 font-weight-bold" style="color: #c49e56; font-weight: 800;">@Model.RequestedBorrowings</h3>
+                            </div>
+                            <div class="p-2 rounded-3" style="background: rgba(230, 197, 135, 0.15); color: #c49e56;">
+                                <i class="bi bi-chat-left-text-fill fs-4" style="line-height: 1;"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-md-3 mb-3">
-                    <div class="card border-0 shadow-sm rounded-4">
-                        <div class="card-body text-center">
-                            <small class="text-muted">Rejected</small>
-                            <h3>@Model.RejectedBorrowings</h3>
+                <!-- Borrowed -->
+                <div class="col-md-3 col-sm-6">
+                    <div class="card status-indicator-card shadow-sm border-0 h-100" style="border-left-color: #0d6efd !important;">
+                        <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <small class="text-muted d-block font-weight-bold" style="font-size: 11px;">ACTIVE LOANS</small>
+                                <h3 class="mb-0 mt-1 font-weight-bold text-primary" style="font-weight: 800;">@Model.BorrowedBooks</h3>
+                            </div>
+                            <div class="p-2 rounded-3 bg-primary bg-opacity-10 text-primary">
+                                <i class="bi bi-journal-arrow-up fs-4" style="line-height: 1;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Returned -->
+                <div class="col-md-3 col-sm-6">
+                    <div class="card status-indicator-card shadow-sm border-0 h-100" style="border-left-color: #28a745 !important;">
+                        <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <small class="text-muted d-block font-weight-bold" style="font-size: 11px;">RETURNED</small>
+                                <h3 class="mb-0 mt-1 font-weight-bold text-success" style="font-weight: 800;">@Model.ReturnedBooks</h3>
+                            </div>
+                            <div class="p-2 rounded-3 bg-success bg-opacity-10 text-success">
+                                <i class="bi bi-journal-arrow-down fs-4" style="line-height: 1;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rejected -->
+                <div class="col-md-3 col-sm-6">
+                    <div class="card status-indicator-card shadow-sm border-0 h-100" style="border-left-color: #dc3545 !important;">
+                        <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <small class="text-muted d-block font-weight-bold" style="font-size: 11px;">REJECTED LOANS</small>
+                                <h3 class="mb-0 mt-1 font-weight-bold text-danger" style="font-weight: 800;">@Model.RejectedBorrowings</h3>
+                            </div>
+                            <div class="p-2 rounded-3 bg-danger bg-opacity-10 text-danger">
+                                <i class="bi bi-journal-x fs-4" style="line-height: 1;"></i>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+
+            <!-- Section 4: Fine & Transaction Summary -->
+            <h5 class="mb-3 font-weight-bold mt-4" style="color: var(--text-dark); font-family: 'Playfair Display', serif; font-weight: 700;">Fine &amp; Transactions</h5>
+
+            <div class="row g-3">
+                <!-- Total Fines Generated -->
+                <div class="col-md-4">
+                    <div class="card status-indicator-card shadow-sm border-0 h-100" style="border-left-color: var(--primary-rose) !important;">
+                        <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <small class="text-muted d-block font-weight-bold" style="font-size: 11px;">TOTAL FINES GENERATED</small>
+                                <h3 class="mb-0 mt-1 font-weight-bold" style="color: var(--text-dark); font-weight: 800;">Rp @Model.TotalFines.ToString("N0")</h3>
+                            </div>
+                            <div class="p-2 rounded-3" style="background: rgba(201, 122, 126, 0.15); color: var(--primary-rose);">
+                                <i class="bi bi-cash-stack fs-4" style="line-height: 1;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Paid Fines -->
+                <div class="col-md-4">
+                    <div class="card status-indicator-card shadow-sm border-0 h-100" style="border-left-color: #28a745 !important;">
+                        <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <small class="text-muted d-block font-weight-bold" style="font-size: 11px;">PAID FINES</small>
+                                <h3 class="mb-0 mt-1 font-weight-bold text-success" style="font-weight: 800;">Rp @Model.PaidFines.ToString("N0")</h3>
+                            </div>
+                            <div class="p-2 rounded-3 bg-success bg-opacity-10 text-success">
+                                <i class="bi bi-wallet2 fs-4" style="line-height: 1;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Unpaid Fines -->
+                <div class="col-md-4">
+                    <div class="card status-indicator-card shadow-sm border-0 h-100" style="border-left-color: #dc3545 !important;">
+                        <div class="card-body p-3 d-flex align-items-center justify-content-between">
+                            <div>
+                                <small class="text-muted d-block font-weight-bold" style="font-size: 11px;">UNPAID FINES</small>
+                                <h3 class="mb-0 mt-1 font-weight-bold text-danger" style="font-weight: 800;">Rp @Model.UnpaidFines.ToString("N0")</h3>
+                            </div>
+                            <div class="p-2 rounded-3 bg-danger bg-opacity-10 text-danger">
+                                <i class="bi bi-exclamation-circle-fill fs-4" style="line-height: 1;"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -145,4 +296,4 @@
 
         </div>
     </div>
-</div>
+ </div>

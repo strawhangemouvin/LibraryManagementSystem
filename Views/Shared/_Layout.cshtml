@@ -1,3 +1,85 @@
+@using LibraryManagementSystem.Helpers
+@using LibraryManagementSystem.Services.Context
+@using LibraryManagementSystem.Models.Entity
+@using System.Data.Entity
+@{
+    string email = Session["Email"]?.ToString();
+    List<string> notifications = new List<string>();
+    int pendingApprovalsCount = 0;
+    int pendingRequestsCount = 0;
+    int overdueCount = 0;
+    int dueSoonCount = 0;
+
+    if (Session["UserId"] != null)
+    {
+        int userId = (int)Session["UserId"];
+        string role = Session["Role"]?.ToString();
+
+        using (var db = new LibraryDbContext())
+        {
+            if (string.IsNullOrEmpty(email))
+            {
+                var user = db.Users.Find(userId);
+                if (user != null)
+                {
+                    email = user.Email;
+                    Session["Email"] = email;
+                }
+            }
+
+            if (role == "Librarian")
+            {
+                pendingApprovalsCount = db.Users.Count(u => u.Status == "Pending" && u.Role == "Member");
+                if (pendingApprovalsCount > 0)
+                {
+                    notifications.Add($"There are {pendingApprovalsCount} member registration(s) pending approval.");
+                }
+
+                pendingRequestsCount = db.Borrowings.Count(b => b.Status == "Requested");
+                if (pendingRequestsCount > 0)
+                {
+                    notifications.Add($"There are {pendingRequestsCount} borrowing request(s) waiting for approval.");
+                }
+            }
+            else if (role == "Member")
+            {
+                var member = db.Members.FirstOrDefault(m => m.UserId == userId);
+                if (member != null)
+                {
+                    int memberId = member.Id;
+                    DateTime today = DateTime.Today;
+                    DateTime threeDaysFromNow = today.AddDays(3);
+
+                    var overdueBorrowings = db.Borrowings
+                        .Where(b => b.MemberId == memberId && b.Status == "Borrowed" && b.DueDate < today)
+                        .Include(b => b.Book)
+                        .ToList();
+                    overdueCount = overdueBorrowings.Count;
+                    foreach (var ob in overdueBorrowings)
+                    {
+                        var daysLate = (today - ob.DueDate.Value).Days;
+                        notifications.Add($"OVERDUE: '{ob.Book.Title}' is overdue by {daysLate} day(s). Please return it immediately.");
+                    }
+
+                    var dueSoonBorrowings = db.Borrowings
+                        .Where(b => b.MemberId == memberId && b.Status == "Borrowed" && b.DueDate >= today && b.DueDate <= threeDaysFromNow)
+                        .Include(b => b.Book)
+                        .ToList();
+                    dueSoonCount = dueSoonBorrowings.Count;
+                    foreach (var dbb in dueSoonBorrowings)
+                    {
+                        var daysLeft = (dbb.DueDate.Value - today).Days;
+                        string dayWord = daysLeft == 0 ? "today" : $"in {daysLeft} day(s)";
+                        notifications.Add($"DUE SOON: '{dbb.Book.Title}' is due {dayWord}.");
+                    }
+                }
+            }
+        }
+    }
+    
+    var avatarUrl = AvatarHelper.GetUserAvatarUrl(Session["Username"]?.ToString() ?? "", email ?? "", 80);
+    int totalNotifications = notifications.Count;
+}
 <!DOCTYPE html>
 <html>
 <head>
@@ -113,7 +195,7 @@
             border-radius: 24px !important;
             box-shadow: var(--shadow-soft) !important;
             overflow: hidden;
-            background: rgba(255, 255, 255, 0.8) !important;
+            background: rgba(255, 255, 255, 0.8);
             backdrop-filter: blur(8px);
             transition: var(--transition-smooth);
         }
@@ -127,6 +209,7 @@
             border-bottom: 1px solid rgba(201, 122, 126, 0.15) !important;
             color: var(--text-dark) !important;
             padding: 16px 24px !important;
+            border-radius: 24px 24px 0 0 !important;
         }
 
         .card-header h4,
@@ -512,6 +595,337 @@
             transform: none;
             box-shadow: none;
         }
+
+        /* Portal & Sidebar Layout Styles */
+        #wrapper {
+            overflow-x: hidden;
+            background: var(--bg-gradient);
+            min-height: 100vh;
+        }
+
+        .glass-sidebar {
+            width: 280px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(201, 122, 126, 0.15);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 20px;
+            transition: margin 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            min-height: 100vh;
+            flex-shrink: 0;
+        }
+
+        .sidebar-heading {
+            margin-bottom: 25px;
+        }
+
+        .user-card-sidebar {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(201, 122, 126, 0.08);
+            border: 1px solid rgba(201, 122, 126, 0.1);
+            border-radius: 20px;
+            padding: 12px 15px;
+            margin-bottom: 25px;
+        }
+
+        .user-avatar-circle {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-rose) 0%, #E5989B 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(201, 122, 126, 0.2);
+            flex-shrink: 0;
+        }
+
+        .user-info-text {
+            overflow: hidden;
+            line-height: 1.2;
+        }
+
+        .badge-role {
+            font-size: 9px !important;
+            padding: 4px 8px !important;
+            background-color: var(--primary-rose) !important;
+            color: white !important;
+            border-radius: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        .sidebar-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-grow: 1;
+        }
+
+        .sidebar-nav-links .list-group-item {
+            border: none !important;
+            background: transparent !important;
+            color: var(--text-dark) !important;
+            border-radius: 16px !important;
+            padding: 12px 16px !important;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-nav-links .list-group-item i {
+            font-size: 18px;
+            color: var(--text-muted);
+            transition: var(--transition-smooth);
+        }
+
+        .sidebar-nav-links .list-group-item:hover {
+            background-color: rgba(201, 122, 126, 0.08) !important;
+            color: var(--primary-rose) !important;
+            transform: translateX(4px);
+        }
+
+        .sidebar-nav-links .list-group-item:hover i {
+            color: var(--primary-rose);
+        }
+
+        .sidebar-nav-links .list-group-item.active {
+            background: linear-gradient(135deg, var(--primary-rose) 0%, #E5989B 100%) !important;
+            color: white !important;
+            box-shadow: 0 8px 16px rgba(201, 122, 126, 0.18);
+        }
+
+        .sidebar-nav-links .list-group-item.active i {
+            color: white;
+        }
+
+        .logout-link {
+            color: #dc3545 !important;
+        }
+
+        .logout-link i {
+            color: #dc3545 !important;
+        }
+
+        .logout-link:hover {
+            background-color: rgba(220, 53, 69, 0.08) !important;
+            color: #dc3545 !important;
+        }
+
+        #page-content-wrapper {
+            min-width: 0;
+        }
+
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+            display: block !important;
+        }
+        .table-responsive::-webkit-scrollbar-track {
+            background: rgba(201, 122, 126, 0.05);
+            border-radius: 4px;
+        }
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: rgba(201, 122, 126, 0.3);
+            border-radius: 4px;
+        }
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: rgba(201, 122, 126, 0.5);
+        }
+
+        /* Portal topbar */
+        .portal-topbar {
+            height: 75px;
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(201, 122, 126, 0.12);
+            display: flex;
+            align-items: center;
+            padding: 0 35px;
+            justify-content: space-between;
+        }
+
+        .portal-topbar-search {
+            width: 280px;
+            background: rgba(201, 122, 126, 0.06);
+            border: 1px solid rgba(201, 122, 126, 0.1);
+            border-radius: 24px;
+            padding: 2px 12px;
+            transition: var(--transition-smooth);
+        }
+
+        .portal-topbar-search:focus-within {
+            background: white;
+            border-color: var(--primary-rose);
+            box-shadow: 0 0 0 4px rgba(201, 122, 126, 0.1);
+        }
+
+        .portal-topbar-search input {
+            border: none;
+            background: transparent;
+            padding: 6px;
+            font-size: 13px;
+        }
+
+        .portal-container {
+            padding: 35px;
+            min-height: calc(100vh - 130px);
+        }
+
+        .portal-mini-footer {
+            font-size: 13px;
+            color: var(--text-muted);
+            border-top: 1px solid rgba(201, 122, 126, 0.08);
+            background: rgba(255, 255, 255, 0.3);
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        /* Mobile response toggling */
+        @@media (max-width: 991.98px) {
+            #sidebar-wrapper {
+                margin-left: -280px;
+                position: fixed;
+                z-index: 1000;
+                height: 100vh;
+                box-shadow: 0 10px 30px rgba(74, 46, 53, 0.1);
+            }
+            
+            #wrapper.toggled #sidebar-wrapper {
+                margin-left: 0;
+            }
+
+            .portal-topbar {
+                padding: 0 20px;
+            }
+
+            .portal-container {
+                padding: 20px;
+            }
+        }
+
+        /* Sliding Notification Drawer */
+        .notification-drawer {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 350px;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-left: 1px solid rgba(201, 122, 126, 0.2);
+            box-shadow: -10px 0 30px rgba(74, 46, 53, 0.1);
+            z-index: 1050;
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            flex-direction: column;
+            padding: 30px 24px;
+        }
+
+        .notification-drawer.open {
+            right: 0;
+        }
+
+        .notification-drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(201, 122, 126, 0.15);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .notification-drawer-header h5 {
+            font-family: 'Playfair Display', serif;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        .notification-close-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .notification-close-btn:hover {
+            color: var(--primary-rose);
+        }
+
+        .notification-drawer-body {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .notification-item {
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(201, 122, 126, 0.1);
+            font-size: 13.5px;
+            line-height: 1.5;
+            transition: var(--transition-smooth);
+        }
+
+        .notification-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            border-color: var(--primary-rose);
+            transform: translateY(-1px);
+        }
+
+        .notification-item-overdue {
+            border-left: 4px solid #dc3545 !important;
+            background: rgba(220, 53, 69, 0.03);
+        }
+
+        .notification-item-warning {
+            border-left: 4px solid var(--accent-gold) !important;
+            background: rgba(230, 197, 135, 0.03);
+        }
+
+        .notification-item-info {
+            border-left: 4px solid var(--primary-rose) !important;
+            background: rgba(201, 122, 126, 0.03);
+        }
+
+        .notification-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(74, 46, 53, 0.15);
+            backdrop-filter: blur(4px);
+            z-index: 1040;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .notification-overlay.show {
+            display: block;
+            opacity: 1;
+        }
     </style>
 </head>
 
@@ -519,55 +933,162 @@
     <div class="moon-decoration"></div>
     <div class="moon-decoration-small"></div>
 
-    <nav class="navbar navbar-expand-lg moon-navbar">
-        <a class="navbar-brand moon-brand" href="@Url.Action("Index", "HomeMvc")">
-            <i class="bi bi-moon-stars-fill me-2" style="color: var(--primary-rose);"></i>Moon <span>Books</span>
-        </a>
+    @if (Session["Role"] != null)
+    {
+        <div class="d-flex" id="wrapper">
+            <!-- Sidebar -->
+            <aside id="sidebar-wrapper" class="glass-sidebar">
+                <div class="sidebar-heading">
+                    <a class="moon-brand" href="@Url.Action("Index", "HomeMvc")">
+                        <i class="bi bi-moon-stars-fill me-2" style="color: var(--primary-rose);"></i>Moon <span>Books</span>
+                    </a>
+                </div>
 
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#moonNavbar">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+                <!-- User Profile Card -->
+                <a href="@Url.Action("Profile", "AuthMvc")" class="text-decoration-none d-block">
+                    <div class="user-card-sidebar">
+                        <img src="@avatarUrl" alt="Avatar" class="rounded-circle" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-rose);" />
+                        <div class="user-info-text">
+                            <h6 class="mb-0 text-truncate font-weight-bold" style="color: var(--text-dark); max-width: 170px;">@Session["FullName"]</h6>
+                            <span class="badge badge-role">@Session["Role"]</span>
+                        </div>
+                    </div>
+                </a>
 
-        <div class="collapse navbar-collapse justify-content-end" id="moonNavbar">
-            <ul class="navbar-nav align-items-lg-center">
-                @if (Session["Role"] != null && Session["Role"].ToString() == "Librarian")
-                {
-                    <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Librarian", "DashboardMvc")">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCBooks")">Books</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCMembers")">Members</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCBorrowings")">Borrowings</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "ReportsMvc")">Reports</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Logout", "AuthMvc")">Logout</a>
-                    </li>
-                }
-                else if (Session["Role"] != null && Session["Role"].ToString() == "Member")
-                {
-                    <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Member", "DashboardMvc")">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Index", "MVCBooks")">Book List</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("MyHistory", "MVCBorrowings")">History</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link moon-nav-link" href="@Url.Action("Logout", "AuthMvc")">Logout</a>
-                    </li>
-                }
-                else
-                {
+                <!-- Navigation Links -->
+                <div class="sidebar-nav-links">
+                    @if (Session["Role"].ToString() == "Librarian")
+                    {
+                        <a href="@Url.Action("Librarian", "DashboardMvc")" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["action"].ToString() == "Librarian" ? "active" : "")">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                        <a href="@Url.Action("Index", "MVCBooks")" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"].ToString() == "MVCBooks" ? "active" : "")">
+                            <i class="bi bi-book"></i> Books
+                        </a>
+                        <a href="@Url.Action("Index", "MVCMembers")" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"].ToString() == "MVCMembers" ? "active" : "")">
+                            <i class="bi bi-people"></i> Members
+                        </a>
+                        <a href="@Url.Action("Index", "MVCBorrowings")" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"].ToString() == "MVCBorrowings" ? "active" : "")">
+                            <i class="bi bi-arrow-left-right"></i> Borrowings
+                        </a>
+                        <a href="@Url.Action("Index", "ReportsMvc")" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"].ToString() == "ReportsMvc" ? "active" : "")">
+                            <i class="bi bi-bar-chart-line"></i> Reports
+                        </a>
+                    }
+                    else if (Session["Role"].ToString() == "Member")
+                    {
+                        <a href="@Url.Action("Member", "DashboardMvc")" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["action"].ToString() == "Member" ? "active" : "")">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                        <a href="@Url.Action("Index", "MVCBooks")" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["controller"].ToString() == "MVCBooks" ? "active" : "")">
+                            <i class="bi bi-book-half"></i> Book Catalog
+                        </a>
+                        <a href="@Url.Action("MyHistory", "MVCBorrowings")" class="list-group-item list-group-item-action @(ViewContext.RouteData.Values["action"].ToString() == "MyHistory" ? "active" : "")">
+                            <i class="bi bi-clock-history"></i> Borrowing History
+                        </a>
+                    }
+                    <a href="@Url.Action("Logout", "AuthMvc")" class="list-group-item list-group-item-action logout-link mt-auto">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </div>
+            </aside>
+
+            <!-- Page Content Area -->
+            <div id="page-content-wrapper" class="w-100 d-flex flex-column">
+                <!-- Portal Topbar Header -->
+                <header class="portal-topbar">
+                    <div class="d-flex align-items-center">
+                        <button class="btn btn-outline-secondary btn-sm rounded-circle me-3 border-0 d-lg-none" id="sidebarToggle">
+                            <i class="bi bi-list fs-4"></i>
+                        </button>
+                        <h4 class="mb-0 font-weight-bold" style="color: var(--text-dark); font-family: 'Playfair Display', serif; font-weight: 800;">
+                            @ViewBag.Title
+                        </h4>
+                    </div>
+
+                    <!-- Topbar Icons -->
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="position-relative cursor-pointer me-2" id="notificationBell" title="Notifications">
+                            <i class="bi bi-bell fs-5 text-muted"></i>
+                            @if (totalNotifications > 0)
+                            {
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 8px; padding: 4px 6px;">
+                                    @totalNotifications
+                                </span>
+                            }
+                        </div>
+                        <a href="@Url.Action("Profile", "AuthMvc")" class="d-flex align-items-center text-decoration-none">
+                            <img src="@avatarUrl" alt="Avatar" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover; border: 1.5px solid var(--primary-rose);" />
+                        </a>
+                    </div>
+                </header>
+
+                <!-- Portal Main container -->
+                <main class="portal-container flex-grow-1">
+                    <div class="moon-page-shell">
+                        @RenderBody()
+                    </div>
+                </main>
+
+                <!-- Portal Mini Footer -->
+                <footer class="portal-mini-footer">
+                    &copy; @DateTime.Now.Year Moon Books. Crafted with <i class="bi bi-heart-fill" style="color: var(--primary-rose); font-size: 11px;"></i> for a beautiful reading experience.
+                </footer>
+            </div>
+
+            <!-- Notification Drawer Overlay -->
+            <div class="notification-overlay" id="notificationOverlay"></div>
+
+            <!-- Notification Drawer -->
+            <div class="notification-drawer" id="notificationDrawer">
+                <div class="notification-drawer-header">
+                    <h5><i class="bi bi-bell-fill me-2" style="color: var(--primary-rose);"></i>Notifications</h5>
+                    <button class="notification-close-btn" id="closeNotificationDrawer"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="notification-drawer-body">
+                    @if (notifications.Count == 0)
+                    {
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-bell-slash fs-1 d-block mb-3" style="opacity: 0.5;"></i>
+                            <span>No new notifications</span>
+                        </div>
+                    }
+                    else
+                    {
+                        foreach (var note in notifications)
+                        {
+                            string alertClass = "notification-item-info";
+                            if (note.Contains("OVERDUE"))
+                            {
+                                alertClass = "notification-item-overdue";
+                            }
+                            else if (note.Contains("DUE SOON"))
+                            {
+                                alertClass = "notification-item-warning";
+                            }
+                            <div class="notification-item @alertClass">
+                                @note
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Standard Public Top Navbar -->
+        <nav class="navbar navbar-expand-lg moon-navbar">
+            <a class="navbar-brand moon-brand" href="@Url.Action("Index", "HomeMvc")">
+                <i class="bi bi-moon-stars-fill me-2" style="color: var(--primary-rose);"></i>Moon <span>Books</span>
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#moonNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse justify-content-end" id="moonNavbar">
+                <ul class="navbar-nav align-items-lg-center">
                     <li class="nav-item">
                         <a class="nav-link moon-nav-link" href="@Url.Action("Index", "HomeMvc")">Home</a>
                     </li>
@@ -577,90 +1098,89 @@
                     <li class="nav-item">
                         <a class="btn btn-primary ms-lg-2" href="@Url.Action("Register", "AuthMvc")">Sign Up</a>
                     </li>
-                }
-            </ul>
-        </div>
-    </nav>
-
-    <main class="moon-container">
-        <div class="moon-page-shell">
-            @RenderBody()
-        </div>
-    </main>
-
-    <footer class="moon-footer">
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <div class="moon-footer-title"><i class="bi bi-moon-stars-fill me-2" style="color: var(--primary-rose);"></i>Moon <span>Books</span></div>
-                <p class="mb-0" style="opacity: 0.8; font-size: 14px; line-height: 1.8;">
-                    Digital library management system with a warm, neat, and user-friendly feel.
-                </p>
+                </ul>
             </div>
+        </nav>
 
-            <div class="col-md-3 mb-3 text-center">
-                <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Quick Links</h6>
-                <a href="@Url.Action("Index", "HomeMvc")" class="moon-footer-link">Home</a>
-
-                @if (Session["Role"] != null && Session["Role"].ToString() == "Librarian")
-                {
-                    <a href="@Url.Action("Librarian", "DashboardMvc")" class="moon-footer-link">Librarian Dashboard</a>
-                    <a href="@Url.Action("Index", "MVCBorrowings")" class="moon-footer-link">Borrowings Data</a>
-                    <a href="@Url.Action("Index", "ReportsMvc")" class="moon-footer-link">Reports</a>
-                }
-                else if (Session["Role"] != null && Session["Role"].ToString() == "Member")
-                {
-                    <a href="@Url.Action("Member", "DashboardMvc")" class="moon-footer-link">Member Dashboard</a>
-                    <a href="@Url.Action("Index", "MVCBooks")" class="moon-footer-link">Book List</a>
-                    <a href="@Url.Action("MyHistory", "MVCBorrowings")" class="moon-footer-link">Borrowing History</a>
-                }
-                else
-                {
-                    <a href="@Url.Action("Login", "AuthMvc")" class="moon-footer-link">Sign In</a>
-                    <a href="@Url.Action("Register", "AuthMvc")" class="moon-footer-link">Sign Up</a>
-                }
+        <main class="moon-container">
+            <div class="moon-page-shell">
+                @RenderBody()
             </div>
+        </main>
 
-            <div class="col-md-3 mb-3 text-center">
-                <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Modules &amp; Features</h6>
-                <span class="moon-footer-badge">Books</span>
-                <span class="moon-footer-badge">Members</span>
-                <span class="moon-footer-badge">Borrowings</span>
-                <span class="moon-footer-badge">Returns</span>
-                <span class="moon-footer-badge">Reminders</span>
-                <span class="moon-footer-badge">Fines</span>
+        <!-- Standard Public Footer -->
+        <footer class="moon-footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 mb-4">
+                        <div class="moon-footer-title"><i class="bi bi-moon-stars-fill me-2" style="color: var(--primary-rose);"></i>Moon <span>Books</span></div>
+                        <p class="mb-0" style="opacity: 0.8; font-size: 14px; line-height: 1.8;">
+                            Digital library management system with a warm, neat, and user-friendly feel.
+                        </p>
+                    </div>
+
+                    <div class="col-md-3 mb-4 text-md-center">
+                        <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Quick Links</h6>
+                        <a href="@Url.Action("Index", "HomeMvc")" class="moon-footer-link">Home</a>
+                        <a href="@Url.Action("Login", "AuthMvc")" class="moon-footer-link">Sign In</a>
+                        <a href="@Url.Action("Register", "AuthMvc")" class="moon-footer-link">Sign Up</a>
+                    </div>
+
+                    <div class="col-md-3 mb-4 text-md-center">
+                        <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Modules &amp; Features</h6>
+                        <span class="moon-footer-badge">Books</span>
+                        <span class="moon-footer-badge">Members</span>
+                        <span class="moon-footer-badge">Borrowings</span>
+                        <span class="moon-footer-badge">Returns</span>
+                        <span class="moon-footer-badge">Reminders</span>
+                        <span class="moon-footer-badge">Fines</span>
+                    </div>
+
+                    <div class="col-md-2 mb-4">
+                        <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Contact</h6>
+                        <p class="mb-2" style="font-size: 14px; opacity: 0.8; word-break: break-all;"><i class="bi bi-envelope me-2"></i>moonbooks@gmail.com</p>
+                        <p class="mb-2" style="font-size: 14px; opacity: 0.8;"><i class="bi bi-telephone me-2"></i>083148448516</p>
+                        <p class="mb-0" style="font-size: 14px; opacity: 0.8;"><i class="bi bi-clock me-2"></i>08:00 AM - 04:00 PM</p>
+                    </div>
+                </div>
+
+                <div class="moon-footer-bottom">
+                    &copy; @DateTime.Now.Year Moon Books. Crafted with <i class="bi bi-heart-fill" style="color: var(--primary-rose); font-size: 12px;"></i> for a beautiful reading experience.
+                </div>
             </div>
-
-            <div class="col-md-2 mb-3">
-                <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Contact</h6>
-                <p class="mb-2" style="font-size: 14px; opacity: 0.8; word-break: break-all;"><i class="bi bi-envelope me-2"></i>moonbooks@gmail.com</p>
-                <p class="mb-2" style="font-size: 14px; opacity: 0.8;"><i class="bi bi-telephone me-2"></i>083148448516</p>
-                <p class="mb-0" style="font-size: 14px; opacity: 0.8;"><i class="bi bi-clock me-2"></i>08:00 AM - 04:00 PM</p>
-            </div>
-        </div>
-
-        <div class="moon-footer-bottom">
-            &copy; @DateTime.Now.Year Moon Books. Crafted with <i class="bi bi-heart-fill" style="color: var(--primary-rose); font-size: 12px;"></i> for a beautiful reading experience.
-        </div>
-    </footer>
+        </footer>
+    }
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     <script>
         $(document).ready(function () {
+            // Mobile Sidebar Toggle
+            $("#sidebarToggle").click(function (e) {
+                e.preventDefault();
+                $("#wrapper").toggleClass("toggled");
+            });
+
+            // Notification Drawer Toggles
+            $("#notificationBell, #closeNotificationDrawer, #notificationOverlay").click(function (e) {
+                e.preventDefault();
+                $("#notificationDrawer").toggleClass("open");
+                $("#notificationOverlay").toggle().toggleClass("show");
+            });
+
+            // Table Pagination
             $('.paginated-table').each(function () {
                 var $table = $(this);
-                var pageSize = parseInt($table.data('page-size')) || 5; // Default page size 5
+                var pageSize = parseInt($table.data('page-size')) || 5; 
                 var $tbody = $table.find('tbody');
                 var $rows = $tbody.find('tr').not('.no-pagination');
                 var totalRows = $rows.length;
 
-                if (totalRows <= pageSize) {
-                    return; // No pagination needed if rows are fewer than page size
+                var totalPages = Math.ceil(totalRows / pageSize);
+                if (totalPages === 0) {
+                    totalPages = 1;
                 }
 
-                var totalPages = Math.ceil(totalRows / pageSize);
-                
-                // Create pagination HTML container below the table
                 var $paginationContainer = $('<div class="d-flex justify-content-center mt-4"><ul class="pagination pagination-rounded gap-1"></ul></div>');
                 var $paginationUl = $paginationContainer.find('ul');
 
@@ -675,7 +1195,7 @@
 
                     // Prev button
                     var $prevItem = $('<li class="page-item"><a class="page-link" href="#" aria-label="Previous"><i class="bi bi-chevron-left"></i></a></li>');
-                    if (page === 1) {
+                    if (page === 1 || totalPages <= 1) {
                         $prevItem.addClass('disabled');
                     } else {
                         $prevItem.find('a').click(function (e) {
@@ -692,17 +1212,21 @@
                             if (pageNumber === page) {
                                 $pageItem.addClass('active');
                             }
-                            $pageItem.find('a').click(function (e) {
-                                e.preventDefault();
-                                showPage(pageNumber);
-                            });
+                            if (totalPages <= 1) {
+                                $pageItem.addClass('disabled');
+                            } else {
+                                $pageItem.find('a').click(function (e) {
+                                    e.preventDefault();
+                                    showPage(pageNumber);
+                                });
+                            }
                             $paginationUl.append($pageItem);
                         })(i);
                     }
 
                     // Next button
                     var $nextItem = $('<li class="page-item"><a class="page-link" href="#" aria-label="Next"><i class="bi bi-chevron-right"></i></a></li>');
-                    if (page === totalPages) {
+                    if (page === totalPages || totalPages <= 1) {
                         $nextItem.addClass('disabled');
                     } else {
                         $nextItem.find('a').click(function (e) {
@@ -713,16 +1237,86 @@
                     $paginationUl.append($nextItem);
                 }
 
-                // Initial show page 1
                 showPage(1);
 
-                // Append pagination container
                 var $parentResponsive = $table.closest('.table-responsive');
                 if ($parentResponsive.length) {
                     $parentResponsive.after($paginationContainer);
                 } else {
                     $table.after($paginationContainer);
                 }
+            });
+
+            // Card Grid Pagination
+            $('.paginated-cards').each(function () {
+                var $container = $(this);
+                var pageSize = parseInt($container.data('page-size')) || 8; 
+                var $cards = $container.find('.paginated-card-item');
+                var totalCards = $cards.length;
+
+                var totalPages = Math.ceil(totalCards / pageSize);
+                if (totalPages === 0) {
+                    totalPages = 1;
+                }
+
+                var $paginationContainer = $('<div class="d-flex justify-content-center mt-4 card-pagination-nav"><ul class="pagination pagination-rounded gap-1"></ul></div>');
+                var $paginationUl = $paginationContainer.find('ul');
+
+                function showCardsPage(page) {
+                    var start = (page - 1) * pageSize;
+                    var end = start + pageSize;
+
+                    $cards.hide();
+                    $cards.slice(start, end).fadeIn(300);
+
+                    $paginationUl.empty();
+
+                    // Prev button
+                    var $prevItem = $('<li class="page-item"><a class="page-link" href="#" aria-label="Previous"><i class="bi bi-chevron-left"></i></a></li>');
+                    if (page === 1 || totalPages <= 1) {
+                        $prevItem.addClass('disabled');
+                    } else {
+                        $prevItem.find('a').click(function (e) {
+                            e.preventDefault();
+                            showCardsPage(page - 1);
+                        });
+                    }
+                    $paginationUl.append($prevItem);
+
+                    // Page buttons
+                    for (var i = 1; i <= totalPages; i++) {
+                        (function (pageNumber) {
+                            var $pageItem = $('<li class="page-item"><a class="page-link" href="#">' + pageNumber + '</a></li>');
+                            if (pageNumber === page) {
+                                $pageItem.addClass('active');
+                            }
+                            if (totalPages <= 1) {
+                                $pageItem.addClass('disabled');
+                            } else {
+                                $pageItem.find('a').click(function (e) {
+                                    e.preventDefault();
+                                    showCardsPage(pageNumber);
+                                });
+                            }
+                            $paginationUl.append($pageItem);
+                        })(i);
+                    }
+
+                    // Next button
+                    var $nextItem = $('<li class="page-item"><a class="page-link" href="#" aria-label="Next"><i class="bi bi-chevron-right"></i></a></li>');
+                    if (page === totalPages || totalPages <= 1) {
+                        $nextItem.addClass('disabled');
+                    } else {
+                        $nextItem.find('a').click(function (e) {
+                            e.preventDefault();
+                            showCardsPage(page + 1);
+                        });
+                    }
+                    $paginationUl.append($nextItem);
+                }
+
+                showCardsPage(1);
+                $container.after($paginationContainer);
             });
         });
     </script>

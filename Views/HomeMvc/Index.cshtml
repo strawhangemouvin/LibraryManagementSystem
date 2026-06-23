@@ -1122,7 +1122,7 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Email Address</label>
-                                <input type="email" id="contactEmail" name="email" class="form-control" placeholder="example: monica07 then type &#64;g" required />
+                                <input type="email" id="contactEmail" name="email" class="form-control" placeholder="example: monica07 then type &#64;g" pattern="^[^&#64;\s]+&#64;(gmail\.com|yahoo\.com|email\.com)$" title="Email must end with &#64;gmail.com, &#64;yahoo.com, or &#64;email.com" required />
                                 <small class="text-muted d-block mt-1" style="font-size: 11px;">
                                     Type <b>&#64;g</b> for gmail, <b>&#64;y</b> for yahoo, or <b>&#64;e</b> for email.com.
                                 </small>
@@ -1186,63 +1186,86 @@
 </body>
 </html>
 
-@section scripts {
+
     <script>
         const contactEmailInput = document.getElementById("contactEmail");
         const atSym = String.fromCharCode(64);
 
         if (contactEmailInput) {
+            function validateEmail() {
+                let value = contactEmailInput.value.trim().toLowerCase();
+                const emailPattern = /^[^\u0040\s]+\u0040(gmail\.com|yahoo\.com|email\.com)$/;
+                if (!emailPattern.test(value)) {
+                    contactEmailInput.setCustomValidity("Email must use \u0040gmail.com, \u0040yahoo.com, or \u0040email.com domain.");
+                } else {
+                    contactEmailInput.setCustomValidity("");
+                }
+            }
+
             contactEmailInput.addEventListener("input", function () {
                 let value = contactEmailInput.value.trim().toLowerCase();
 
                 if (value.endsWith(atSym + "g")) {
                     contactEmailInput.value = value.substring(0, value.length - 2) + atSym + "gmail.com";
                     moveCursorToEnd(contactEmailInput);
+                    validateEmail();
                     return;
                 }
 
                 if (value.endsWith(atSym + "gm")) {
                     contactEmailInput.value = value.substring(0, value.length - 3) + atSym + "gmail.com";
                     moveCursorToEnd(contactEmailInput);
+                    validateEmail();
                     return;
                 }
 
                 if (value.endsWith(atSym + "gmail")) {
                     contactEmailInput.value = value.substring(0, value.length - 6) + atSym + "gmail.com";
                     moveCursorToEnd(contactEmailInput);
+                    validateEmail();
                     return;
                 }
 
                 if (value.endsWith(atSym + "y")) {
                     contactEmailInput.value = value.substring(0, value.length - 2) + atSym + "yahoo.com";
                     moveCursorToEnd(contactEmailInput);
+                    validateEmail();
                     return;
                 }
 
                 if (value.endsWith(atSym + "ya")) {
                     contactEmailInput.value = value.substring(0, value.length - 3) + atSym + "yahoo.com";
                     moveCursorToEnd(contactEmailInput);
+                    validateEmail();
                     return;
                 }
 
                 if (value.endsWith(atSym + "yahoo")) {
                     contactEmailInput.value = value.substring(0, value.length - 6) + atSym + "yahoo.com";
                     moveCursorToEnd(contactEmailInput);
+                    validateEmail();
                     return;
                 }
 
                 if (value.endsWith(atSym + "e")) {
                     contactEmailInput.value = value.substring(0, value.length - 2) + atSym + "email.com";
                     moveCursorToEnd(contactEmailInput);
+                    validateEmail();
                     return;
                 }
 
                 if (value.endsWith(atSym + "email")) {
                     contactEmailInput.value = value.substring(0, value.length - 6) + atSym + "email.com";
                     moveCursorToEnd(contactEmailInput);
+                    validateEmail();
                     return;
                 }
+
+                validateEmail();
             });
+
+            // Initialize validation check on startup/first load
+            validateEmail();
         }
 
         function moveCursorToEnd(input) {
@@ -1251,4 +1274,4 @@
             }, 0);
         }
     </script>
-}
+

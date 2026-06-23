@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Models.ViewModel;
+using LibraryManagementSystem.Models.ViewModel;
 using LibraryManagementSystem.Services.Context;
 using LibraryManagementSystem.Services.Interface;
 using System.Collections.Generic;
@@ -29,7 +29,11 @@ namespace LibraryManagementSystem.Services.Impl
                 RejectedBorrowings = db.Borrowings.Count(x => x.Status == "Rejected"),
 
                 TotalStock = db.Books.Sum(x => (int?)x.Stock) ?? 0,
-                AvailableStock = db.Books.Sum(x => (int?)x.AvailableStock) ?? 0
+                AvailableStock = db.Books.Sum(x => (int?)x.AvailableStock) ?? 0,
+
+                TotalFines = db.Borrowings.Where(x => x.FineAmount != null).Sum(x => x.FineAmount) ?? 0,
+                PaidFines = db.Borrowings.Where(x => x.FineAmount != null && x.FineStatus == "Paid").Sum(x => x.FineAmount) ?? 0,
+                UnpaidFines = db.Borrowings.Where(x => x.FineAmount != null && x.FineStatus == "Unpaid").Sum(x => x.FineAmount) ?? 0
             };
 
             return report;
@@ -105,6 +109,46 @@ namespace LibraryManagementSystem.Services.Impl
                 .ToList();
 
             return borrowings;
+        }
+
+        public List<FineReportViewModel> GetFineReport()
+        {
+            var fines = db.Borrowings
+                .Where(x => x.FineAmount != null && x.FineAmount > 0)
+                .Join(
+                    db.Books,
+                    borrowing => borrowing.BookId,
+                    book => book.Id,
+                    (borrowing, book) => new { borrowing, book }
+                )
+                .Join(
+                    db.Members,
+                    data => data.borrowing.MemberId,
+                    member => member.Id,
+                    (data, member) => new { data.borrowing, data.book, member }
+                )
+                .Join(
+                    db.Users,
+                    data => data.member.UserId,
+                    user => user.Id,
+                    (data, user) => new FineReportViewModel
+                    {
+                        BorrowingId = data.borrowing.Id,
+                        MemberName = user.FullName,
+                        Username = user.Username,
+                        BookTitle = data.book.Title,
+                        BorrowDate = data.borrowing.BorrowDate,
+                        DueDate = data.borrowing.DueDate,
+                        ReturnDate = data.borrowing.ReturnDate,
+                        LateDays = data.borrowing.LateDays,
+                        FineAmount = data.borrowing.FineAmount,
+                        FineStatus = data.borrowing.FineStatus
+                    }
+                )
+                .OrderByDescending(x => x.ReturnDate)
+                .ToList();
+
+            return fines;
         }
     }
 }

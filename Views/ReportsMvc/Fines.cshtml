@@ -1,0 +1,123 @@
+@model IEnumerable<LibraryManagementSystem.Models.ViewModel.FineReportViewModel>
+
+@{
+    ViewBag.Title = "Fine Reports";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid mt-4">
+    <div class="card shadow-sm border-0 rounded-4" style="background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.25);">
+        
+        <!-- Header -->
+        <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose) !important; color: var(--text-dark); padding: 20px;">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                <div>
+                    <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700; color: var(--text-dark) !important;">Fine Reports</h4>
+                    <p class="mb-0 text-muted" style="font-size: 13px; color: var(--text-dark) !important; opacity: 0.85;">Detailed log of generated late return fines and member payment status.</p>
+                </div>
+
+                <a href="@Url.Action("Index", "ReportsMvc")" class="btn btn-sm btn-light rounded-pill px-3" style="color: var(--primary-rose); font-weight: 600;">
+                    <i class="bi bi-arrow-left me-1"></i> Back to Reports
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body p-4">
+            <!-- Navigation Sub-actions -->
+            <div class="d-flex gap-2 mb-4 flex-wrap">
+                <a href="@Url.Action("Index", "ReportsMvc")" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-bar-chart-line me-1"></i> System Summary
+                </a>
+
+                <a href="@Url.Action("Books", "ReportsMvc")" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-book-half me-1"></i> Book Reports
+                </a>
+
+                <a href="@Url.Action("Borrowings", "ReportsMvc")" class="btn btn-outline-secondary rounded-pill px-4">
+                    <i class="bi bi-arrow-left-right me-1"></i> Borrowing Reports
+                </a>
+
+                <a href="@Url.Action("Fines", "ReportsMvc")" class="btn btn-primary rounded-pill px-4">
+                    <i class="bi bi-cash-stack me-1"></i> Fine Reports
+                </a>
+            </div>
+
+            <div class="table-responsive rounded-4 border border-light">
+                <table class="table table-hover align-middle mb-0 paginated-table" data-page-size="5">
+                    <thead style="background-color: rgba(201, 122, 126, 0.1); border-bottom: 2px solid rgba(201, 122, 126, 0.15);">
+                        <tr>
+                            <th class="ps-3" style="color: #4A2E35;">No</th>
+                            <th style="color: #4A2E35;">Member Name</th>
+                            <th style="color: #4A2E35;">Username</th>
+                            <th style="color: #4A2E35;">Book Title</th>
+                            <th style="color: #4A2E35;">Borrow Date</th>
+                            <th style="color: #4A2E35;">Due Date</th>
+                            <th style="color: #4A2E35;">Return Date</th>
+                            <th style="color: #4A2E35;">Late Days</th>
+                            <th style="color: #4A2E35;">Fine Amount</th>
+                            <th class="pe-3" style="color: #4A2E35;">Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            var no = 1;
+                        }
+
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="ps-3" style="font-weight: 600;">@no</td>
+                                <td style="font-weight: 600; color: var(--text-dark);">@item.MemberName</td>
+                                <td>@item.Username</td>
+                                <td>@item.BookTitle</td>
+                                <td>@(item.BorrowDate == null ? "-" : item.BorrowDate.Value.ToString("dd-MM-yyyy"))</td>
+                                <td>@(item.DueDate == null ? "-" : item.DueDate.Value.ToString("dd-MM-yyyy"))</td>
+                                <td>@(item.ReturnDate == null ? "-" : item.ReturnDate.Value.ToString("dd-MM-yyyy"))</td>
+                                <td>
+                                    @if (item.LateDays != null && item.LateDays > 0)
+                                    {
+                                        <span class="text-danger fw-bold">@item.LateDays Day(s)</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">-</span>
+                                    }
+                                </td>
+                                <td>
+                                    <strong class="text-danger">Rp @(item.FineAmount == null ? "0" : item.FineAmount.Value.ToString("N0"))</strong>
+                                </td>
+                                <td class="pe-3">
+                                    @if (item.FineStatus == "Paid")
+                                    {
+                                        <span class="badge bg-success rounded-pill px-3">Paid</span>
+                                    }
+                                    else if (item.FineStatus == "Unpaid")
+                                    {
+                                        <span class="badge bg-warning text-dark rounded-pill px-3">Unpaid</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary rounded-pill px-3">@item.FineStatus</span>
+                                    }
+                                </td>
+                            </tr>
+
+                            no++;
+                        }
+
+                        @if (!Model.Any())
+                        {
+                            <tr>
+                                <td colspan="10" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox-fill d-block fs-3 mb-2 opacity-50"></i>
+                                    No late return fine records found.
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

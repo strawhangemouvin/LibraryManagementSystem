@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Models.ViewModel;
+using LibraryManagementSystem.Models.ViewModel;
 using System.Collections.Generic;
 
 namespace LibraryManagementSystem.Services.Interface
@@ -8,5 +8,6 @@ namespace LibraryManagementSystem.Services.Interface
         SummaryReportViewModel GetSummaryReport();
         List<BookReportViewModel> GetBookReport();
         List<BorrowingReportViewModel> GetBorrowingReport();
+        List<FineReportViewModel> GetFineReport();
     }
 }

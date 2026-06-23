@@ -1,198 +1,534 @@
 @model IEnumerable<LibraryManagementSystem.Models.Entity.Book>
 
 @{
-    ViewBag.Title = "Book List";
+    ViewBag.Title = "Book Catalog";
     Layout = "~/Views/Shared/_Layout.cshtml";
 
     var role = Session["Role"] != null ? Session["Role"].ToString() : "";
+    var searchQuery = ViewBag.SearchQuery as string;
 }
+
+<style>
+    .book-card {
+        background: rgba(255, 255, 255, 0.7) !important;
+        border: 1px solid rgba(255, 255, 255, 0.5) !important;
+        border-radius: 20px !important;
+        overflow: hidden;
+        transition: var(--transition-smooth);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .book-card:hover {
+        transform: translateY(-6px);
+        box-shadow: var(--shadow-hover) !important;
+    }
+
+    .book-cover-container {
+        height: 240px;
+        position: relative;
+        background: linear-gradient(135deg, rgba(201, 122, 126, 0.1), rgba(255, 213, 194, 0.2));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+
+    .book-cover-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+    }
+
+    .book-card:hover .book-cover-img {
+        transform: scale(1.06);
+    }
+
+    .book-cover-placeholder {
+        text-align: center;
+        color: var(--primary-rose);
+        padding: 20px;
+    }
+
+    .book-card-body {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .book-title {
+        font-family: 'Playfair Display', serif;
+        font-weight: 700;
+        color: var(--text-dark);
+        font-size: 17px;
+        margin-bottom: 6px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 48px;
+        line-height: 1.4;
+    }
+
+    .book-author {
+        font-size: 13px;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+    }
+
+    .book-meta-info {
+        font-size: 12px;
+        color: #7E6569;
+        margin-bottom: 15px;
+        border-top: 1px solid rgba(201, 122, 126, 0.1);
+        padding-top: 10px;
+    }
+
+    .book-card-footer {
+        border-top: 1px solid rgba(201, 122, 126, 0.1);
+        padding-top: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .btn-icon-sm {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        padding: 0 !important;
+        font-size: 14px;
+    }
+</style>
 
 <div class="container-fluid mt-4">
     <div class="card shadow-sm border-0 rounded-4" style="background: rgba(255, 255, 255, 0.45); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.25);">
-        <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose); color: white; padding: 20px;">
-            <div class="d-flex justify-content-between align-items-center">
+        
+        <!-- Header Section -->
+        <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose) !important; color: var(--text-dark); padding: 20px;">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
                 <div>
                     @if (role == "Librarian")
                     {
-                        <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700;">Manage Books</h4>
-                        <p class="mb-0 opacity-75" style="font-size: 13px;">Librarian panel to add, edit, and delete library book entries.</p>
+                        <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700; color: var(--text-dark) !important;">Manage Books</h4>
+                        <p class="mb-0 text-muted" style="font-size: 13px; color: var(--text-dark) !important; opacity: 0.85;">Librarian panel to add, edit, and delete library book entries.</p>
                     }
                     else
                     {
-                        <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700;">Book Catalog</h4>
-                        <p class="mb-0 opacity-75" style="font-size: 13px;">Browse available books and request borrowing.</p>
+                        <h4 class="mb-0" style="font-family: 'Playfair Display', serif; font-weight: 700; color: var(--text-dark) !important;">Book Catalog</h4>
+                        <p class="mb-0 text-muted" style="font-size: 13px; color: var(--text-dark) !important; opacity: 0.85;">Browse available books and request borrowing.</p>
                     }
                 </div>
 
-                @if (role == "Librarian")
-                {
-                    <a href="@Url.Action("Create", "MVCBooks")" class="btn btn-sm btn-light rounded-pill px-3" style="color: var(--primary-rose); font-weight: 600;">
-                        <i class="bi bi-plus-lg me-1"></i> Add Book
-                    </a>
-                }
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <!-- Right Corner Search Capsule -->
+                    <form action="@Url.Action("Index", "MVCBooks")" method="get" class="d-inline-block m-0">
+                        <div class="position-relative" style="width: 260px;">
+                            <input type="text" name="search" class="form-control rounded-pill border-0 ps-3 pe-5" placeholder="Search book title/author..." value="@searchQuery" style="font-size: 13px; height: 32px; background-color: rgba(255, 255, 255, 0.85); color: var(--text-dark) !important; box-shadow: none; border-radius: 50rem !important;" />
+                            @if (!string.IsNullOrWhiteSpace(searchQuery))
+                            {
+                                <a href="@Url.Action("Index")" class="position-absolute text-muted" style="right: 36px; top: 50%; transform: translateY(-50%); font-size: 12px; text-decoration: none;">
+                                    <i class="bi bi-x-circle-fill" style="color: var(--text-muted);"></i>
+                                </a>
+                            }
+                            <button type="submit" class="btn position-absolute p-0 border-0 bg-transparent text-muted" style="right: 12px; top: 50%; transform: translateY(-50%); display: flex; align-items: center;">
+                                <i class="bi bi-search" style="color: var(--text-muted); font-size: 14px;"></i>
+                            </button>
+                        </div>
+                    </form>
+
+                    @if (role == "Librarian")
+                    {
+                        <a href="@Url.Action("Create", "MVCBooks")" class="btn btn-sm btn-light rounded-pill px-3" style="color: var(--primary-rose); font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.05); height: 32px; display: inline-flex; align-items: center; border-radius: 50rem !important;">
+                            <i class="bi bi-plus-lg me-1"></i> Add Book
+                        </a>
+                    }
+
+                    <!-- View Mode Toggle -->
+                    <div class="btn-group rounded-pill overflow-hidden shadow-sm" role="group" aria-label="View Toggle" style="height: 32px; border-radius: 50rem !important;">
+                        <button type="button" class="btn btn-sm btn-light border-0 d-inline-flex align-items-center" id="btnTableView" title="Table View" style="border-radius: 0 !important;">
+                            <i class="bi bi-table"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light border-0 d-inline-flex align-items-center" id="btnCardView" title="Card View" style="border-radius: 0 !important;">
+                            <i class="bi bi-grid-3x3-gap-fill"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div class="card-body p-4">
+            
+            <!-- Alert Messages -->
             @if (TempData["Success"] != null)
             {
-                <div class="alert alert-success rounded-3">
-                    <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+                <div class="alert alert-success alert-dismissible fade show rounded-3 mb-4" role="alert" style="font-size: 14px;">
+                    <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
 
             @if (TempData["Error"] != null)
             {
-                <div class="alert alert-danger rounded-3">
-                    <i class="bi bi-exclamation-triangle me-2"></i>@TempData["Error"]
+                <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-4" role="alert" style="font-size: 14px;">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             }
 
-            <div class="table-responsive rounded-4 border border-light">
-                <table class="table table-hover align-middle mb-0 paginated-table" data-page-size="5">
-                    <thead style="background-color: rgba(201, 122, 126, 0.1); border-bottom: 2px solid rgba(201, 122, 126, 0.15);">
-                        <tr>
-                            <th class="ps-3" style="color: #4A2E35;">No</th>
-                            <th style="color: #4A2E35;">Category</th>
-                            <th style="color: #4A2E35;">Title</th>
-                            <th style="color: #4A2E35;">Author</th>
-                            <th style="color: #4A2E35;">Publisher</th>
-                            <th style="color: #4A2E35;">Year</th>
-                            <th style="color: #4A2E35;">ISBN</th>
-                            <th style="color: #4A2E35;">Stock</th>
-                            <th style="color: #4A2E35;">Avail</th>
-                            <th style="color: #4A2E35;">Status</th>
-                            <th class="pe-3 text-end" style="color: #4A2E35; min-width: 150px;">Actions</th>
-                        </tr>
-                    </thead>
-
-                    <tbody>
-                        @{
-                            var no = 1;
-                        }
-
-                        @foreach (var item in Model)
-                        {
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox-fill text-muted opacity-50" style="font-size: 56px;"></i>
+                    <h5 class="mt-3 text-muted">No books found</h5>
+                    <p class="text-muted small">Try searching with different keywords or clear the filter.</p>
+                </div>
+            }
+            else
+            {
+                <!-- TABLE VIEW CONTAINER -->
+                <div id="tableViewContainer" class="table-responsive rounded-4 border border-light">
+                    <table class="table table-hover align-middle mb-0 paginated-table" data-page-size="5">
+                        <thead style="background-color: rgba(201, 122, 126, 0.1); border-bottom: 2px solid rgba(201, 122, 126, 0.15);">
                             <tr>
-                                <td class="ps-3" style="font-weight: 600;">@no</td>
+                                <th class="ps-3" style="color: #4A2E35;">No</th>
+                                <th style="color: #4A2E35;">Cover</th>
+                                <th style="color: #4A2E35;">Category</th>
+                                <th style="color: #4A2E35;">Title</th>
+                                <th style="color: #4A2E35;">Author</th>
+                                <th style="color: #4A2E35;">Publisher</th>
+                                <th style="color: #4A2E35;">Year</th>
+                                <th style="color: #4A2E35;">Stock</th>
+                                <th style="color: #4A2E35;">Avail</th>
+                                <th style="color: #4A2E35;">Status</th>
+                                <th class="pe-3 text-end" style="color: #4A2E35; min-width: 150px;">Actions</th>
+                            </tr>
+                        </thead>
 
-                                <td>
-                                    @if (item.Category != null)
-                                    {
-                                        <span class="badge rounded-pill" style="background-color: rgba(201, 122, 126, 0.15); color: var(--text-dark);">
-                                            @item.Category.CategoryName
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">-</span>
-                                    }
-                                </td>
+                        <tbody>
+                            @{
+                                var no = 1;
+                            }
 
-                                <td>
-                                    <strong style="color: #4A2E35;">@item.Title</strong>
-                                    @if (!string.IsNullOrWhiteSpace(item.Description))
-                                    {
-                                        <br />
-                                        <small class="text-muted text-truncate d-inline-block" style="max-width: 250px;">@item.Description</small>
-                                    }
-                                </td>
-
-                                <td>@item.Author</td>
-
-                                <td>@(string.IsNullOrWhiteSpace(item.Publisher) ? "-" : item.Publisher)</td>
-
-                                <td>@(item.PublishYear == null ? "-" : item.PublishYear.ToString())</td>
-
-                                <td>@(string.IsNullOrWhiteSpace(item.ISBN) ? "-" : item.ISBN)</td>
-
-                                <td style="font-weight: 600;">@item.Stock</td>
-                                <td style="font-weight: 600;">@item.AvailableStock</td>
-
-                                <td>
-                                    @if (item.AvailableStock > 0)
-                                    {
-                                        <span class="badge bg-success rounded-pill px-3">Available</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger rounded-pill px-3">Out of Stock</span>
-                                    }
-                                </td>
-
-                                <td class="pe-3 text-end">
-                                    <div class="d-inline-flex gap-1 align-items-center">
-                                        <a href="@Url.Action("Details", "MVCBooks", new { id = item.Id })"
-                                           class="btn btn-sm btn-outline-secondary" title="View Details"
-                                           style="border-radius: 8px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;">
-                                            <i class="bi bi-eye-fill"></i>
-                                        </a>
-
-                                        @if (role == "Librarian")
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td class="ps-3" style="font-weight: 600;">@no</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(item.CoverImage))
                                         {
-                                            <a href="@Url.Action("Edit", "MVCBooks", new { id = item.Id })"
-                                               class="btn btn-sm btn-outline-primary" title="Edit"
-                                               style="border-radius: 8px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;">
-                                                <i class="bi bi-pencil-fill"></i>
-                                            </a>
-
-                                            <a href="@Url.Action("Delete", "MVCBooks", new { id = item.Id })"
-                                               class="btn btn-sm btn-outline-danger" title="Delete"
-                                               style="border-radius: 8px; width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center;">
-                                                <i class="bi bi-trash-fill"></i>
-                                            </a>
+                                            <img src="@item.CoverImage" alt="Cover" class="rounded" style="width: 36px; height: 50px; object-fit: cover;" />
                                         }
-
-                                        @if (role == "Member")
+                                        else
                                         {
-                                            if (item.AvailableStock > 0)
+                                            <div class="rounded bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center text-muted" style="width: 36px; height: 50px; font-size: 10px;">
+                                                N/A
+                                            </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (item.Category != null)
+                                        {
+                                            <span class="badge rounded-pill" style="background-color: rgba(201, 122, 126, 0.15); color: var(--text-dark);">
+                                                @item.Category.CategoryName
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        <strong style="color: #4A2E35;">@item.Title</strong>
+                                        @if (!string.IsNullOrWhiteSpace(item.ISBN))
+                                        {
+                                            <br /><small class="text-muted">ISBN: @item.ISBN</small>
+                                        }
+                                    </td>
+
+                                    <td>@item.Author</td>
+                                    <td>@(string.IsNullOrWhiteSpace(item.Publisher) ? "-" : item.Publisher)</td>
+                                    <td>@(item.PublishYear == null ? "-" : item.PublishYear.ToString())</td>
+                                    <td style="font-weight: 600;">@item.Stock</td>
+                                    <td style="font-weight: 600;">@item.AvailableStock</td>
+
+                                    <td>
+                                        @if (item.AvailableStock > 0)
+                                        {
+                                            <span class="badge bg-success rounded-pill px-3">Available</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger rounded-pill px-3">Out of Stock</span>
+                                        }
+                                    </td>
+
+                                    <td class="pe-3 text-end">
+                                        <div class="d-inline-flex gap-1 align-items-center">
+                                            <a href="@Url.Action("Details", "MVCBooks", new { id = item.Id })"
+                                               class="btn btn-sm btn-outline-secondary btn-icon-sm" title="View Details">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </a>
+
+                                            @if (role == "Librarian")
                                             {
-                                                <a href="@Url.Action("RequestConfirm", "MVCBorrowings", new { bookId = item.Id })"
-                                                   class="btn btn-sm btn-primary px-3" style="border-radius: 8px; height: 34px; display: inline-flex; align-items: center; gap: 4px; font-weight: 600; line-height: 1;">
-                                                    <i class="bi bi-bookmark-plus-fill"></i> Borrow
+                                                <a href="@Url.Action("Edit", "MVCBooks", new { id = item.Id })"
+                                                   class="btn btn-sm btn-outline-primary btn-icon-sm" title="Edit">
+                                                    <i class="bi bi-pencil-fill"></i>
                                                 </a>
-                                            }
-                                            else
-                                            {
-                                                <button class="btn btn-sm btn-secondary px-3" style="border-radius: 8px; height: 34px; display: inline-flex; align-items: center; font-weight: 600;" disabled>
-                                                    Unavailable
+
+                                                <button class="btn btn-sm btn-outline-danger btn-icon-sm delete-btn" 
+                                                        data-id="@item.Id" data-title="@item.Title" title="Delete">
+                                                    <i class="bi bi-trash-fill"></i>
                                                 </button>
                                             }
+
+                                            @if (role == "Member")
+                                            {
+                                                if (item.AvailableStock > 0)
+                                                {
+                                                    <a href="@Url.Action("RequestConfirm", "MVCBorrowings", new { bookId = item.Id })"
+                                                       class="btn btn-sm btn-primary px-3 rounded-pill" style="height: 32px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; font-weight: 600;">
+                                                        <i class="bi bi-bookmark-plus-fill"></i> Borrow
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <button class="btn btn-sm btn-secondary px-3 rounded-pill" style="height: 32px; font-size: 12px; font-weight: 600;" disabled>
+                                                        Unavailable
+                                                    </button>
+                                                }
+                                            }
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                no++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- CARD VIEW CONTAINER -->
+                <div id="cardViewContainer" class="d-none">
+                    <div class="row paginated-cards" data-page-size="6">
+                        @foreach (var item in Model)
+                        {
+                            <div class="col-lg-4 col-md-6 col-sm-6 mb-4 paginated-card-item">
+                                <div class="card book-card shadow-sm border-0">
+                                    <div class="book-cover-container">
+                                        @if (!string.IsNullOrEmpty(item.CoverImage))
+                                        {
+                                            <img src="@item.CoverImage" alt="Book Cover" class="book-cover-img" />
+                                        }
+                                        else
+                                        {
+                                            <div class="book-cover-placeholder">
+                                                <i class="bi bi-book" style="font-size: 64px; opacity: 0.5;"></i>
+                                                <div class="mt-2 small fw-bold">No Cover Image</div>
+                                            </div>
+                                        }
+
+                                        <!-- Category Badge -->
+                                        @if (item.Category != null)
+                                        {
+                                            <span class="badge rounded-pill position-absolute" style="top: 15px; left: 15px; background: rgba(74, 46, 53, 0.85); color: #FFF0F2; backdrop-filter: blur(4px);">
+                                                @item.Category.CategoryName
+                                            </span>
                                         }
                                     </div>
-                                </td>
-                            </tr>
 
-                            no++;
+                                    <div class="book-card-body">
+                                        <!-- Line 1 & Line 2: Title and Author -->
+                                        <div>
+                                            <h5 class="book-title mb-1" title="@item.Title" style="height: auto; overflow: visible; display: block; -webkit-line-clamp: none;">@item.Title</h5>
+                                            <p class="book-author mb-3">by @item.Author</p>
+                                        </div>
+
+                                        <!-- Meta Info with a margin-top gap -->
+                                        <div class="mt-2 pt-2 border-top" style="border-color: rgba(201, 122, 126, 0.1) !important; font-size: 12.5px; color: var(--text-muted);">
+                                            <!-- Line 3: Publisher -->
+                                            <div class="mb-1 text-truncate" title="Publisher: @(string.IsNullOrEmpty(item.Publisher) ? "-" : item.Publisher)">
+                                                Publisher: <strong style="color: var(--text-dark);">@(string.IsNullOrEmpty(item.Publisher) ? "-" : item.Publisher)</strong>
+                                            </div>
+                                            <!-- Line 4: Year -->
+                                            <div class="mb-1">
+                                                Year: <strong style="color: var(--text-dark);">@(item.PublishYear == null ? "-" : item.PublishYear.ToString())</strong>
+                                            </div>
+                                            <!-- Line 5: Stock | Avail -->
+                                            <div class="mb-2">
+                                                Stock: <strong style="color: var(--text-dark);">@item.Stock</strong> | Avail: <strong style="color: var(--text-dark);">@item.AvailableStock</strong>
+                                            </div>
+                                            <!-- Line 6: Available / Out of Stock status ONLY -->
+                                            <div class="mb-3">
+                                                @if (item.AvailableStock > 0)
+                                                {
+                                                    <span class="badge bg-success rounded-pill px-3 py-1" style="font-size: 11px;">Available</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger rounded-pill px-3 py-1" style="font-size: 11px;">Out of Stock</span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        <div class="book-card-footer">
+                                            <div class="d-flex gap-1 w-100 justify-content-between align-items-center">
+                                                <a href="@Url.Action("Details", "MVCBooks", new { id = item.Id })"
+                                                   class="btn btn-outline-secondary rounded-pill px-3 py-1" style="font-size: 13px; font-weight: 600;">
+                                                    Details
+                                                </a>
+
+                                                <div class="d-flex gap-1">
+                                                    @if (role == "Librarian")
+                                                    {
+                                                        <a href="@Url.Action("Edit", "MVCBooks", new { id = item.Id })"
+                                                           class="btn btn-outline-primary btn-icon-sm" title="Edit">
+                                                            <i class="bi bi-pencil-fill"></i>
+                                                        </a>
+
+                                                        <button class="btn btn-outline-danger btn-icon-sm delete-btn" 
+                                                                data-id="@item.Id" data-title="@item.Title" title="Delete">
+                                                            <i class="bi bi-trash-fill"></i>
+                                                        </button>
+                                                    }
+
+                                                    @if (role == "Member")
+                                                    {
+                                                        if (item.AvailableStock > 0)
+                                                        {
+                                                            <a href="@Url.Action("RequestConfirm", "MVCBorrowings", new { bookId = item.Id })"
+                                                               class="btn btn-primary rounded-pill px-3 py-1" style="font-size: 13px; font-weight: 600;">
+                                                                Borrow
+                                                            </a>
+                                                        }
+                                                        else
+                                                        {
+                                                            <button class="btn btn-secondary rounded-pill px-3 py-1" style="font-size: 13px; font-weight: 600;" disabled>
+                                                                Out
+                                                            </button>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         }
+                    </div>
+                </div>
+            }
 
-                        @if (!Model.Any())
-                        {
-                            <tr>
-                                <td colspan="11" class="text-center text-muted py-4">
-                                    <i class="bi bi-inbox-fill d-block fs-3 mb-2 opacity-50"></i>
-                                    No books available in the catalog.
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="mt-3">
+            <div class="mt-4">
                 @if (role == "Librarian")
                 {
-                    <a href="@Url.Action("Librarian", "DashboardMvc")" class="btn btn-outline-secondary rounded-pill px-4">
+                    <a href="@Url.Action("Librarian", "DashboardMvc")" class="btn btn-outline-secondary rounded-pill px-4" style="border-radius: 50rem !important;">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                    </a>
+                }
+                else if (role == "Member")
+                {
+                    <a href="@Url.Action("Member", "DashboardMvc")" class="btn btn-outline-secondary rounded-pill px-4" style="border-radius: 50rem !important;">
                         <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
                     </a>
                 }
                 else
                 {
-                    <a href="@Url.Action("Member", "DashboardMvc")" class="btn btn-outline-secondary rounded-pill px-4">
-                        <i class="bi bi-arrow-left me-1"></i> Back to Dashboard
+                    <a href="@Url.Action("Index", "HomeMvc")" class="btn btn-outline-secondary rounded-pill px-4" style="border-radius: 50rem !important;">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Home
                     </a>
                 }
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- DELETE CONFIRMATION MODAL -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px);">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title font-weight-bold" id="deleteConfirmModalLabel" style="color: var(--text-dark); font-family: 'Playfair Display', serif; font-weight: 700;">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body py-3">
+                <p class="mb-2">Are you sure you want to delete book <strong id="deleteItemTitle" style="color: var(--text-dark);"></strong>?</p>
+                <small class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>This action cannot be undone and will remove the book entry.</small>
+            </div>
+            <div class="modal-footer border-top-0 d-flex justify-content-end gap-2">
+                @using (Html.BeginForm("Delete", "MVCBooks", FormMethod.Post, new { id = "deleteForm", @class = "m-0" }))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteItemId" value="" />
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">Delete</button>
+                }
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Cancel</button>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // View Mode Toggle Handler
+            var defaultView = '@(role == "Librarian" ? "table" : "card")';
+            var viewMode = localStorage.getItem('booksViewMode') || defaultView;
+            setViewMode(viewMode);
+
+            $('#btnTableView').click(function () {
+                setViewMode('table');
+            });
+
+            $('#btnCardView').click(function () {
+                setViewMode('card');
+            });
+
+            function setViewMode(mode) {
+                localStorage.setItem('booksViewMode', mode);
+                if (mode === 'table') {
+                    $('#tableViewContainer').removeClass('d-none');
+                    $('#cardViewContainer').addClass('d-none');
+                    $('#btnTableView').addClass('active btn-primary').removeClass('btn-light');
+                    $('#btnCardView').removeClass('active btn-primary').addClass('btn-light');
+                    
+                    // Toggle visibility of pagination controls
+                    $('.card-pagination-nav').addClass('d-none'); 
+                    $('.paginated-table').parent().next('.d-flex').removeClass('d-none'); 
+                } else {
+                    $('#tableViewContainer').addClass('d-none');
+                    $('#cardViewContainer').removeClass('d-none');
+                    $('#btnCardView').addClass('active btn-primary').removeClass('btn-light');
+                    $('#btnTableView').removeClass('active btn-primary').addClass('btn-light');
+                    
+                    // Toggle visibility of pagination controls
+                    $('.card-pagination-nav').removeClass('d-none'); 
+                    $('.paginated-table').parent().next('.d-flex').addClass('d-none'); 
+                }
+            }
+
+            // Inline Delete Modal Trigger
+            $('.delete-btn').click(function(e) {
+                e.preventDefault();
+                var id = $(this).data('id');
+                var title = $(this).data('title');
+                
+                $('#deleteItemId').val(id);
+                $('#deleteItemTitle').text(title);
+                
+                var deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+                deleteModal.show();
+            });
+        });
+    </script>
+}
