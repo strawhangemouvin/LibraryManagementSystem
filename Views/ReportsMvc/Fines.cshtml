@@ -42,6 +42,29 @@
                 </a>
             </div>
 
+            <!-- Daily Report Control Panel -->
+            <div class="d-flex align-items-center flex-wrap gap-2 p-3 mb-4 rounded-4" style="background: rgba(201, 122, 126, 0.08); border: 1px solid rgba(201, 122, 126, 0.15);">
+                <div class="d-flex align-items-center gap-2">
+                    <label for="reportDate" class="fw-bold mb-0" style="color: var(--text-dark); font-size: 14px;">Daily Report Date:</label>
+                    <input type="date" id="reportDate" class="form-control rounded-pill px-3 py-1" style="max-width: 180px; font-size: 14px; display: inline-block;" value="@ViewBag.SelectedDate" />
+                    @if (!string.IsNullOrEmpty(ViewBag.SelectedDate))
+                    {
+                        <a href="@Url.Action("Fines", "ReportsMvc")" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                            <i class="bi bi-x-circle me-1"></i> Reset
+                        </a>
+                    }
+                </div>
+
+                <div class="ms-md-auto d-flex gap-2 w-100 w-md-auto mt-2 mt-md-0 justify-content-end">
+                    <a href="@Url.Action("ExportFinesExcel", "ReportsMvc", new { date = ViewBag.SelectedDate })" class="btn btn-sm text-white rounded-pill px-3 d-flex align-items-center gap-1" style="background: linear-gradient(135deg, #1D6F42 0%, #107C41 100%) !important; border: none !important; font-size: 13px; font-weight: 600; box-shadow: 0 4px 10px rgba(16, 124, 65, 0.2);">
+                        <i class="bi bi-file-earmark-excel"></i> Download Excel
+                    </a>
+                    <a href="@Url.Action("PrintFines", "ReportsMvc", new { date = ViewBag.SelectedDate })" target="_blank" class="btn btn-sm text-white rounded-pill px-3 d-flex align-items-center gap-1" style="background: linear-gradient(135deg, #E02424 0%, #C81E1E 100%) !important; border: none !important; font-size: 13px; font-weight: 600; box-shadow: 0 4px 10px rgba(200, 30, 30, 0.2);">
+                        <i class="bi bi-printer"></i> Print PDF
+                    </a>
+                </div>
+            </div>
+
             <div class="table-responsive rounded-4 border border-light">
                 <table class="table table-hover align-middle mb-0 paginated-table" data-page-size="5">
                     <thead style="background-color: rgba(201, 122, 126, 0.1); border-bottom: 2px solid rgba(201, 122, 126, 0.15);">
@@ -121,3 +144,19 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var reportDateInput = document.getElementById('reportDate');
+        if (reportDateInput) {
+            reportDateInput.addEventListener('change', function () {
+                var dateVal = this.value;
+                if (dateVal) {
+                    window.location.href = '@Url.Action("Fines", "ReportsMvc")?date=' + dateVal;
+                } else {
+                    window.location.href = '@Url.Action("Fines", "ReportsMvc")';
+                }
+            });
+        }
+    });
+</script>

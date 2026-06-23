@@ -263,6 +263,7 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\library_bg.png" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Scripts\bootstrap.bundle.js" />
@@ -333,6 +334,9 @@
     <Content Include="Views\ReportsMvc\Books.cshtml" />
     <Content Include="Views\ReportsMvc\Borrowings.cshtml" />
     <Content Include="Views\ReportsMvc\Fines.cshtml" />
+    <Content Include="Views\ReportsMvc\PrintBooks.cshtml" />
+    <Content Include="Views\ReportsMvc\PrintBorrowings.cshtml" />
+    <Content Include="Views\ReportsMvc\PrintFines.cshtml" />
     <Content Include="Views\DashboardMvc\Index.cshtml" />
     <Content Include="Views\DashboardMvc\Librarian.cshtml" />
     <Content Include="Views\DashboardMvc\Member.cshtml" />

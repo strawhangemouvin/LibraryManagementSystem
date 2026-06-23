@@ -31,57 +31,79 @@
         </div>
 
         <div class="card-body p-4">
-            <dl class="dl-horizontal">
-                <dt>Category</dt>
-                <dd>
-                    @if (Model.Category != null)
-                    {
-                        <span class="badge rounded-pill" style="background-color: rgba(201, 122, 126, 0.15); color: var(--text-dark);">
-                            @Model.Category.CategoryName
-                        </span>
-                    }
-                    else
-                    {
-                        <span class="text-muted">-</span>
-                    }
-                </dd>
+            <div class="row g-4">
+                <!-- Left Column: Book Cover -->
+                <div class="col-lg-3 col-md-4">
+                    <div class="p-3 rounded-4 bg-white bg-opacity-50 border border-white shadow-sm h-100 d-flex flex-column align-items-center justify-content-center" style="min-height: 320px;">
+                        @if (!string.IsNullOrEmpty(Model.CoverImage))
+                        {
+                            <img src="@Model.CoverImage" alt="@Model.Title Cover" class="img-fluid rounded-4 shadow-sm border border-2 border-white" style="object-fit: cover; max-height: 300px; width: 100%;" />
+                        }
+                        else
+                        {
+                            <div class="d-flex align-items-center justify-content-center rounded-4 w-100" style="height: 260px; background-color: rgba(201, 122, 126, 0.1) !important;">
+                                <i class="bi bi-book-half text-muted" style="font-size: 80px; color: var(--primary-rose) !important;"></i>
+                            </div>
+                            <p class="text-muted small mt-3 mb-0">No cover image available</p>
+                        }
+                    </div>
+                </div>
 
-                <dt>Book Title</dt>
-                <dd><strong style="color: #4A2E35;">@Model.Title</strong></dd>
+                <!-- Right Column: Book Details -->
+                <div class="col-lg-9 col-md-8">
+                    <dl class="dl-horizontal" style="margin: 0 !important; max-width: 100% !important; border: 1px solid rgba(201, 122, 126, 0.15); padding: 25px; border-radius: 20px; background: rgba(255, 255, 255, 0.3);">
+                        <dt>Category</dt>
+                        <dd>
+                            @if (Model.Category != null)
+                            {
+                                <span class="badge rounded-pill" style="background-color: rgba(201, 122, 126, 0.15); color: var(--text-dark);">
+                                    @Model.Category.CategoryName
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">-</span>
+                            }
+                        </dd>
 
-                <dt>Author</dt>
-                <dd>@Model.Author</dd>
+                        <dt>Book Title</dt>
+                        <dd><strong style="color: #4A2E35;">@Model.Title</strong></dd>
 
-                <dt>Publisher</dt>
-                <dd>@(string.IsNullOrWhiteSpace(Model.Publisher) ? "-" : Model.Publisher)</dd>
+                        <dt>Author</dt>
+                        <dd>@Model.Author</dd>
 
-                <dt>Publication Year</dt>
-                <dd>@(Model.PublishYear == null ? "-" : Model.PublishYear.ToString())</dd>
+                        <dt>Publisher</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(Model.Publisher) ? "-" : Model.Publisher)</dd>
 
-                <dt>ISBN</dt>
-                <dd>@(string.IsNullOrWhiteSpace(Model.ISBN) ? "-" : Model.ISBN)</dd>
+                        <dt>Publication Year</dt>
+                        <dd>@(Model.PublishYear == null ? "-" : Model.PublishYear.ToString())</dd>
 
-                <dt>Total Stock</dt>
-                <dd>@Model.Stock</dd>
+                        <dt>ISBN</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(Model.ISBN) ? "-" : Model.ISBN)</dd>
 
-                <dt>Available Stock</dt>
-                <dd>@Model.AvailableStock</dd>
+                        <dt>Total Stock</dt>
+                        <dd>@Model.Stock</dd>
 
-                <dt>Status</dt>
-                <dd>
-                    @if (Model.AvailableStock > 0)
-                    {
-                        <span class="badge bg-success rounded-pill px-3 py-1">Available</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-danger rounded-pill px-3 py-1">Out of Stock</span>
-                    }
-                </dd>
+                        <dt>Available Stock</dt>
+                        <dd>@Model.AvailableStock</dd>
 
-                <dt>Description</dt>
-                <dd>@(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)</dd>
-            </dl>
+                        <dt>Status</dt>
+                        <dd>
+                            @if (Model.AvailableStock > 0)
+                            {
+                                <span class="badge bg-success rounded-pill px-3 py-1">Available</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger rounded-pill px-3 py-1">Out of Stock</span>
+                            }
+                        </dd>
+
+                        <dt>Description</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(Model.Description) ? "-" : Model.Description)</dd>
+                    </dl>
+                </div>
+            </div>
 
             <hr class="my-4" style="opacity: 0.1;" />
 

@@ -21,8 +21,40 @@ namespace LibraryManagementSystem.Controllers.MVC
 
             try
             {
-                // Fetch first 3 books with their Category info
-                featuredBooks = db.Books.Include(b => b.Category).Take(3).ToList();
+                // Fetch the top 3 most borrowed book IDs
+                var popularBookIds = db.Borrowings
+                    .GroupBy(b => b.BookId)
+                    .OrderByDescending(g => g.Count())
+                    .Take(3)
+                    .Select(g => g.Key)
+                    .ToList();
+
+                // Fetch book details for those IDs
+                var booksData = db.Books
+                    .Include(b => b.Category)
+                    .Where(b => popularBookIds.Contains(b.Id))
+                    .ToList();
+
+                // Sort the books in memory to preserve the popularity order (most popular first)
+                featuredBooks = popularBookIds
+                    .Select(id => booksData.FirstOrDefault(b => b.Id == id))
+                    .Where(b => b != null)
+                    .ToList();
+
+                // Fallback: If less than 3 books are borrowed, fill the rest with the newest books
+                if (featuredBooks.Count < 3)
+                {
+                    var remainingCount = 3 - featuredBooks.Count;
+                    var existingIds = featuredBooks.Select(b => b.Id).ToList();
+                    var additionalBooks = db.Books
+                        .Include(b => b.Category)
+                        .Where(b => !existingIds.Contains(b.Id))
+                        .OrderByDescending(b => b.CreatedAt)
+                        .Take(remainingCount)
+                        .ToList();
+
+                    featuredBooks.AddRange(additionalBooks);
+                }
                 
                 // Sum the stock of all books
                 totalBooks = db.Books.Sum(b => (int?)b.Stock) ?? 0;

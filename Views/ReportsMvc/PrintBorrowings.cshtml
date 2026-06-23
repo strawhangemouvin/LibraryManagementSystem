@@ -1,0 +1,179 @@
+@model IEnumerable<LibraryManagementSystem.Models.ViewModel.BorrowingReportViewModel>
+@{
+    Layout = null;
+    var selectedDateStr = ViewBag.SelectedDate != null ? ((DateTime)ViewBag.SelectedDate).ToString("dd MMMM yyyy") : "Semua Waktu";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Laporan Harian Peminjaman - @selectedDateStr</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', Arial, sans-serif;
+            color: #3A1F24;
+            padding: 40px;
+            background-color: #fff;
+        }
+        .report-header {
+            border-bottom: 3px double #C97A7E;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        .library-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: #3A1F24;
+        }
+        .report-title {
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+            color: #C97A7E;
+        }
+        .meta-info {
+            font-size: 13px;
+            color: #7E6569;
+        }
+        .table {
+            border-color: #C97A7E;
+        }
+        .table th {
+            background-color: rgba(201, 122, 126, 0.1) !important;
+            color: #4A2E35 !important;
+            font-weight: 700;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        .signature-section {
+            margin-top: 60px;
+            page-break-inside: avoid;
+        }
+        .signature-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 80px;
+        }
+        .signature-line {
+            border-top: 1px solid #3A1F24;
+            width: 200px;
+            margin: 0 auto;
+            font-weight: 700;
+        }
+        @media print {
+            body {
+                padding: 20px;
+            }
+            .no-print {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Print controls for manual printing if blocked -->
+    <div class="no-print d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded">
+        <span class="text-muted">Jika dialog cetak tidak otomatis muncul, silakan klik tombol di samping.</span>
+        <div>
+            <button onclick="window.print()" class="btn btn-primary btn-sm px-4 rounded-pill" style="background-color: #C97A7E; border-color: #C97A7E; font-weight: 600; color: white;">
+                Cetak Laporan
+            </button>
+            <button onclick="window.close()" class="btn btn-outline-secondary btn-sm px-3 rounded-pill ms-2">
+                Tutup Halaman
+            </button>
+        </div>
+    </div>
+
+    <div class="report-header text-center">
+        <div class="library-name">Moon Books Library</div>
+        <div class="report-title">Laporan Harian Transaksi Peminjaman</div>
+        <div class="meta-info mt-2">
+            <span><strong>Tanggal Laporan:</strong> @selectedDateStr</span> | 
+            <span><strong>Waktu Cetak:</strong> @DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss")</span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 4%">No</th>
+                    <th style="width: 8%">ID Pinjam</th>
+                    <th>Nama Anggota</th>
+                    <th>Judul Buku</th>
+                    <th style="width: 10%">Tgl Pengajuan</th>
+                    <th style="width: 10%">Tgl Pinjam</th>
+                    <th style="width: 10%">Tgl Jatuh Tempo</th>
+                    <th style="width: 10%">Tgl Kembali</th>
+                    <th style="width: 10%">Status</th>
+                    <th>Catatan</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var no = 1;
+                }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-center">@no</td>
+                        <td class="text-center">@item.BorrowingId</td>
+                        <td class="fw-semibold">@item.MemberName</td>
+                        <td>@item.BookTitle</td>
+                        <td class="text-center">@item.RequestDate.ToString("dd-MM-yyyy")</td>
+                        <td class="text-center">
+                            @(item.BorrowDate == null ? "-" : item.BorrowDate.Value.ToString("dd-MM-yyyy"))
+                        </td>
+                        <td class="text-center">
+                            @(item.DueDate == null ? "-" : item.DueDate.Value.ToString("dd-MM-yyyy"))
+                        </td>
+                        <td class="text-center">
+                            @(item.ReturnDate == null ? "-" : item.ReturnDate.Value.ToString("dd-MM-yyyy"))
+                        </td>
+                        <td class="text-center">
+                            <span class="fw-bold">@item.Status</span>
+                        </td>
+                        <td>@(string.IsNullOrWhiteSpace(item.Notes) ? "-" : item.Notes)</td>
+                    </tr>
+                    no++;
+                }
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="10" class="text-center text-muted py-4">
+                            Tidak ada transaksi peminjaman (pengajuan, peminjaman, atau pengembalian) pada tanggal ini.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row signature-section text-center">
+        <div class="col-6"></div>
+        <div class="col-6 ms-auto">
+            <div class="signature-title">Pustakawan Perpustakaan,</div>
+            <div class="signature-line"></div>
+            <div class="mt-1" style="font-size: 13px; color: #7E6569;">Moon Books Staff</div>
+        </div>
+    </div>
+
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500);
+        };
+    </script>
+</body>
+</html>

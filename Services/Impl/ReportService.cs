@@ -39,9 +39,9 @@ namespace LibraryManagementSystem.Services.Impl
             return report;
         }
 
-        public List<BookReportViewModel> GetBookReport()
+        public List<BookReportViewModel> GetBookReport(System.DateTime? date = null)
         {
-            var books = db.Books
+            var query = db.Books
                 .Join(
                     db.Categories,
                     book => book.CategoryId,
@@ -55,18 +55,23 @@ namespace LibraryManagementSystem.Services.Impl
                         Publisher = book.Publisher,
                         PublishYear = book.PublishYear,
                         Stock = book.Stock,
-                        AvailableStock = book.AvailableStock
+                        AvailableStock = book.AvailableStock,
+                        CreatedAt = book.CreatedAt
                     }
-                )
-                .OrderBy(x => x.Title)
-                .ToList();
+                );
 
-            return books;
+            if (date.HasValue)
+            {
+                var targetDate = date.Value.Date;
+                query = query.Where(x => System.Data.Entity.DbFunctions.TruncateTime(x.CreatedAt) == System.Data.Entity.DbFunctions.TruncateTime(targetDate));
+            }
+
+            return query.OrderBy(x => x.Title).ToList();
         }
 
-        public List<BorrowingReportViewModel> GetBorrowingReport()
+        public List<BorrowingReportViewModel> GetBorrowingReport(System.DateTime? date = null)
         {
-            var borrowings = db.Borrowings
+            var query = db.Borrowings
                 .Join(
                     db.Books,
                     borrowing => borrowing.BookId,
@@ -104,16 +109,24 @@ namespace LibraryManagementSystem.Services.Impl
                         Status = data.borrowing.Status,
                         Notes = data.borrowing.Notes
                     }
-                )
-                .OrderByDescending(x => x.RequestDate)
-                .ToList();
+                );
 
-            return borrowings;
+            if (date.HasValue)
+            {
+                var targetDate = date.Value.Date;
+                query = query.Where(x => 
+                    System.Data.Entity.DbFunctions.TruncateTime(x.RequestDate) == System.Data.Entity.DbFunctions.TruncateTime(targetDate) ||
+                    (x.BorrowDate != null && System.Data.Entity.DbFunctions.TruncateTime(x.BorrowDate) == System.Data.Entity.DbFunctions.TruncateTime(targetDate)) ||
+                    (x.ReturnDate != null && System.Data.Entity.DbFunctions.TruncateTime(x.ReturnDate) == System.Data.Entity.DbFunctions.TruncateTime(targetDate))
+                );
+            }
+
+            return query.OrderByDescending(x => x.RequestDate).ToList();
         }
 
-        public List<FineReportViewModel> GetFineReport()
+        public List<FineReportViewModel> GetFineReport(System.DateTime? date = null)
         {
-            var fines = db.Borrowings
+            var query = db.Borrowings
                 .Where(x => x.FineAmount != null && x.FineAmount > 0)
                 .Join(
                     db.Books,
@@ -144,11 +157,15 @@ namespace LibraryManagementSystem.Services.Impl
                         FineAmount = data.borrowing.FineAmount,
                         FineStatus = data.borrowing.FineStatus
                     }
-                )
-                .OrderByDescending(x => x.ReturnDate)
-                .ToList();
+                );
 
-            return fines;
+            if (date.HasValue)
+            {
+                var targetDate = date.Value.Date;
+                query = query.Where(x => x.ReturnDate != null && System.Data.Entity.DbFunctions.TruncateTime(x.ReturnDate) == System.Data.Entity.DbFunctions.TruncateTime(targetDate));
+            }
+
+            return query.OrderByDescending(x => x.ReturnDate).ToList();
         }
     }
 }

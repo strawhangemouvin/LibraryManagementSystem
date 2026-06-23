@@ -1,8 +1,11 @@
+@using LibraryManagementSystem.Helpers
 @model LibraryManagementSystem.Models.ViewModel.MemberViewModel
 
 @{
     ViewBag.Title = "Member Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    string avatarUrl = AvatarHelper.GetUserAvatarUrl(Model.Username ?? "", Model.Email ?? "", 150);
 }
 
 <div class="container-fluid mt-4">
@@ -20,51 +23,79 @@
         </div>
 
         <div class="card-body p-4">
-            <dl class="dl-horizontal">
-                <dt>Full Name</dt>
-                <dd>@(string.IsNullOrWhiteSpace(Model.FullName) ? "-" : Model.FullName)</dd>
+            <div class="row g-4">
+                <!-- Left Column: Avatar -->
+                <div class="col-lg-3 col-md-4">
+                    <div class="p-4 rounded-4 bg-white bg-opacity-50 border border-white shadow-sm h-100 d-flex flex-column align-items-center justify-content-center text-center" style="min-height: 300px;">
+                        <div class="position-relative d-inline-block mb-3">
+                            <img src="@avatarUrl" alt="@Model.FullName Avatar" class="rounded-circle border border-3 border-white shadow-sm" style="width: 140px; height: 140px; object-fit: cover;" />
+                            @if (Model.Status == "Active")
+                            {
+                                <span class="position-absolute bottom-0 end-0 p-2 bg-success border border-3 border-white rounded-circle" title="Active"></span>
+                            }
+                            else if (Model.Status == "Pending")
+                            {
+                                <span class="position-absolute bottom-0 end-0 p-2 bg-warning border border-3 border-white rounded-circle" title="Pending"></span>
+                            }
+                            else
+                            {
+                                <span class="position-absolute bottom-0 end-0 p-2 bg-danger border border-3 border-white rounded-circle" title="@Model.Status"></span>
+                            }
+                        </div>
+                        <h5 class="mb-1 fw-bold" style="color: #4A2E35;">@Model.FullName</h5>
+                        <p class="text-muted small mb-0">@@@Model.Username</p>
+                    </div>
+                </div>
 
-                <dt>Username</dt>
-                <dd>@(string.IsNullOrWhiteSpace(Model.Username) ? "-" : Model.Username)</dd>
+                <!-- Right Column: Member Details -->
+                <div class="col-lg-9 col-md-8">
+                    <dl class="dl-horizontal" style="margin: 0 !important; max-width: 100% !important; border: 1px solid rgba(201, 122, 126, 0.15); padding: 25px; border-radius: 20px; background: rgba(255, 255, 255, 0.3);">
+                        <dt>Full Name</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(Model.FullName) ? "-" : Model.FullName)</dd>
 
-                <dt>Member Code</dt>
-                <dd><code class="text-dark" style="font-weight: 700;">@Model.MemberCode</code></dd>
+                        <dt>Username</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(Model.Username) ? "-" : Model.Username)</dd>
 
-                <dt>Email</dt>
-                <dd>@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)</dd>
+                        <dt>Member Code</dt>
+                        <dd><code class="text-dark" style="font-weight: 700;">@Model.MemberCode</code></dd>
 
-                <dt>Address</dt>
-                <dd>@(string.IsNullOrWhiteSpace(Model.Address) ? "-" : Model.Address)</dd>
+                        <dt>Email</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(Model.Email) ? "-" : Model.Email)</dd>
 
-                <dt>Class</dt>
-                <dd>@(string.IsNullOrWhiteSpace(Model.ClassName) ? "-" : Model.ClassName)</dd>
+                        <dt>Address</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(Model.Address) ? "-" : Model.Address)</dd>
 
-                <dt>Status</dt>
-                <dd>
-                    @if (Model.Status == "Active")
-                    {
-                        <span class="badge bg-success rounded-pill px-3">Active</span>
-                    }
-                    else if (Model.Status == "Pending")
-                    {
-                        <span class="badge bg-warning text-dark rounded-pill px-3">Pending</span>
-                    }
-                    else if (Model.Status == "Rejected")
-                    {
-                        <span class="badge bg-danger rounded-pill px-3">Rejected</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary rounded-pill px-3">@(string.IsNullOrWhiteSpace(Model.Status) ? "-" : Model.Status)</span>
-                    }
-                </dd>
+                        <dt>Class</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(Model.ClassName) ? "-" : Model.ClassName)</dd>
 
-                <dt>Approved By</dt>
-                <dd>@(string.IsNullOrWhiteSpace(Model.ApprovedByName) ? "-" : Model.ApprovedByName)</dd>
+                        <dt>Status</dt>
+                        <dd>
+                            @if (Model.Status == "Active")
+                            {
+                                <span class="badge bg-success rounded-pill px-3">Active</span>
+                            }
+                            else if (Model.Status == "Pending")
+                            {
+                                <span class="badge bg-warning text-dark rounded-pill px-3">Pending</span>
+                            }
+                            else if (Model.Status == "Rejected")
+                            {
+                                <span class="badge bg-danger rounded-pill px-3">Rejected</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary rounded-pill px-3">@(string.IsNullOrWhiteSpace(Model.Status) ? "-" : Model.Status)</span>
+                            }
+                        </dd>
 
-                <dt>Approval Date</dt>
-                <dd>@(Model.ApprovedAt == null ? "-" : Model.ApprovedAt.Value.ToString("dd-MM-yyyy HH:mm"))</dd>
-            </dl>
+                        <dt>Approved By</dt>
+                        <dd>@(string.IsNullOrWhiteSpace(Model.ApprovedByName) ? "-" : Model.ApprovedByName)</dd>
+
+                        <dt>Approval Date</dt>
+                        <dd>@(Model.ApprovedAt == null ? "-" : Model.ApprovedAt.Value.ToString("dd-MM-yyyy HH:mm"))</dd>
+                    </dl>
+                </div>
+            </div>
         </div>
     </div>
 </div>

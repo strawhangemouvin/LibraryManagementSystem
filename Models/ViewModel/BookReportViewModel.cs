@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -15,5 +15,6 @@ namespace LibraryManagementSystem.Models.ViewModel
         public int? PublishYear { get; set; }
         public int Stock { get; set; }
         public int AvailableStock { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

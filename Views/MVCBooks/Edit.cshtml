@@ -50,7 +50,12 @@
                         <div class="row">
                             <div class="col-md-4 mb-3">
                                 <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Publish Year</label>
-                                @Html.TextBoxFor(model => model.PublishYear, new { @class = "form-control", type = "number", placeholder = "YYYY" })
+                                @Html.DropDownListFor(model => model.PublishYear, 
+                                    Enumerable.Range(1900, DateTime.Now.Year - 1900 + 2)
+                                        .Reverse()
+                                        .Select(y => new SelectListItem { Value = y.ToString(), Text = y.ToString() }), 
+                                    "Select Year", 
+                                    new { @class = "form-select" })
                                 @Html.ValidationMessageFor(model => model.PublishYear, "", new { @class = "text-danger small" })
                             </div>
 
