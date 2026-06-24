@@ -113,7 +113,7 @@
         
         <!-- Header Section -->
         <div class="card-header border-0 rounded-top-4" style="background-color: var(--primary-rose) !important; color: var(--text-dark); padding: 20px;">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div class="d-flex justify-content-between align-items-md-center align-items-stretch flex-column flex-md-row gap-3 w-100">
                 <div>
                     @if (role == "Librarian")
                     {
@@ -127,9 +127,9 @@
                     }
                 </div>
 
-                <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="d-flex align-items-center gap-2 flex-md-nowrap flex-wrap ms-md-auto flex-shrink-0">
                     <!-- Right Corner Search Capsule -->
-                    <form action="@Url.Action("Index", "MVCBooks")" method="get" class="d-inline-block m-0">
+                    <form action="@Url.Action("Index", "MVCBooks")" method="get" class="d-inline-block m-0 flex-shrink-0">
                         <div class="position-relative" style="width: 260px;">
                             <input type="text" name="search" class="form-control rounded-pill border-0 ps-3 pe-5" placeholder="Search book title/author..." value="@searchQuery" style="font-size: 13px; height: 32px; background-color: rgba(255, 255, 255, 0.85); color: var(--text-dark) !important; box-shadow: none; border-radius: 50rem !important;" />
                             @if (!string.IsNullOrWhiteSpace(searchQuery))
@@ -146,13 +146,13 @@
 
                     @if (role == "Librarian")
                     {
-                        <a href="@Url.Action("Create", "MVCBooks")" class="btn btn-sm btn-light rounded-pill px-3" style="color: var(--primary-rose); font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.05); height: 32px; display: inline-flex; align-items: center; border-radius: 50rem !important;">
+                        <a href="@Url.Action("Create", "MVCBooks")" class="btn btn-sm btn-light rounded-pill px-3 flex-shrink-0" style="color: var(--primary-rose); font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.05); height: 32px; display: inline-flex; align-items: center; border-radius: 50rem !important; white-space: nowrap;">
                             <i class="bi bi-plus-lg me-1"></i> Add Book
                         </a>
                     }
 
                     <!-- View Mode Toggle -->
-                    <div class="btn-group rounded-pill overflow-hidden shadow-sm" role="group" aria-label="View Toggle" style="height: 32px; border-radius: 50rem !important;">
+                    <div class="btn-group rounded-pill overflow-hidden shadow-sm flex-shrink-0" role="group" aria-label="View Toggle" style="height: 32px; border-radius: 50rem !important;">
                         <button type="button" class="btn btn-sm btn-light border-0 d-inline-flex align-items-center" id="btnTableView" title="Table View" style="border-radius: 0 !important;">
                             <i class="bi bi-table"></i>
                         </button>
@@ -455,7 +455,7 @@
 
 <!-- DELETE CONFIRMATION MODAL -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog" style="margin-top: 10vh;">
         <div class="modal-content rounded-4 border-0 shadow" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px);">
             <div class="modal-header border-bottom-0">
                 <h5 class="modal-title font-weight-bold" id="deleteConfirmModalLabel" style="color: var(--text-dark); font-family: 'Playfair Display', serif; font-weight: 700;">Confirm Delete</h5>
@@ -517,6 +517,12 @@
                 }
             }
 
+            // Move modal to body to prevent z-index/backdrop issues with glassmorphism container
+            $('#deleteConfirmModal').appendTo('body');
+
+            // Keep track of the active modal instance
+            var deleteModalInstance = null;
+
             // Inline Delete Modal Trigger
             $('.delete-btn').click(function(e) {
                 e.preventDefault();
@@ -526,9 +532,119 @@
                 $('#deleteItemId').val(id);
                 $('#deleteItemTitle').text(title);
                 
-                var deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-                deleteModal.show();
+                var deleteModalEl = document.getElementById('deleteConfirmModal');
+                deleteModalInstance = bootstrap.Modal.getInstance(deleteModalEl);
+                if (!deleteModalInstance) {
+                    deleteModalInstance = new bootstrap.Modal(deleteModalEl);
+                }
+                deleteModalInstance.show();
             });
+
+            // Inline Delete Form Submission via AJAX
+            $('#deleteForm').submit(function (e) {
+                e.preventDefault();
+                
+                var form = $(this);
+                var actionUrl = form.attr('action');
+                var formData = form.serialize();
+                var deletedId = $('#deleteItemId').val();
+                
+                $.ajax({
+                    url: actionUrl,
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (deleteModalInstance) {
+                            deleteModalInstance.hide();
+                        }
+                        
+                        if (response.success) {
+                            showAlert('success', response.message);
+                            
+                            // Find and remove the row from the Table View
+                            var row = $('table tbody tr button.delete-btn[data-id="' + deletedId + '"]').closest('tr');
+                            row.fadeOut(400, function () {
+                                $(this).remove();
+                                updateRowNumbers();
+                            });
+
+                            // Find and remove the card from the Card View
+                            var card = $('#cardViewContainer .paginated-card-item button.delete-btn[data-id="' + deletedId + '"]').closest('.paginated-card-item');
+                            card.fadeOut(400, function () {
+                                $(this).remove();
+                                updateCardViewState();
+                            });
+                        } else {
+                            showAlert('danger', response.message);
+                        }
+                    },
+                    error: function () {
+                        if (deleteModalInstance) {
+                            deleteModalInstance.hide();
+                        }
+                        showAlert('danger', 'An error occurred while trying to delete the book.');
+                    }
+                });
+            });
+
+            // Dynamic Alert Helper
+            function showAlert(type, message) {
+                $('.card-body .alert').remove();
+                
+                var icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+                var alertHtml = '<div class="alert alert-' + type + ' rounded-3 alert-dismissible fade show" role="alert" style="font-size: 14px;">' +
+                                '<i class="bi ' + icon + ' me-2"></i>' + message +
+                                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                '</div>';
+                
+                $('.card-body').prepend(alertHtml);
+                
+                setTimeout(function() {
+                    $('.card-body .alert').fadeOut(500, function() {
+                        $(this).remove();
+                    });
+                }, 5000);
+            }
+
+            // Update Row Numbers Helper
+            function updateRowNumbers() {
+                var no = 1;
+                $('table tbody tr').each(function() {
+                    var firstTd = $(this).find('td').first();
+                    if (firstTd.attr('colspan') === undefined) {
+                        firstTd.text(no);
+                        no++;
+                    }
+                });
+                
+                var visibleRows = $('table tbody tr').filter(function() {
+                    return $(this).find('td').first().attr('colspan') === undefined;
+                }).length;
+
+                if (visibleRows === 0) {
+                    showEmptyState();
+                }
+            }
+
+            // Update Card View Helper
+            function updateCardViewState() {
+                var visibleCards = $('#cardViewContainer .paginated-card-item').length;
+                if (visibleCards === 0) {
+                    showEmptyState();
+                }
+            }
+
+            // Show Empty State Helper
+            function showEmptyState() {
+                if ($('.card-body .text-center').length === 0) {
+                    var emptyHtml = '<div class="text-center py-5">' +
+                                    '<i class="bi bi-inbox-fill text-muted opacity-50" style="font-size: 56px;"></i>' +
+                                    '<h5 class="mt-3 text-muted">No books found</h5>' +
+                                    '<p class="text-muted small">Try searching with different keywords or clear the filter.</p>' +
+                                    '</div>';
+                    $('.card-body').html(emptyHtml);
+                }
+            }
         });
     </script>
 }

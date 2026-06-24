@@ -12,6 +12,23 @@ namespace LibraryManagementSystem.Controllers.MVC
     {
         private readonly LibraryDbContext db = new LibraryDbContext();
 
+        protected override void OnActionExecuting(ActionExecutingContext filterContext)
+        {
+            if (Session["UserId"] != null)
+            {
+                string role = Session["Role"]?.ToString();
+                if (role == "Librarian")
+                {
+                    filterContext.Result = RedirectToAction("Librarian", "DashboardMvc");
+                }
+                else if (role == "Member")
+                {
+                    filterContext.Result = RedirectToAction("Member", "DashboardMvc");
+                }
+            }
+            base.OnActionExecuting(filterContext);
+        }
+
         public ActionResult Index()
         {
             List<Book> featuredBooks = new List<Book>();

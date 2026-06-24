@@ -214,10 +214,53 @@ namespace LibraryManagementSystem.Controllers.MVC
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Book book = db.Books.Find(id);
-            db.Books.Remove(book);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            try
+            {
+                Book book = db.Books.Find(id);
+                if (book == null)
+                {
+                    if (Request.IsAjaxRequest())
+                    {
+                        return Json(new { success = false, message = "Book not found." });
+                    }
+                    TempData["Error"] = "Book not found.";
+                    return RedirectToAction("Index");
+                }
+
+                // Delete cover image if it exists
+                if (!string.IsNullOrEmpty(book.CoverImage))
+                {
+                    try
+                    {
+                        var filePath = Server.MapPath(book.CoverImage);
+                        if (System.IO.File.Exists(filePath))
+                        {
+                            System.IO.File.Delete(filePath);
+                        }
+                    }
+                    catch { /* ignore image deletion errors on record delete */ }
+                }
+
+                db.Books.Remove(book);
+                db.SaveChanges();
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = true, message = "Book successfully deleted." });
+                }
+
+                TempData["Success"] = "Book successfully deleted.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = false, message = "Failed to delete: " + ex.Message });
+                }
+                TempData["Error"] = "Failed to delete: " + ex.Message;
+                return RedirectToAction("Index");
+            }
         }
 
         protected override void Dispose(bool disposing)

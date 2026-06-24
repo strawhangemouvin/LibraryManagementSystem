@@ -811,8 +811,18 @@
             <a href="#about" class="nav-link-custom">About</a>
             <a href="#books-pick" class="nav-link-custom">Recommended</a>
             <a href="#contact" class="nav-link-custom">Contact</a>
-            <a href="@Url.Action("Login", "AuthMvc")" class="btn-outline-main">Sign In</a>
-            <a href="@Url.Action("Register", "AuthMvc")" class="btn-main">Sign Up</a>
+            @if (Session["UserId"] != null)
+            {
+                string role = Session["Role"]?.ToString();
+                string dashboardUrl = role == "Librarian" ? Url.Action("Librarian", "DashboardMvc") : Url.Action("Member", "DashboardMvc");
+                <a href="@dashboardUrl" class="btn-outline-main">Dashboard</a>
+                <a href="@Url.Action("Logout", "AuthMvc")" class="btn-main">Logout</a>
+            }
+            else
+            {
+                <a href="@Url.Action("Login", "AuthMvc")" class="btn-outline-main">Sign In</a>
+                <a href="@Url.Action("Register", "AuthMvc")" class="btn-main">Sign Up</a>
+            }
         </div>
     </nav>
 
@@ -833,13 +843,24 @@
                     </p>
 
                     <div class="mb-4">
-                        <a href="@Url.Action("Login", "AuthMvc")" class="btn-main me-3">
-                            Get Started
-                        </a>
+                        @if (Session["UserId"] != null)
+                        {
+                            string role = Session["Role"]?.ToString();
+                            string dashboardUrl = role == "Librarian" ? Url.Action("Librarian", "DashboardMvc") : Url.Action("Member", "DashboardMvc");
+                            <a href="@dashboardUrl" class="btn-main">
+                                Go to Dashboard <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Login", "AuthMvc")" class="btn-main me-3">
+                                Get Started
+                            </a>
 
-                        <a href="@Url.Action("Register", "AuthMvc")" class="btn-outline-main">
-                            Register Member
-                        </a>
+                            <a href="@Url.Action("Register", "AuthMvc")" class="btn-outline-main">
+                                Register Member
+                            </a>
+                        }
                     </div>
 
                     <div class="stats-row">
@@ -1116,8 +1137,18 @@
                     <h6 style="color: white; font-weight: 700; margin-bottom: 15px;">Quick Links</h6>
                     <div class="d-flex flex-column align-items-center">
                         <a href="#home" class="moon-footer-link">Home</a>
-                        <a href="@Url.Action("Login", "AuthMvc")" class="moon-footer-link">Sign In</a>
-                        <a href="@Url.Action("Register", "AuthMvc")" class="moon-footer-link">Sign Up</a>
+                        @if (Session["UserId"] != null)
+                        {
+                            string role = Session["Role"]?.ToString();
+                            string dashboardUrl = role == "Librarian" ? Url.Action("Librarian", "DashboardMvc") : Url.Action("Member", "DashboardMvc");
+                            <a href="@dashboardUrl" class="moon-footer-link">Dashboard</a>
+                            <a href="@Url.Action("Logout", "AuthMvc")" class="moon-footer-link">Logout</a>
+                        }
+                        else
+                        {
+                            <a href="@Url.Action("Login", "AuthMvc")" class="moon-footer-link">Sign In</a>
+                            <a href="@Url.Action("Register", "AuthMvc")" class="moon-footer-link">Sign Up</a>
+                        }
                     </div>
                 </div>
 

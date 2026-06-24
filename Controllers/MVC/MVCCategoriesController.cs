@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -110,10 +110,39 @@ namespace LibraryManagementSystem.Controllers.MVC
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Category category = db.Categories.Find(id);
-            db.Categories.Remove(category);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            try
+            {
+                Category category = db.Categories.Find(id);
+                if (category == null)
+                {
+                    if (Request.IsAjaxRequest())
+                    {
+                        return Json(new { success = false, message = "Category not found." });
+                    }
+                    TempData["Error"] = "Category not found.";
+                    return RedirectToAction("Index");
+                }
+
+                db.Categories.Remove(category);
+                db.SaveChanges();
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = true, message = "Category successfully deleted." });
+                }
+
+                TempData["Success"] = "Category successfully deleted.";
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = false, message = "Failed to delete: " + ex.Message });
+                }
+                TempData["Error"] = "Failed to delete: " + ex.Message;
+                return RedirectToAction("Index");
+            }
         }
 
         protected override void Dispose(bool disposing)

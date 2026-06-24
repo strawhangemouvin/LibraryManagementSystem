@@ -289,5 +289,66 @@ namespace LibraryManagementSystem.Services.Impl
                 return "Member successfully approved, but email failed to send: " + ex.Message;
             }
         }
+
+        public object ToggleMemberStatus(int id, int updatedBy)
+        {
+            if (updatedBy <= 0)
+            {
+                throw new Exception("Librarian ID is required.");
+            }
+
+            var librarian = db.Users.Find(updatedBy);
+            if (librarian == null)
+            {
+                throw new Exception("Librarian user not found.");
+            }
+
+            if (librarian.Role != "Librarian" || librarian.Status != "Active")
+            {
+                throw new Exception("Only active librarians can update member status.");
+            }
+
+            var member = db.Members.Find(id);
+            if (member == null)
+            {
+                return null;
+            }
+
+            var user = db.Users.Find(member.UserId);
+            if (user == null)
+            {
+                throw new Exception("User for this member not found.");
+            }
+
+            if (user.Status != "Active" && user.Status != "Inactive")
+            {
+                throw new Exception("Only active or inactive members can be toggled.");
+            }
+
+            string oldStatus = user.Status;
+            string newStatus = oldStatus == "Active" ? "Inactive" : "Active";
+
+            user.Status = newStatus;
+            user.UpdatedAt = DateTime.Now;
+
+            var log = new ActivityLog
+            {
+                UserId = updatedBy,
+                Action = newStatus == "Active" ? "Activate Member" : "Deactivate Member",
+                Description = $"Librarian toggled member {user.FullName} from {oldStatus} to {newStatus}",
+                CreatedAt = DateTime.Now
+            };
+
+            db.ActivityLogs.Add(log);
+            db.SaveChanges();
+
+            return new
+            {
+                success = true,
+                message = $"Member successfully {(newStatus == "Active" ? "activated" : "deactivated")}.",
+                memberId = member.Id,
+                status = user.Status
+            };
+        }
     }
 }

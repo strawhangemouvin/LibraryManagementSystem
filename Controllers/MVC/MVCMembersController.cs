@@ -120,6 +120,58 @@ namespace LibraryManagementSystem.Controllers.MVC
             return RedirectToAction("Index");
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ToggleStatus(int id)
+        {
+            if (Session["Role"]?.ToString() != "Librarian")
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = false, message = "Unauthorized access. Only active librarians can perform this action." });
+                }
+                TempData["Error"] = "Unauthorized access.";
+                return RedirectToAction("Index");
+            }
+
+            try
+            {
+                int librarianId = GetCurrentLibrarianId();
+                var result = memberService.ToggleMemberStatus(id, librarianId);
+
+                if (result == null)
+                {
+                    if (Request.IsAjaxRequest())
+                    {
+                        return Json(new { success = false, message = "Member not found." });
+                    }
+                    return HttpNotFound();
+                }
+
+                dynamic res = result;
+                bool success = res.success;
+                string message = res.message;
+                string newStatus = res.status;
+
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = success, message = message, status = newStatus });
+                }
+
+                TempData["Success"] = message;
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                if (Request.IsAjaxRequest())
+                {
+                    return Json(new { success = false, message = ex.Message });
+                }
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index");
+            }
+        }
+
         private int GetCurrentLibrarianId()
         {
             if (Session["UserId"] != null)

@@ -469,5 +469,82 @@ namespace LibraryManagementSystem.Controllers.MVC
             }
         }
 
+        // GET: MVCBorrowings/CheckFineStatus/5
+        [HttpGet]
+        public ActionResult CheckFineStatus(int id)
+        {
+            var borrowing = db.Borrowings.Find(id);
+            if (borrowing == null)
+            {
+                return Json(new { paid = false, error = "Not found" }, JsonRequestBehavior.AllowGet);
+            }
+            return Json(new { paid = (borrowing.FineStatus == "Paid") }, JsonRequestBehavior.AllowGet);
+        }
+
+        // GET: MVCBorrowings/PayFineMobile/5
+        [HttpGet]
+        public ActionResult PayFineMobile(int id)
+        {
+            var borrowing = db.Borrowings.Find(id);
+            if (borrowing == null)
+            {
+                return HttpNotFound("Borrowing record not found.");
+            }
+            return View(borrowing);
+        }
+
+        // POST: MVCBorrowings/PayFineMobileConfirm/5
+        [HttpPost]
+        public ActionResult PayFineMobileConfirm(int id)
+        {
+            try
+            {
+                var borrowing = db.Borrowings.Find(id);
+                if (borrowing == null)
+                {
+                    return Json(new { success = false, message = "Borrowing record not found." });
+                }
+
+                if (borrowing.FineAmount == null || borrowing.FineAmount <= 0)
+                {
+                    return Json(new { success = false, message = "This record does not have a fine." });
+                }
+
+                if (borrowing.FineStatus == "Paid")
+                {
+                    return Json(new { success = true, message = "Fine has already been paid.", alreadyPaid = true });
+                }
+
+                borrowing.FineStatus = "Paid";
+
+                int logUserId = 1; // System fallback
+                if (Session["UserId"] != null)
+                {
+                    logUserId = Convert.ToInt32(Session["UserId"]);
+                }
+                else if (borrowing.Member != null)
+                {
+                    logUserId = borrowing.Member.UserId;
+                }
+
+                var log = new ActivityLog
+                {
+                    UserId = logUserId,
+                    Action = "Pay Fine",
+                    Description = "Fine for borrowing ID " + borrowing.Id + " paid via QRIS Simulator",
+                    CreatedAt = DateTime.Now
+                };
+
+                db.ActivityLogs.Add(log);
+                db.SaveChanges();
+
+                return Json(new { success = true, message = "Payment successfully simulated." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error: " + ex.Message });
+            }
+        }
+
     }
 }

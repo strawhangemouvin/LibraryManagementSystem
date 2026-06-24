@@ -347,6 +347,7 @@
     <Content Include="Views\MVCBorrowings\RequestConfirm.cshtml" />
     <Content Include="Views\MVCBorrowings\ReturnConfirm.cshtml" />
     <Content Include="Views\MVCBorrowings\PayFineConfirm.cshtml" />
+    <Content Include="Views\MVCBorrowings\PayFineMobile.cshtml" />
     <Content Include="Views\HomeMvc\Index.cshtml" />
     <Content Include="Views\AuthMvc\Register.cshtml" />
     <Content Include="Views\AuthMvc\Profile.cshtml" />

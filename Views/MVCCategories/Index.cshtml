@@ -102,7 +102,7 @@
 
 <!-- DELETE CONFIRMATION MODAL -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog" style="margin-top: 10vh;">
         <div class="modal-content rounded-4 border-0 shadow" style="background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px);">
             <div class="modal-header border-bottom-0">
                 <h5 class="modal-title font-weight-bold" id="deleteConfirmModalLabel" style="color: var(--text-dark); font-family: 'Playfair Display', serif; font-weight: 700;">Confirm Delete</h5>
@@ -128,6 +128,12 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
+            // Move modal to body to prevent z-index issues with glassmorphism container
+            $('#deleteConfirmModal').appendTo('body');
+
+            // Keep track of the active modal instance
+            var deleteModalInstance = null;
+
             // Inline Delete Modal Trigger
             $('.delete-btn').click(function(e) {
                 e.preventDefault();
@@ -137,9 +143,94 @@
                 $('#deleteItemId').val(id);
                 $('#deleteItemName').text(name);
                 
-                var deleteModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
-                deleteModal.show();
+                var deleteModalEl = document.getElementById('deleteConfirmModal');
+                deleteModalInstance = bootstrap.Modal.getInstance(deleteModalEl);
+                if (!deleteModalInstance) {
+                    deleteModalInstance = new bootstrap.Modal(deleteModalEl);
+                }
+                deleteModalInstance.show();
             });
+
+            // Inline Delete Form Submission via AJAX
+            $('#deleteForm').submit(function (e) {
+                e.preventDefault();
+                
+                var form = $(this);
+                var actionUrl = form.attr('action');
+                var formData = form.serialize();
+                var deletedId = $('#deleteItemId').val();
+                
+                $.ajax({
+                    url: actionUrl,
+                    type: 'POST',
+                    data: formData,
+                    success: function (response) {
+                        if (deleteModalInstance) {
+                            deleteModalInstance.hide();
+                        }
+                        
+                        if (response.success) {
+                            showAlert('success', response.message);
+                            
+                            // Find the row and remove it with a transition
+                            var row = $('button.delete-btn[data-id="' + deletedId + '"]').closest('tr');
+                            row.fadeOut(400, function () {
+                                $(this).remove();
+                                updateRowNumbers();
+                            });
+                        } else {
+                            showAlert('danger', response.message);
+                        }
+                    },
+                    error: function () {
+                        if (deleteModalInstance) {
+                            deleteModalInstance.hide();
+                        }
+                        showAlert('danger', 'An error occurred while trying to delete the category.');
+                    }
+                });
+            });
+
+            // Dynamic Alert Helper
+            function showAlert(type, message) {
+                $('.card-body .alert').remove();
+                
+                var icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+                var alertHtml = '<div class="alert alert-' + type + ' rounded-3 alert-dismissible fade show" role="alert" style="font-size: 14px;">' +
+                                '<i class="bi ' + icon + ' me-2"></i>' + message +
+                                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>' +
+                                '</div>';
+                
+                $('.card-body').prepend(alertHtml);
+                
+                setTimeout(function() {
+                    $('.card-body .alert').fadeOut(500, function() {
+                        $(this).remove();
+                    });
+                }, 5000);
+            }
+
+            // Update Row Numbers Helper
+            function updateRowNumbers() {
+                var no = 1;
+                $('table tbody tr').each(function() {
+                    var firstTd = $(this).find('td').first();
+                    if (firstTd.attr('colspan') === undefined) {
+                        firstTd.text(no);
+                        no++;
+                    }
+                });
+                
+                // If no rows left, show empty state
+                var visibleRows = $('table tbody tr').filter(function() {
+                    return $(this).find('td').first().attr('colspan') === undefined;
+                }).length;
+
+                if (visibleRows === 0) {
+                    var emptyRow = '<tr><td colspan="4" class="text-center text-muted py-4"><i class="bi bi-inbox-fill d-block fs-3 mb-2 opacity-50"></i>No categories available.</td></tr>';
+                    $('table tbody').html(emptyRow);
+                }
+            }
         });
     </script>
 }

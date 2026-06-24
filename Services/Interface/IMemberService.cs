@@ -1,4 +1,4 @@
-﻿using LibraryManagementSystem.Models.ViewModel;
+using LibraryManagementSystem.Models.ViewModel;
 using System.Collections.Generic;
 
 namespace LibraryManagementSystem.Services.Interface
@@ -10,5 +10,6 @@ namespace LibraryManagementSystem.Services.Interface
 
         object ApproveMember(int id, int approvedBy);
         object RejectMember(int id, int rejectedBy);
+        object ToggleMemberStatus(int id, int updatedBy);
     }
 }

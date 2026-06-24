@@ -22,6 +22,18 @@ namespace LibraryManagementSystem.Controllers.MVC
         [HttpGet]
         public ActionResult Login()
         {
+            if (Session["UserId"] != null)
+            {
+                string role = Session["Role"]?.ToString();
+                if (role == "Librarian")
+                {
+                    return RedirectToAction("Librarian", "DashboardMvc");
+                }
+                if (role == "Member")
+                {
+                    return RedirectToAction("Member", "DashboardMvc");
+                }
+            }
             return View();
         }
 
@@ -62,6 +74,18 @@ namespace LibraryManagementSystem.Controllers.MVC
         [HttpGet]
         public ActionResult Register()
         {
+            if (Session["UserId"] != null)
+            {
+                string role = Session["Role"]?.ToString();
+                if (role == "Librarian")
+                {
+                    return RedirectToAction("Librarian", "DashboardMvc");
+                }
+                if (role == "Member")
+                {
+                    return RedirectToAction("Member", "DashboardMvc");
+                }
+            }
             return View();
         }
 
@@ -91,6 +115,18 @@ namespace LibraryManagementSystem.Controllers.MVC
         [HttpGet]
         public ActionResult ForgotPassword()
         {
+            if (Session["UserId"] != null)
+            {
+                string role = Session["Role"]?.ToString();
+                if (role == "Librarian")
+                {
+                    return RedirectToAction("Librarian", "DashboardMvc");
+                }
+                if (role == "Member")
+                {
+                    return RedirectToAction("Member", "DashboardMvc");
+                }
+            }
             return View();
         }
 
@@ -171,6 +207,18 @@ namespace LibraryManagementSystem.Controllers.MVC
         [HttpGet]
         public ActionResult ResetPassword(string email)
         {
+            if (Session["UserId"] != null)
+            {
+                string role = Session["Role"]?.ToString();
+                if (role == "Librarian")
+                {
+                    return RedirectToAction("Librarian", "DashboardMvc");
+                }
+                if (role == "Member")
+                {
+                    return RedirectToAction("Member", "DashboardMvc");
+                }
+            }
             ViewBag.Email = email;
             return View();
         }
