@@ -411,6 +411,17 @@ namespace LibraryManagementSystem.Controllers.MVC
                 return RedirectToAction("Index");
             }
 
+            // Integrasi Xendit
+            string paymentCode = $"PAY-MB-{100000 + borrowing.Id}";
+            string bookTitle = borrowing.Book != null ? borrowing.Book.Title : "Library Fine";
+            string description = $"Fine payment for borrowing #{borrowing.Id} - Book: {bookTitle}";
+            
+            // Panggil API Xendit untuk membuat invoice
+            string redirectUrl = XenditClient.CreateInvoice(paymentCode, borrowing.FineAmount ?? 0, description);
+            
+            // Simpan redirect URL ke ViewBag (akan otomatis fallback ke lokal jika null)
+            ViewBag.XenditRedirectUrl = redirectUrl;
+
             return View(borrowing);
         }
 
@@ -470,6 +481,7 @@ namespace LibraryManagementSystem.Controllers.MVC
         }
 
         // GET: MVCBorrowings/CheckFineStatus/5
+        // Memeriksa status pembayaran denda ke database dan langsung menyinkronkan dengan status di Xendit
         [HttpGet]
         public ActionResult CheckFineStatus(int id)
         {
@@ -478,7 +490,37 @@ namespace LibraryManagementSystem.Controllers.MVC
             {
                 return Json(new { paid = false, error = "Not found" }, JsonRequestBehavior.AllowGet);
             }
-            return Json(new { paid = (borrowing.FineStatus == "Paid") }, JsonRequestBehavior.AllowGet);
+            
+            // Jika sudah Paid di database lokal, langsung kembalikan true
+            if (borrowing.FineStatus == "Paid")
+            {
+                return Json(new { paid = true }, JsonRequestBehavior.AllowGet);
+            }
+
+            // Jika masih Unpaid, coba lakukan sinkronisasi real-time dengan status di Xendit
+            string paymentCode = $"PAY-MB-{100000 + borrowing.Id}";
+            string status = XenditClient.CheckInvoiceStatus(paymentCode);
+            
+            if (status == "PAID" || status == "SETTLED")
+            {
+                // Perbarui status di database lokal menjadi Paid
+                borrowing.FineStatus = "Paid";
+
+                // Catat log aktivitas pustakawan/sistem
+                var log = new ActivityLog
+                {
+                    UserId = Session["UserId"] != null ? Convert.ToInt32(Session["UserId"]) : 1,
+                    Action = "Pay Fine",
+                    Description = "Fine for borrowing ID " + borrowing.Id + " paid via Xendit (Order: " + paymentCode + ")",
+                    CreatedAt = DateTime.Now
+                };
+                db.ActivityLogs.Add(log);
+                db.SaveChanges();
+
+                return Json(new { paid = true }, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(new { paid = false }, JsonRequestBehavior.AllowGet);
         }
 
         // GET: MVCBorrowings/PayFineMobile/5
@@ -546,5 +588,108 @@ namespace LibraryManagementSystem.Controllers.MVC
             }
         }
 
+    }
+
+    // Kelas helper untuk integrasi API Xendit menggunakan pemanggilan HTTP WebRequest murni (Tanpa dependensi eksternal)
+    public class XenditClient
+    {
+        private static readonly string SecretKey = System.Configuration.ConfigurationManager.AppSettings["XenditSecretKey"] ?? "xnd_development_MWyw4I0c4LYnYMBXg15MJnSuU0gcYwZOrIGCEsmAYr78eJ1PJmwPM2zDAXdiKHi";
+        private static readonly string ApiBaseUrl = "https://api.xendit.co/v2/invoices";
+
+        // Membuat invoice baru di Xendit dan mengembalikan URL pembayaran (invoice_url)
+        public static string CreateInvoice(string externalId, decimal amount, string description)
+        {
+            try
+            {
+                string cleanDesc = description.Replace("\"", "\\\"");
+                if (cleanDesc.Length > 100) cleanDesc = cleanDesc.Substring(0, 97) + "...";
+
+                // Format JSON manual untuk menghindari dependensi eksternal
+                string json = "{" +
+                    "\"external_id\":\"" + externalId + "\"," +
+                    "\"amount\":" + (int)amount + "," +
+                    "\"description\":\"" + cleanDesc + "\"," +
+                    "\"currency\":\"IDR\"" +
+                "}";
+
+                var request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(ApiBaseUrl);
+                request.Method = "POST";
+                request.ContentType = "application/json";
+                request.Accept = "application/json";
+
+                string authInfo = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(SecretKey + ":"));
+                request.Headers["Authorization"] = "Basic " + authInfo;
+
+                using (var streamWriter = new System.IO.StreamWriter(request.GetRequestStream()))
+                {
+                    streamWriter.Write(json);
+                }
+
+                var response = (System.Net.HttpWebResponse)request.GetResponse();
+                using (var streamReader = new System.IO.StreamReader(response.GetResponseStream()))
+                {
+                    string result = streamReader.ReadToEnd();
+                    int index = result.IndexOf("\"invoice_url\":\"");
+                    if (index != -1)
+                    {
+                        int start = index + 15;
+                        int end = result.IndexOf("\"", start);
+                        if (end != -1)
+                        {
+                            return result.Substring(start, end - start).Replace("\\/", "/");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Xendit Create Invoice Error: " + ex.Message);
+            }
+            return null;
+        }
+
+        // Memeriksa status transaksi di Xendit berdasarkan externalId
+        public static string CheckInvoiceStatus(string externalId)
+        {
+            try
+            {
+                var url = $"{ApiBaseUrl}?external_id={externalId}";
+                var request = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);
+                request.Method = "GET";
+                request.Accept = "application/json";
+
+                string authInfo = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(SecretKey + ":"));
+                request.Headers["Authorization"] = "Basic " + authInfo;
+
+                var response = (System.Net.HttpWebResponse)request.GetResponse();
+                using (var streamReader = new System.IO.StreamReader(response.GetResponseStream()))
+                {
+                    string result = streamReader.ReadToEnd();
+                    
+                    // Jika ada salah satu invoice dengan external_id ini yang sudah dibayar, anggap lunas!
+                    if (result.Contains("\"status\":\"PAID\"") || result.Contains("\"status\":\"SETTLED\""))
+                    {
+                        return "PAID";
+                    }
+
+                    // Fallback: cari status dari invoice pertama
+                    int statusIndex = result.IndexOf("\"status\":\"");
+                    if (statusIndex != -1)
+                    {
+                        int start = statusIndex + 10;
+                        int end = result.IndexOf("\"", start);
+                        if (end != -1)
+                        {
+                            return result.Substring(start, end - start);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Xendit Status Error: " + ex.Message);
+            }
+            return null;
+        }
     }
 }

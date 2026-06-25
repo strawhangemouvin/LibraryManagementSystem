@@ -11,6 +11,22 @@
     string avatarUrl = AvatarHelper.GetUserAvatarUrl(user?.Username ?? "", email, 150);
 }
 
+<style>
+    .btn-outline-rose {
+        font-weight: 600;
+        border: 1.5px solid var(--primary-rose) !important;
+        color: var(--primary-rose) !important;
+        background: transparent;
+        transition: all 0.25s ease;
+        cursor: pointer;
+    }
+    .btn-outline-rose:hover {
+        background-color: var(--primary-rose) !important;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(201, 122, 126, 0.25);
+    }
+</style>
+
 <div class="container-fluid py-4">
     <!-- Feedback Alerts -->
     @if (TempData["Success"] != null)
@@ -46,15 +62,25 @@
                         <div class="row g-4 align-items-center mb-4">
                             <!-- Avatar Column -->
                             <div class="col-md-3 text-center">
-                                <img src="@avatarUrl" alt="Avatar" class="rounded-circle border border-3 border-white shadow-sm mb-2" style="width: 110px; height: 110px; object-fit: cover;" />
-                                <span class="d-block text-muted" style="font-size: 12px;">Current Avatar</span>
+                                <img src="@avatarUrl" alt="Avatar" class="avatar-preview-img rounded-circle border border-3 border-white shadow-sm mb-2" style="width: 110px; height: 110px; object-fit: cover;" />
+                                <span id="avatar-selection-text" class="d-block text-muted" style="font-size: 12px;">Current Avatar</span>
                             </div>
                             <!-- Upload Column -->
                             <div class="col-md-9">
-                                <label class="form-label font-weight-bold" style="font-weight: 600;">Upload Profile Picture</label>
-                                <input type="file" name="avatarFile" class="form-control" accept="image/jpeg,image/png,image/jpg,image/gif" />
-                                <small class="text-muted d-block mt-1" style="font-size: 11px;">
-                                    Upload an image file (.jpg, .jpeg, .png, or .gif) to customize your profile picture. Leaving this empty keeps your existing avatar.
+                                <label class="form-label font-weight-bold" style="font-weight: 600;">Profile Picture</label>
+                                <div class="d-flex flex-wrap gap-2 align-items-center">
+                                    <div class="flex-grow-1" style="min-width: 200px;">
+                                        <input type="file" name="avatarFile" class="form-control" accept="image/jpeg,image/png,image/jpg,image/gif" onchange="document.getElementById('avatarBase64').value = ''; document.getElementById('avatar-selection-text').innerHTML = 'File Uploaded';" />
+                                    </div>
+                                    <div>
+                                        <button type="button" class="btn btn-outline-rose rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#webcamModal" style="font-weight: 600;">
+                                            <i class="bi bi-camera me-1"></i> Use Webcam
+                                        </button>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="avatarBase64" id="avatarBase64" />
+                                <small class="text-muted d-block mt-2" style="font-size: 11px;">
+                                    Choose an image file from your device OR click <b>Use Webcam</b> to snap a photo instantly. Leaving both empty keeps your existing avatar.
                                 </small>
                             </div>
                         </div>
@@ -111,3 +137,146 @@
         </div>
     </div>
 </div>
+
+<!-- Webcam Capture Modal -->
+<div class="modal fade" id="webcamModal" tabindex="-1" aria-labelledby="webcamModalLabel" aria-hidden="true" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow animate-fade-in" style="background: white;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="webcamModalLabel" style="font-family: 'Playfair Display', serif; font-weight: 800; color: #4A2E35;">
+                    <i class="bi bi-camera me-2" style="color: var(--primary-rose);"></i>Take Profile Photo
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="stopWebcam();"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <!-- Video Element for Webcam Stream -->
+                <div class="position-relative rounded-4 overflow-hidden mb-3 bg-dark" style="aspect-ratio: 4/3; max-width: 100%; border: 2px solid rgba(201, 122, 126, 0.15); box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    <video id="webcam-video" autoplay playsinline muted class="w-100 h-100" style="object-fit: cover; transform: scaleX(-1);"></video>
+                    <div class="position-absolute top-50 start-50 translate-middle text-white d-none" id="webcam-error-msg">
+                        <i class="bi bi-camera-video-off-fill fs-1"></i>
+                        <p class="mt-2 mb-0" style="font-size: 13px;">Unable to access camera. Please check permissions.</p>
+                    </div>
+                </div>
+                
+                <!-- Hidden Canvas for Capture -->
+                <canvas id="webcam-canvas" class="d-none" width="480" height="360"></canvas>
+                
+                <p class="text-muted small mb-0">Center your face in the camera frame and click <b>Capture Photo</b>.</p>
+            </div>
+            <div class="modal-footer border-0 pt-0 d-flex justify-content-center gap-2">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal" onclick="stopWebcam();">Cancel</button>
+                <button type="button" class="btn btn-main rounded-pill px-4" onclick="capturePhoto();">
+                    <i class="bi bi-camera-fill me-1"></i> Capture Photo
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    // Move modal to body immediately to prevent stacking/backdrop issues
+    (function() {
+        var modal = document.getElementById('webcamModal');
+        if (modal && modal.parentNode !== document.body) {
+            document.body.appendChild(modal);
+        }
+    })();
+</script>
+
+@section Scripts {
+    <script>
+
+        let stream = null;
+        const video = document.getElementById('webcam-video');
+        const canvas = document.getElementById('webcam-canvas');
+        const avatarPreview = document.querySelector('.avatar-preview-img');
+        const avatarBase64Input = document.getElementById('avatarBase64');
+        const webcamErrorMsg = document.getElementById('webcam-error-msg');
+        const avatarSelectionText = document.getElementById('avatar-selection-text');
+
+        // Start webcam when modal is shown
+        const webcamModal = document.getElementById('webcamModal');
+        webcamModal.addEventListener('shown.bs.modal', function () {
+            startWebcam();
+        });
+
+        webcamModal.addEventListener('hidden.bs.modal', function () {
+            stopWebcam();
+        });
+
+        function startWebcam() {
+            webcamErrorMsg.classList.add('d-none');
+            navigator.mediaDevices.getUserMedia({ video: { width: 480, height: 360, facingMode: "user" } })
+                .then(function (mediaStream) {
+                    stream = mediaStream;
+                    video.srcObject = mediaStream;
+                    video.play();
+                })
+                .catch(function (err) {
+                    console.error("Error accessing webcam: ", err);
+                    webcamErrorMsg.classList.remove('d-none');
+                });
+        }
+
+        function stopWebcam() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            video.srcObject = null;
+        }
+
+        function capturePhoto() {
+            if (stream) {
+                const context = canvas.getContext('2d');
+                // Mirror the canvas context since the video preview is mirrored
+                context.translate(canvas.width, 0);
+                context.scale(-1, 1);
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                context.setTransform(1, 0, 0, 1, 0, 0); // Reset transform
+
+                // Convert to Base64 JPEG Data URL
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+                
+                // Set hidden input value
+                avatarBase64Input.value = dataUrl;
+                
+                // Update preview image on page
+                avatarPreview.src = dataUrl;
+                
+                // Update helper text
+                if (avatarSelectionText) {
+                    avatarSelectionText.innerHTML = '<span class="badge bg-success"><i class="bi bi-camera-fill me-1"></i> Webcam Photo Selected</span>';
+                }
+
+                // Close modal (compatible with Bootstrap 5, Bootstrap 4/jQuery, and raw DOM fallback)
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    try {
+                        let modal = bootstrap.Modal.getInstance(webcamModal);
+                        if (!modal) {
+                            modal = new bootstrap.Modal(webcamModal);
+                        }
+                        modal.hide();
+                    } catch (e) {
+                        if (window.jQuery && typeof $.fn.modal !== 'undefined') {
+                            $(webcamModal).modal('hide');
+                        }
+                    }
+                } else if (window.jQuery && typeof $.fn.modal !== 'undefined') {
+                    $(webcamModal).modal('hide');
+                } else {
+                    // Raw DOM fallback to hide modal and backdrop
+                    webcamModal.classList.remove('show');
+                    webcamModal.style.display = 'none';
+                    document.body.classList.remove('modal-open');
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                }
+                
+                stopWebcam();
+            }
+        }
+    </script>
+}
+

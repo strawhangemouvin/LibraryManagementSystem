@@ -1,3 +1,4 @@
++
 @model IEnumerable<LibraryManagementSystem.Models.Entity.Book>
 @{
     ViewBag.Title = "Moon Books";
@@ -816,7 +817,7 @@
                 string role = Session["Role"]?.ToString();
                 string dashboardUrl = role == "Librarian" ? Url.Action("Librarian", "DashboardMvc") : Url.Action("Member", "DashboardMvc");
                 <a href="@dashboardUrl" class="btn-outline-main">Dashboard</a>
-                <a href="@Url.Action("Logout", "AuthMvc")" class="btn-main">Logout</a>
+                <a href="@Url.Action("Logout", "AuthMvc")" class="btn-main" onclick="return confirm('Are you sure you want to logout?');">Logout</a>
             }
             else
             {
@@ -959,7 +960,7 @@
                     </p>
 
                     <p class="section-text">
-                        With a dual-role system, <b>Librarians</b> have full control over member approvals, book stock management, categories, and finance/fine reports. On the other hand, <b>Members</b> can explore the catalog, request books, and simulate instant fine payments via QRIS.
+                        With a dual-role system, <b>Librarians</b> have full control over member approvals, book stock management, categories, and finance/fine reports. On the other hand, <b>Members</b> can explore the catalog, request books, and view their personalized fine records.
                     </p>
                 </div>
 
@@ -1001,9 +1002,9 @@
 
                 <div class="col-md-3">
                     <div class="about-item">
-                        <div class="about-icon"><i class="bi bi-qr-code-scan"></i></div>
-                        <h6 class="font-weight-bold mt-2">QRIS Payments</h6>
-                        <p class="text-muted mb-0" style="font-size: 13px;">Automatic fine calculation with seamless cashless payments via simulated interactive QRIS.</p>
+                        <div class="about-icon"><i class="bi bi-cash-coin"></i></div>
+                        <h6 class="font-weight-bold mt-2">Fine Management</h6>
+                        <p class="text-muted mb-0" style="font-size: 13px;">Automatic fine calculation with structured, clear record tracking and simple desktop payments.</p>
                     </div>
                 </div>
             </div>
@@ -1142,7 +1143,7 @@
                             string role = Session["Role"]?.ToString();
                             string dashboardUrl = role == "Librarian" ? Url.Action("Librarian", "DashboardMvc") : Url.Action("Member", "DashboardMvc");
                             <a href="@dashboardUrl" class="moon-footer-link">Dashboard</a>
-                            <a href="@Url.Action("Logout", "AuthMvc")" class="moon-footer-link">Logout</a>
+                            <a href="@Url.Action("Logout", "AuthMvc")" class="moon-footer-link" onclick="return confirm('Are you sure you want to logout?');">Logout</a>
                         }
                         else
                         {
@@ -1188,9 +1189,6 @@
             </div>
         </div>
     </footer>
-</body>
-</html>
-
 
     <script>
         const contactEmailInput = document.getElementById("contactEmail");
@@ -1279,4 +1277,6 @@
             }, 0);
         }
     </script>
+</body>
+</html>
 

@@ -188,16 +188,16 @@
                                             </a>
 
                                             <a href="@Url.Action("SimulateFine", "MVCBorrowings", new { id = item.Id })"
-                                               class="btn btn-sm btn-outline-danger rounded-pill px-3 ms-1"
-                                               onclick="return confirm('Simulate a late return with a fine for testing?');">
-                                                <i class="bi bi-bug"></i> Test Fine
+                                               class="btn btn-sm btn-outline-danger rounded-pill px-3"
+                                               onclick="return confirm('Simulate a late return with a Rp 10,000 fine for this transaction?');">
+                                                <i class="bi bi-exclamation-triangle"></i> Simulate Late
                                             </a>
                                         }
                                         else if (item.Status == "Returned" && item.FineAmount != null && item.FineAmount > 0 && item.FineStatus == "Unpaid")
                                         {
                                             <a href="@Url.Action("PayFineConfirm", "MVCBorrowings", new { id = item.Id })"
                                                class="btn btn-sm btn-success rounded-pill px-3">
-                                                <i class="bi bi-qr-code"></i> Pay Fine
+                                                <i class="bi bi-credit-card"></i> Payment
                                             </a>
                                         }
                                         else

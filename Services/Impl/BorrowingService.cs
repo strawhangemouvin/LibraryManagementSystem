@@ -505,7 +505,8 @@ namespace LibraryManagementSystem.Services.Impl
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to send borrowing request email: " + ex.Message);
+                // Kesalahan pengiriman email tidak membatalkan alur utama peminjaman
+                System.Diagnostics.Debug.WriteLine("Email error: " + ex.Message);
             }
         }
 
@@ -566,7 +567,8 @@ namespace LibraryManagementSystem.Services.Impl
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to send borrowing approval email: " + ex.Message);
+                // Kesalahan pengiriman email tidak membatalkan alur utama peminjaman
+                System.Diagnostics.Debug.WriteLine("Email error: " + ex.Message);
             }
         }
 
@@ -624,7 +626,8 @@ namespace LibraryManagementSystem.Services.Impl
             }
             catch (Exception ex)
             {
-                throw new Exception("Failed to send borrowing rejection email: " + ex.Message);
+                // Kesalahan pengiriman email tidak membatalkan alur utama peminjaman
+                System.Diagnostics.Debug.WriteLine("Email error: " + ex.Message);
             }
         }
     }

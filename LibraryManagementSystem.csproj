@@ -197,10 +197,12 @@
     <Compile Include="Controllers\MVC\HomeMvcController.cs" />
     <Compile Include="Controllers\MVC\MVCBooksController.cs" />
     <Compile Include="Controllers\MVC\MVCBorrowingsController.cs" />
+    <Compile Include="Controllers\MVC\MoonPayController.cs" />
     <Compile Include="Controllers\MVC\MVCCategoriesController.cs" />
     <Compile Include="Controllers\MVC\MVCMembersController.cs" />
     <Compile Include="Controllers\MVC\ReportsMvcController.cs" />
     <Compile Include="Controllers\ReportsController.cs" />
+    <Compile Include="Controllers\XenditController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -347,12 +349,13 @@
     <Content Include="Views\MVCBorrowings\RequestConfirm.cshtml" />
     <Content Include="Views\MVCBorrowings\ReturnConfirm.cshtml" />
     <Content Include="Views\MVCBorrowings\PayFineConfirm.cshtml" />
-    <Content Include="Views\MVCBorrowings\PayFineMobile.cshtml" />
+    <Content Include="Views\MoonPay\Checkout.cshtml" />
     <Content Include="Views\HomeMvc\Index.cshtml" />
     <Content Include="Views\AuthMvc\Register.cshtml" />
     <Content Include="Views\AuthMvc\Profile.cshtml" />
     <Content Include="Views\AuthMvc\EditProfile.cshtml" />
     <Content Include="Views\AuthMvc\ChangePassword.cshtml" />
+    <Content Include="Views\AuthMvc\ForgotPassword.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,4 +1,4 @@
-using LibraryManagementSystem.Models.ViewModel;
+﻿using LibraryManagementSystem.Models.ViewModel;
 using LibraryManagementSystem.Services.Impl;
 using LibraryManagementSystem.Services.Interface;
 using LibraryManagementSystem.Services.Context;
@@ -356,7 +356,7 @@ namespace LibraryManagementSystem.Controllers.MVC
         }
 
         [HttpPost]
-        public ActionResult UpdateProfile(string fullName, string email, string address, string className, HttpPostedFileBase avatarFile)
+        public ActionResult UpdateProfile(string fullName, string email, string address, string className, HttpPostedFileBase avatarFile, string avatarBase64)
         {
             if (Session["UserId"] == null)
             {
@@ -441,6 +441,46 @@ namespace LibraryManagementSystem.Controllers.MVC
                         else
                         {
                             TempData["Error"] = "Avatar must be an image (.jpg, .jpeg, .png, or .gif).";
+                            return RedirectToAction("EditProfile");
+                        }
+                    }
+                    // Handle Avatar Webcam Upload
+                    else if (!string.IsNullOrWhiteSpace(avatarBase64))
+                    {
+                        try
+                        {
+                            string base64Data = avatarBase64;
+                            if (base64Data.Contains(","))
+                            {
+                                base64Data = base64Data.Substring(base64Data.IndexOf(",") + 1);
+                            }
+
+                            byte[] imageBytes = Convert.FromBase64String(base64Data);
+                            var relativeDir = "~/Uploads/Avatars/";
+                            var serverDir = Server.MapPath(relativeDir);
+                            if (!System.IO.Directory.Exists(serverDir))
+                            {
+                                System.IO.Directory.CreateDirectory(serverDir);
+                            }
+
+                            // Delete existing avatar files for this user
+                            string[] extensions = { ".jpg", ".png", ".jpeg", ".gif" };
+                            foreach (var existingExt in extensions)
+                            {
+                                var existingFile = System.IO.Path.Combine(serverDir, user.Username + existingExt);
+                                if (System.IO.File.Exists(existingFile))
+                                {
+                                    System.IO.File.Delete(existingFile);
+                                }
+                            }
+
+                            // Save captured image as JPEG
+                            var savePath = System.IO.Path.Combine(serverDir, user.Username + ".jpg");
+                            System.IO.File.WriteAllBytes(savePath, imageBytes);
+                        }
+                        catch (Exception ex)
+                        {
+                            TempData["Error"] = "Failed to process webcam photo: " + ex.Message;
                             return RedirectToAction("EditProfile");
                         }
                     }

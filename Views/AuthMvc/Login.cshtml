@@ -7,138 +7,690 @@
 
 <style>
     body {
-        background: linear-gradient(135deg, rgba(255, 240, 242, 0.85) 0%, rgba(255, 253, 248, 0.75) 50%, rgba(246, 239, 255, 0.85) 100%), url('/Content/library_bg.png') no-repeat center center fixed !important;
-        background-size: cover !important;
-    }
-
-    /* Make the default full-width page shell transparent for a centered compact look */
-    .moon-page-shell {
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
+        margin: 0 !important;
         padding: 0 !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
+        overflow: hidden !important;
+        background: #FFF0F2 !important;
     }
 
-    .auth-card {
-        background: rgba(255, 255, 255, 0.8) !important;
-        border: 1px solid rgba(255, 255, 255, 0.5) !important;
-        backdrop-filter: blur(20px) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        border-radius: 32px !important;
-        padding: 40px !important;
-        box-shadow: 0 10px 40px rgba(74, 46, 53, 0.08) !important;
-        transition: var(--transition-smooth);
-        max-width: 440px;
-        margin: 0 auto;
+    .auth-container-fluid,
+    .auth-page-shell {
+        width: 100% !important;
+        height: 100vh !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        background: transparent !important;
     }
 
-    .auth-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 15px 50px rgba(74, 46, 53, 0.12) !important;
+    .login-page {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        overflow: hidden;
+        background: #FFF0F2;
+        border: 2px solid rgba(217, 154, 159, 0.32);
     }
 
-    .auth-icon-wrapper {
-        display: inline-flex;
+    .login-left {
+        width: 40%;
+        min-width: 520px;
+        height: 100vh;
+        background: #FFFDF8;
+        position: relative;
+        z-index: 5;
+        display: flex;
         align-items: center;
         justify-content: center;
-        width: 76px;
-        height: 76px;
-        background: rgba(255, 213, 194, 0.4);
-        border-radius: 24px;
-        color: var(--primary-rose);
-        font-size: 38px;
-        margin-bottom: 20px;
-        transition: var(--transition-smooth);
+        padding: 55px 70px 55px 90px;
+        box-shadow: 18px 0 40px rgba(78, 47, 51, 0.04);
     }
 
-    .auth-card:hover .auth-icon-wrapper {
-        transform: scale(1.08) rotate(6deg);
-        background: var(--primary-rose);
+    .login-left::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: -48px;
+        width: 96px;
+        height: 100%;
+        background: #FFFDF8;
+        clip-path: polygon(
+            0 0,
+            60% 0,
+            42% 4%,
+            64% 8%,
+            40% 12%,
+            66% 17%,
+            38% 22%,
+            62% 28%,
+            36% 34%,
+            65% 40%,
+            39% 46%,
+            66% 52%,
+            35% 58%,
+            64% 64%,
+            37% 70%,
+            66% 76%,
+            40% 82%,
+            62% 88%,
+            35% 94%,
+            56% 100%,
+            0 100%
+        );
+        filter: drop-shadow(12px 0 15px rgba(78, 47, 51, 0.10));
+        z-index: 6;
+    }
+
+    .login-form {
+        width: 100%;
+        max-width: 430px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .brand-box {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 58px;
+        text-decoration: none;
+    }
+
+    .brand-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: rgba(217, 154, 159, 0.18);
+        color: #D2868D;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
+        flex-shrink: 0;
+    }
+
+    .brand-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 36px;
+        font-weight: 850;
+        color: #4E2F33;
+        margin: 0;
+        line-height: 1;
+    }
+
+    .brand-name span {
+        color: #D2868D;
+    }
+
+    .brand-sub {
+        margin: 7px 0 0 0;
+        color: #9B7775;
+        font-size: 15px;
+        font-weight: 600;
+    }
+
+    .login-title {
+        font-family: 'Playfair Display', serif;
+        color: #4E2F33;
+        font-size: 42px;
+        font-weight: 850;
+        margin-bottom: 8px;
+    }
+
+    .login-subtitle {
+        color: #8A7470;
+        font-size: 16px;
+        margin-bottom: 36px;
+    }
+
+    .form-group-login {
+        margin-bottom: 24px;
+        width: 100%;
+    }
+
+    .label-login {
+        color: #4E2F33;
+        font-weight: 800;
+        font-size: 14px;
+        margin-bottom: 9px;
+        display: block;
+    }
+
+    .input-wrap {
+        position: relative;
+        width: 100%;
+        display: block;
+    }
+
+    .input-wrap .icon-left {
+        position: absolute;
+        top: 50%;
+        left: 18px;
+        transform: translateY(-50%);
+        color: #B88D8A;
+        font-size: 17px;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .input-wrap .icon-right {
+        position: absolute;
+        top: 50%;
+        right: 18px;
+        transform: translateY(-50%);
+        color: #B88D8A;
+        font-size: 17px;
+        border: none;
+        background: transparent;
+        padding: 0;
+        cursor: pointer;
+        z-index: 3;
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .input-wrap .icon-right:hover {
+        color: #C97E84;
+    }
+
+    .input-login {
+        display: block;
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 58px;
+        border-radius: 14px !important;
+        border: 1.5px solid #E9CCCC !important;
+        background: rgba(255, 255, 255, 0.82) !important;
+        padding: 0 56px 0 52px !important;
+        color: #4E2F33 !important;
+        font-weight: 600;
+        font-size: 15px;
+        box-shadow: 0 8px 18px rgba(78, 47, 51, 0.025);
+        transition: 0.25s ease;
+        box-sizing: border-box;
+    }
+
+    .input-login:focus {
+        background: #FFFFFF !important;
+        border-color: #D99A9F !important;
+        box-shadow: 0 0 0 4px rgba(217, 154, 159, 0.18) !important;
+        outline: none !important;
+    }
+
+    .input-login::placeholder {
+        color: #8A7470;
+        font-weight: 500;
+    }
+
+    .option-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 4px 0 34px 0;
+        width: 100%;
+    }
+
+    .remember-box {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        color: #7A5A4F;
+        font-size: 14px;
+        font-weight: 650;
+        cursor: pointer;
+    }
+
+    .remember-box input {
+        width: 18px;
+        height: 18px;
+        accent-color: #D99A9F;
+    }
+
+    .forgot-link {
+        color: #D2868D;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 800;
+    }
+
+    .forgot-link:hover {
+        color: #C97E84;
+        text-decoration: underline;
+    }
+
+    .btn-login {
+        width: 100%;
+        height: 58px;
+        border: none;
+        border-radius: 999px;
         color: white;
+        background: linear-gradient(135deg, #D99A9F 0%, #C97E84 100%);
+        font-size: 16px;
+        font-weight: 850;
+        box-shadow: 0 18px 34px rgba(201, 126, 132, 0.28);
+        transition: 0.25s ease;
     }
 
-    .form-control {
-        border-radius: 30px !important;
-        padding: 12px 20px !important;
-        border: 1px solid rgba(74, 46, 53, 0.15) !important;
-        background: rgba(255, 255, 255, 0.6) !important;
-        color: #3A1F24 !important;
-        transition: var(--transition-smooth) !important;
+    .btn-login:hover {
+        background: linear-gradient(135deg, #C97E84 0%, #B96F76 100%);
+        transform: translateY(-2px);
+        box-shadow: 0 22px 42px rgba(201, 126, 132, 0.36);
     }
 
-    .form-control:focus {
-        background: rgba(255, 255, 255, 0.9) !important;
-        border-color: var(--primary-rose) !important;
-        box-shadow: 0 0 0 0.25rem rgba(201, 122, 126, 0.25) !important;
+    .signup-text {
+        margin-top: 34px;
+        text-align: center;
+        color: #7A5A4F;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .signup-text a {
+        color: #D2868D;
+        text-decoration: none;
+        font-weight: 850;
+    }
+
+    .signup-text a:hover {
+        text-decoration: underline;
+    }
+
+    .login-right {
+        flex: 1;
+        height: 100vh;
+        position: relative;
+        overflow: hidden;
+        padding: 58px 72px 36px 112px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-image:
+            linear-gradient(90deg, rgba(255, 240, 242, 0.72) 0%, rgba(255, 240, 242, 0.54) 35%, rgba(255, 249, 242, 0.26) 100%),
+            url("@Url.Content("~/Content/cozy_library_illustration.png")");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    .login-right::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(circle at 44% 20%, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.38) 34%, rgba(255, 255, 255, 0.10) 66%),
+            linear-gradient(180deg, rgba(255, 240, 242, 0.36) 0%, rgba(255, 240, 242, 0.10) 100%);
+        backdrop-filter: blur(1.4px);
+        -webkit-backdrop-filter: blur(1.4px);
+        z-index: 1;
+    }
+
+    .login-right::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 240, 242, 0.14);
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .promo-content {
+        width: 100%;
+        height: calc(100vh - 94px);
+        max-width: 920px;
+        position: relative;
+        z-index: 3;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .promo-title {
+        text-align: center;
+        margin-top: 12px;
+        padding: 24px 36px 18px 36px;
+        border-radius: 28px;
+        background: rgba(255, 249, 242, 0.30);
+    }
+
+    .promo-title h2 {
+        font-family: 'Playfair Display', serif;
+        color: #4E2F33;
+        font-size: 62px;
+        font-weight: 850;
+        line-height: 1.08;
+        margin: 0;
+        letter-spacing: -0.8px;
+        text-shadow: 0 2px 10px rgba(255, 255, 255, 0.78);
+    }
+
+    .promo-title h2 span {
+        color: #D2868D;
+    }
+
+    .promo-line {
+        width: 230px;
+        height: 1px;
+        background: rgba(210, 134, 141, 0.42);
+        margin: 22px auto;
+        position: relative;
+    }
+
+    .promo-line::after {
+        content: "";
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: #D2868D;
+        box-shadow: 0 0 0 9px rgba(255, 240, 242, 0.88);
+    }
+
+    .promo-desc {
+        max-width: 610px;
+        margin: 0 auto;
+        text-align: center;
+        color: #5F3C3F;
+        font-size: 17px;
+        line-height: 1.7;
+        font-weight: 700;
+        text-shadow: 0 2px 12px rgba(255, 255, 255, 0.90);
+    }
+
+    .feature-strip {
+        width: 100%;
+        max-width: 880px;
+        min-height: 112px;
+        background: rgba(255, 255, 255, 0.84);
+        border: 1px solid rgba(255, 255, 255, 0.92);
+        border-radius: 22px;
+        box-shadow: 0 18px 38px rgba(78, 47, 51, 0.10);
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        overflow: hidden;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        margin-bottom: 16px;
+    }
+
+    .feature-item {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 24px 28px;
+        border-right: 1px solid rgba(210, 134, 141, 0.18);
+    }
+
+    .feature-item:last-child {
+        border-right: none;
+    }
+
+    .feature-icon {
+        width: 54px;
+        height: 54px;
+        border-radius: 50%;
+        background: rgba(217, 154, 159, 0.23);
+        color: #D2868D;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 23px;
+        flex-shrink: 0;
+    }
+
+    .feature-info h6 {
+        margin: 0 0 5px 0;
+        color: #4E2F33;
+        font-weight: 850;
+        font-size: 14px;
+    }
+
+    .feature-info p {
+        margin: 0;
+        color: #8A7470;
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+
+    .promo-footer {
+        color: #7A5A4F;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+        padding: 8px 18px;
+        border-radius: 999px;
+        background: rgba(255, 249, 242, 0.54);
+        text-shadow: 0 1px 8px rgba(255, 255, 255, 0.80);
+    }
+
+    .alert {
+        border-radius: 16px !important;
+        font-size: 13.5px;
+        border: none !important;
+    }
+
+    @@media (max-width: 1200px) {
+        .login-left {
+            width: 43%;
+            min-width: 450px;
+            padding: 45px 55px 45px 75px;
+        }
+
+        .promo-title h2 {
+            font-size: 50px;
+        }
+
+        .feature-item {
+            padding: 20px 18px;
+        }
+    }
+
+    @@media (max-width: 991.98px) {
+        body {
+            overflow-y: auto !important;
+        }
+
+        .login-page {
+            display: block;
+            height: auto;
+            min-height: 100vh;
+        }
+
+        .login-left {
+            width: 100%;
+            min-width: 0;
+            min-height: 100vh;
+            padding: 40px 30px;
+        }
+
+        .login-left::after,
+        .login-right {
+            display: none;
+        }
+
+        .brand-box {
+            justify-content: center;
+            margin-bottom: 40px;
+        }
+
+        .login-title,
+        .login-subtitle {
+            text-align: center;
+        }
+    }
+
+    @@media (max-width: 480px) {
+        .login-left {
+            padding: 34px 22px;
+        }
+
+        .brand-name {
+            font-size: 30px;
+        }
+
+        .login-title {
+            font-size: 34px;
+        }
     }
 </style>
 
-<div class="row justify-content-center align-items-center" style="min-height: 70vh; padding: 20px 0;">
-    <div class="col-12">
-        <div class="auth-card">
-            <div class="text-center mb-4">
-                <div class="auth-icon-wrapper">
+<div class="login-page">
+    <section class="login-left">
+        <div class="login-form">
+            <a href="@Url.Action("Index", "HomeMvc")" class="brand-box">
+                <div class="brand-icon">
                     <i class="bi bi-moon-stars-fill"></i>
                 </div>
-                <h3 style="color: #4A2E35; font-weight: 800; font-family: 'Playfair Display', serif; margin-bottom: 4px;">Sign In</h3>
-                <p class="text-muted" style="font-size: 13px;">Sign in to your Moon Books account.</p>
-            </div>
+
+                <div>
+                    <h1 class="brand-name">Moon <span>Books</span></h1>
+                    <p class="brand-sub">Library Management System</p>
+                </div>
+            </a>
+
+            <h2 class="login-title">Welcome Back!</h2>
+            <p class="login-subtitle">Sign in to continue your reading journey.</p>
 
             @if (TempData["Success"] != null)
             {
-                <div class="alert alert-success alert-dismissible fade show rounded-3 mb-3" role="alert" style="font-size: 14px;">
+                <div class="alert alert-success mb-3" style="background:#E8F8F5; color:#117A65;">
                     <i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 1rem;"></button>
                 </div>
             }
 
             @if (TempData["Error"] != null)
             {
-                <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3" role="alert" style="font-size: 14px;">
+                <div class="alert alert-danger mb-3" style="background:#FDEDEC; color:#C0392B;">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="padding: 1rem;"></button>
                 </div>
             }
 
-            @using (Html.BeginForm("Login", "AuthMvc", FormMethod.Post))
+            @using (Html.BeginForm("Login", "AuthMvc", FormMethod.Post, new { @class = "w-100" }))
             {
-                <div class="mx-auto" style="max-width: 280px;">
-                    <div class="mb-3">
-                        <label class="form-label">Username</label>
-                        @Html.TextBoxFor(m => m.Username, new { @class = "form-control", placeholder = "Enter username", required = "required" })
-                        @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger small mt-1 d-block" })
-                    </div>
+                @Html.AntiForgeryToken()
 
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Enter password", required = "required" })
-                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small mt-1 d-block" })
+                <div class="form-group-login">
+                    <label class="label-login">Username</label>
+                    <div class="input-wrap">
+                        <i class="bi bi-person icon-left"></i>
+                        @Html.TextBoxFor(m => m.Username, new { @class = "input-login", placeholder = "Enter your username", autocomplete = "off" })
                     </div>
+                    @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger small d-block mt-1" })
+                </div>
 
-                    <div class="mb-4 text-center">
-                        <a href="@Url.Action("ForgotPassword", "AuthMvc")" style="color: var(--primary-rose); font-size: 13px; text-decoration: none; font-weight: 600;">Forgot Password?</a>
-                    </div>
+                <div class="form-group-login">
+                    <label class="label-login">Password</label>
+                    <div class="input-wrap">
+                        <i class="bi bi-shield-lock icon-left"></i>
+                        @Html.PasswordFor(m => m.Password, new { @class = "input-login", placeholder = "Enter your password", id = "passwordInput" })
 
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary w-100 py-2.5 rounded-pill" style="font-size: 15px; font-weight: 700;">
-                            Sign In <i class="bi bi-box-arrow-in-right ms-1"></i>
+                        <button type="button" class="icon-right" onclick="togglePasswordVisibility()" aria-label="Show password">
+                            <i class="bi bi-eye-slash" id="passwordToggleIcon"></i>
                         </button>
                     </div>
+                    @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger small d-block mt-1" })
                 </div>
+
+                <div class="option-row">
+                    <label class="remember-box">
+                        <input type="checkbox" name="rememberMe" value="true" />
+                        <span>Remember me</span>
+                    </label>
+
+                    <a href="@Url.Action("ForgotPassword", "AuthMvc")" class="forgot-link">
+                        Forgot password?
+                    </a>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    Sign In <i class="bi bi-arrow-right-short ms-1"></i>
+                </button>
             }
 
-            <div class="text-center mt-4 pt-2" style="border-top: 1px solid rgba(0,0,0,0.06);">
-                <small class="text-muted">Don't have an account?</small>
-                <a href="@Url.Action("Register", "AuthMvc")" style="color: var(--primary-rose); font-weight: 700; text-decoration: none; font-size: 14px;" class="ms-1">
-                    Sign Up
-                </a>
+            <div class="signup-text">
+                Don't have an account?
+                <a href="@Url.Action("Register", "AuthMvc")">Create one now</a>
             </div>
         </div>
-    </div>
+    </section>
+
+    <section class="login-right">
+        <div class="promo-content">
+            <div class="promo-title">
+                <h2>Discover. Read.</h2>
+                <h2><span>Learn.</span> Grow.</h2>
+
+                <div class="promo-line"></div>
+
+                <p class="promo-desc">
+                    Moon Books is your digital library companion. Find books, manage borrowings,
+                    and build a better reading habit with ease.
+                </p>
+            </div>
+
+            <div class="feature-strip">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-journal-album"></i>
+                    </div>
+                    <div class="feature-info">
+                        <h6>Wide Collection</h6>
+                        <p>Thousands of books at your fingertips</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-calendar2-check"></i>
+                    </div>
+                    <div class="feature-info">
+                        <h6>Easy Borrowing</h6>
+                        <p>Simple process, anytime anywhere</p>
+                    </div>
+                </div>
+
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="bi bi-bell-fill"></i>
+                    </div>
+                    <div class="feature-info">
+                        <h6>Smart Reminders</h6>
+                        <p>Never miss a due date with our alerts</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="promo-footer">
+                &copy; @DateTime.Now.Year Moon Books. All rights reserved.
+            </div>
+        </div>
+    </section>
 </div>
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+
+    <script>
+        function togglePasswordVisibility() {
+            var passwordInput = document.getElementById("passwordInput");
+            var toggleIcon = document.getElementById("passwordToggleIcon");
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.classList.remove("bi-eye-slash");
+                toggleIcon.classList.add("bi-eye");
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.classList.remove("bi-eye");
+                toggleIcon.classList.add("bi-eye-slash");
+            }
+        }
+    </script>
 }
