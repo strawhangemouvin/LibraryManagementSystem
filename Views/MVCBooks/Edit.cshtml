@@ -20,78 +20,76 @@
                 @Html.HiddenFor(model => model.Id)
 
                 <div class="row">
-                    <div class="col-md-8">
-                        <div class="mb-3">
-                            <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Book Title</label>
-                            @Html.TextBoxFor(model => model.Title, new { @class = "form-control", placeholder = "Enter book title", required = "required" })
-                            @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger small" })
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Author</label>
-                            @Html.TextBoxFor(model => model.Author, new { @class = "form-control", placeholder = "Enter author name", required = "required" })
-                            @Html.ValidationMessageFor(model => model.Author, "", new { @class = "text-danger small" })
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Category</label>
-                                @Html.DropDownList("CategoryId", null, htmlAttributes: new { @class = "form-select" })
-                                @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger small" })
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Publisher</label>
-                                @Html.TextBoxFor(model => model.Publisher, new { @class = "form-control", placeholder = "Enter publisher name" })
-                                @Html.ValidationMessageFor(model => model.Publisher, "", new { @class = "text-danger small" })
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Publish Year</label>
-                                @Html.DropDownListFor(model => model.PublishYear, 
-                                    Enumerable.Range(1900, DateTime.Now.Year - 1900 + 2)
-                                        .Reverse()
-                                        .Select(y => new SelectListItem { Value = y.ToString(), Text = y.ToString() }), 
-                                    "Select Year", 
-                                    new { @class = "form-select" })
-                                @Html.ValidationMessageFor(model => model.PublishYear, "", new { @class = "text-danger small" })
-                            </div>
-
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label" style="font-weight: 600; color: var(--text-dark);">ISBN</label>
-                                @Html.TextBoxFor(model => model.ISBN, new { @class = "form-control", placeholder = "ISBN Number" })
-                                @Html.ValidationMessageFor(model => model.ISBN, "", new { @class = "text-danger small" })
-                            </div>
-
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Stock Quantity</label>
-                                @Html.TextBoxFor(model => model.Stock, new { @class = "form-control", type = "number", min = "0", placeholder = "Total stock", required = "required" })
-                                @Html.ValidationMessageFor(model => model.Stock, "", new { @class = "text-danger small" })
-                            </div>
-                        </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Book Title</label>
+                        @Html.TextBoxFor(model => model.Title, new { @class = "form-control", placeholder = "Enter book title", required = "required" })
+                        @Html.ValidationMessageFor(model => model.Title, "", new { @class = "text-danger small" })
                     </div>
 
-                    <div class="col-md-4">
-                        <div class="mb-3">
-                            <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Book Cover Image</label>
-                            <div class="border rounded-4 p-3 text-center bg-white bg-opacity-50" style="border-style: dashed !important; border-color: var(--primary-rose) !important;">
-                                @if (!string.IsNullOrEmpty(Model.CoverImage))
-                                {
-                                    <i class="bi bi-image text-muted d-none" style="font-size: 48px;" id="coverPlaceholderIcon"></i>
-                                    <img id="coverPreview" src="@Model.CoverImage" alt="Cover Preview" class="img-fluid rounded-3 mb-2" style="max-height: 200px; object-fit: cover;" />
-                                }
-                                else
-                                {
-                                    <i class="bi bi-image text-muted" style="font-size: 48px;" id="coverPlaceholderIcon"></i>
-                                    <img id="coverPreview" src="#" alt="Cover Preview" class="img-fluid rounded-3 mb-2 d-none" style="max-height: 200px; object-fit: cover;" />
-                                }
-                                <p class="small text-muted mb-2">Upload a cover image (JPG, PNG)</p>
-                                <input type="file" name="coverImageFile" id="coverImageFile" class="form-control form-control-sm" accept="image/*" />
-                            </div>
-                            @Html.ValidationMessageFor(model => model.CoverImage, "", new { @class = "text-danger small mt-1 d-block" })
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Author</label>
+                        @Html.TextBoxFor(model => model.Author, new { @class = "form-control", placeholder = "Enter author name", required = "required" })
+                        @Html.ValidationMessageFor(model => model.Author, "", new { @class = "text-danger small" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Category</label>
+                        @Html.DropDownList("CategoryId", null, htmlAttributes: new { @class = "form-select" })
+                        @Html.ValidationMessageFor(model => model.CategoryId, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Publisher</label>
+                        @Html.TextBoxFor(model => model.Publisher, new { @class = "form-control", placeholder = "Enter publisher name" })
+                        @Html.ValidationMessageFor(model => model.Publisher, "", new { @class = "text-danger small" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Publish Year</label>
+                        @Html.DropDownListFor(model => model.PublishYear, 
+                            Enumerable.Range(1900, DateTime.Now.Year - 1900 + 2)
+                                .Reverse()
+                                .Select(y => new SelectListItem { Value = y.ToString(), Text = y.ToString() }), 
+                            "Select Year", 
+                            new { @class = "form-select" })
+                        @Html.ValidationMessageFor(model => model.PublishYear, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: var(--text-dark);">ISBN</label>
+                        @Html.TextBoxFor(model => model.ISBN, new { @class = "form-control", placeholder = "ISBN Number" })
+                        @Html.ValidationMessageFor(model => model.ISBN, "", new { @class = "text-danger small" })
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Stock Quantity</label>
+                        @Html.TextBoxFor(model => model.Stock, new { @class = "form-control", type = "number", min = "0", placeholder = "Total stock" })
+                        @Html.ValidationMessageFor(model => model.Stock, "", new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label" style="font-weight: 600; color: var(--text-dark);">Book Cover Image</label>
+                        <div class="border rounded-4 p-3 text-center bg-white bg-opacity-50" style="border-style: dashed !important; border-color: var(--primary-rose) !important;">
+                            @if (!string.IsNullOrEmpty(Model.CoverImage))
+                            {
+                                <i class="bi bi-image text-muted d-none" style="font-size: 48px;" id="coverPlaceholderIcon"></i>
+                                <img id="coverPreview" src="@Model.CoverImage" alt="Cover Preview" class="img-fluid rounded-3 mb-2" style="max-height: 200px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <i class="bi bi-image text-muted" style="font-size: 48px;" id="coverPlaceholderIcon"></i>
+                                <img id="coverPreview" src="#" alt="Cover Preview" class="img-fluid rounded-3 mb-2 d-none" style="max-height: 200px; object-fit: cover;" />
+                            }
+                            <p class="small text-muted mb-2">Upload a cover image (JPG, PNG)</p>
+                            <input type="file" name="coverImageFile" id="coverImageFile" class="form-control form-control-sm" accept="image/*" />
                         </div>
+                        @Html.ValidationMessageFor(model => model.CoverImage, "", new { @class = "text-danger small mt-1 d-block" })
                     </div>
                 </div>
 
